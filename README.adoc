@@ -33,7 +33,6 @@ Mestre em Modelagem Computacional de Sistemas – UFT.
 1. link:ambiente-desenvolvimento/[Preparação do Ambiente de Desenvolvimento]
 1. link:spring/[Spring]
 1. link:thymeleaf/[Thymeleaf]
-1. link:cdi/[Injeção de dependências e Contexto]
 
 
 IMPORTANT: MATERIAL EM CONSTRUÇÃO
