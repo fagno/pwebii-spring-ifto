@@ -1,0 +1,214 @@
+//caminho padrão para imagens
+:imagesdir: ../images
+:figure-caption: Figura
+:doctype: book
+
+//gera apresentacao
+//pode se baixar os arquivos e add no diretório
+:revealjsdir: https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.8.0
+
+//GERAR ARQUIVOS
+//make slides
+//make ebook
+
+//Estilo do Sumário
+:toc2: 
+//após os : insere o texto que deseja ser visível
+:toc-title: Sumário
+:figure-caption: Figura
+//numerar titulos
+:numbered:
+:source-highlighter: highlightjs
+:icons: font
+:chapter-label:
+:doctype: book
+:lang: pt-BR
+//3+| mesclar linha tabela
+
+link:https://fagno.github.io/pwebii-ifto/[HOME]
+
+= Programação para Web II
+Fagno Alves Fonseca <fagno.fonseca@ifto.edu.br>
+Mestre em Modelagem Computacional de Sistemas – UFT.
+
+== Vraptor
+
+O VRaptor É um framework MVC opensource que traz alta produtividade para um desenvolvimento Java Web rápido e fácil com CDI. 
+
+=== Depedência
+
+Para adicionar o Vraptor no seu projeto web com maven é necessário incluir a depência do framework atualmente em na versão 4 conforme a seguir.
+
+.Dependência do Vraptor 4
+[source, xml]
+----
+<dependency>
+    <groupId>br.com.caelum</groupId>
+    <artifactId>vraptor</artifactId>
+    <version>4.2.0-RC5</version>
+</dependency>
+----
+
+Na link:http://www.vraptor.org/pt/docs/dependencias-e-pre-requisitos/[documentação] do Vraptor indica que os Servidores de Aplicações já testados e suportados são Glassfish 4 e 
+WildFly 8. Em nossos exemplos vamos utilizar o Glassfish 4.
+
+IMPORTANT: É necessário alterar a versão da dependência do Guava.jar na servidor Glassfish.
+
+Para alterar a versão da dependência do Guava no servidor Glassfish, acesse o diretório do mesmo em glassfish4/glassfish/modules. Você deve excluir o arquivo existente do Guava e adicionar a mesma versão utilizada pelo Vraptor, disponível link:https://github.com/fagno/pwebii-ifto/raw/master/arquivos/guava-15.0.jar/[aqui].
+
+=== Definindo um Controller
+
+Controller são classes contendo a lógica de negócio do seu sistema. É responsável por receber todas as requisições do usuário. Uma camada intermediária entre a camada de apresentação e a lógica.
+
+Antes de criar nosso controller, vamos definir uma entidade para representar uma pessoa.
+
+.Entidade Pessoa
+[source, java]
+----
+public class Pessoa{
+
+    private Long id;
+    private String nome;
+    private int idade;
+
+    //getters e setters
+
+}
+----
+
+Após criada a classe Pessoa, vamos criar uma nova classe para representar o Controller e tratar as requisições web. Essa classe vai ser o Controller de pessoas. 
+
+A nova classe deve ser definida com o nome PessoasController. Para indicar que uma classe é um controller, você precisa anotá-la com a anotação @Controller conforme o exemplo a seguir.
+
+.Criando um Controller
+[source, java]
+----
+import br.com.caelum.vraptor.Controller;
+
+@Controller
+public class PessoasController{
+    ...
+} 
+----
+
+Anotando seu controller com @Controller, todos os seus métodos públicos serão acessíveis pela web. No exemplo a seguir, uma requisição à URI "http://localhost:8080/projetoexemplo/pessoas/lista" redirecionará para o método lista(). Ou seja, a convenção para a criação de URIs é /<nome_do_controller>/<nome_do_metodo>. 
+
+.PessoasController
+[source, java]
+----
+package com.mycompany.projetoexemplo.controller;
+
+import br.com.caelum.vraptor.Controller;
+import com.mycompany.projetoexemplo.model.Pessoa;
+import java.util.ArrayList;
+import java.util.List;
+
+@Controller
+public class PessoasController {
+
+    public List<Pessoa> lista(){
+        List<Pessoa> pessoas = new ArrayList();
+        pessoas.add(new Pessoa("Pessoa 1"));
+        pessoas.add(new Pessoa("Pessoa 2"));
+        return pessoas;
+    }    
+
+}
+----
+
+Ao terminar a execução do método, o VRaptor fará o dispatch da requisição para o JSP no diretório do seu projeto em /WEB-INF/jsp/pessoas/lista.jsp. Ou seja, a convenção para a view padrão é /WEB-INF/jsp/<nome_do_controller>/<nome_do_metodo>.jsp conforme figura a seguir.
+
+.Conversão para a view
+image::vraptor-web-inf.png/[]
+
+Ao executar o projeto acima, a saída será a lista de pessoas conforme definido no projeto.
+
+Outro exemplo que podemos definir é o método form(). Ao adicionar o método no controller conforme o exemplo a seguir, e criar o form.jsp em /WEB-INF/jsp/pessoas/form.jsp assim como feito com o lista.jsp na figura 1, podemos acessar o formulário através da URI "http://localhost:8080/projetoexemplo/pessoas/form".
+
+.PessoasController
+[source, java]
+----
+...
+    public void form(){
+    }
+...
+----
+
+Para visualizar a lista de pessoas através da requisição à URI "http://localhost:8080/projetoexemplo/pessoas/lista" você deve definiar seu arquivo lista.jsp conforme a seguir.
+
+.lista.jsp
+[source, xml]
+----
+...
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Lista de Pessoas</title>
+</head>
+<body>
+    <c:forEach items="${pessoaList}" var="pessoa">
+        ${pessoa.nome} 
+    </c:forEach>
+</body>
+...
+----
+
+O retorno dos métodos do controller são exportados para a view. Ressalto dois pontos importantes que precisam ser destacados.
+
+IMPORTANT: No caso do nosso método lista(), o retorno é uma lista de pessoas, sendo assim, a variável acessível no jsp será ${pessoaLista}.
+
+IMPORTANT: Se o retorno for um tipo simples, o nome da variável exportada será o nome da classe com a primeira letra minúscula, neste caso, a variável na jsp será ${pessoa}. 
+
+=== Definindo o PessoaDao
+
+No exemplo, utilizamos uma lista de pessoas definida dentro do métodos lista(). Agora vamos definir um Dao para para acesso aos dados das pessoas no banco de dados. Iremos utilizar uma conexão JDBC, pois nosso objetivo nete capítulo é conhecer as funcionalidades do Vraptor.
+
+.PessoaDao.java
+[source, java]
+----
+include::../codigo/PessoaDaoIntro.java[]
+----
+
+Para  efetuar a conexão com o banco de ados, vamos utilizar a classe Conexão conforme exemplo a seguir.
+
+.Conexao.java
+[source, java]
+----
+include::../codigo/Conexao.java[]
+----
+
+=== Implementando ações de CRUD no controller
+
+Com nossa classe PessoaDao pronta podemos definir as operações necessárias no controlador com todas as operações de CRUD.
+
+.Conexao.java
+[source, java]
+----
+include::../codigo/PessoasController.java[]
+----
+
+Para adicionar um novo registro, precisamos definir o atributo "name" dos nossos inputs para pessoa.id, pessoa.nome, pessoa.idade. Nosso método salvar() no PessoasController() possui como parametro o nome pessoa, deste modo, o VRaptor vai popular os seus campos nome e idade, usando os seus setters da classe Pessoa, com os valores digitados nos inputs.
+Então, usando os nomes corretamente nos inputs do form, basta definir o método salvar() conforme definido anteriormente no controller.
+
+IMPORTANT: ${linkTo[PessoasController].salvar} aponta para o método salvar no PessoaController.
+ 
+.Form.jsp
+[source, jsp]
+----
+include::../codigo/formsemvalue.jsp[]
+----
+
+Depois de adicionar um registro no banco estamos carregando a listagem de objetos utilizando o método redirectTo(), apontando o this por parâmetro que faz referência ao próprio PessoaController para chamar o método lista() logo a seguir. Fazemos o mesmo, também no método excluir após a exclusão.
+
+Para editar uma pessoa estamos utilizando o form.jsp que é utilizado para adicionar. O método editar no euxilia neste processo, pois ao receber o Id do objeto a ser editado, carregamos os dados do mesmo no banco e depois fazemos a inclusão desse objeto no form.jsp utilizando o método include(). Este método é responsável por preencher o form.jsp com os dados da pessoa a ser editada.
+
+Observe no código a seguir, que os dados do objeto serão carregados devido o atributo "value" dos inputs do formulário conforme o exemplo.
+
+.Form.jsp
+[source, jsp]
+----
+include::../codigo/form.jsp[]
+----
+
+== Referências
+
+1. http://www.vraptor.org/pt/docs/guia-de-1-minuto/

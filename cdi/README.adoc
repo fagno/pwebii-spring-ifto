@@ -1,0 +1,123 @@
+//caminho padrão para imagens
+:imagesdir: ../images
+:figure-caption: Figura
+:doctype: book
+
+//gera apresentacao
+//pode se baixar os arquivos e add no diretório
+:revealjsdir: https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.8.0
+
+//GERAR ARQUIVOS
+//make slides
+//make ebook
+
+//Estilo do Sumário
+:toc2: 
+//após os : insere o texto que deseja ser visível
+:toc-title: Sumário
+:figure-caption: Figura
+//numerar titulos
+:numbered:
+:source-highlighter: highlightjs
+:icons: font
+:chapter-label:
+:doctype: book
+:lang: pt-BR
+//3+| mesclar linha tabela
+
+link:https://fagno.github.io/pwebii-ifto/[HOME]
+
+= Programação para Web II
+Fagno Alves Fonseca <fagno.fonseca@ifto.edu.br>
+Mestre em Modelagem Computacional de Sistemas – UFT.
+
+
+== Injeção de dependências e Contexto - CDI
+
+CDI, acrônimo de Contexts and Dependency Injection, é uma especificação do Java EE responsável por fazer o controle da injeção de dependências nas aplicações. 
+
+O CDI define contextos para especificar e gerenciar os ciclos de vida do bean gerenciado e usa injeção de dependência para satisfazer as dependências declaradas de uma maneira segura e dinâmica. Injeção de dependência é tornar disponível a instância de uma classe quando for necessário. Desta forma, passamos a responsabilidade de criar instâncias para o container. 
+
+Para injetar uma dependência você deve usar a anotação @Inject. Esta anotação indica que queremos injeção de dependências nos pontos em que for utilizada.
+
+== Utilizando CDI em seu projeto web
+
+Iremos complementar o exemplo utilizado no capítulo anterior 'JPA e Hibernate'. Vamos alterar o projeto para que o mesmo utilize CDI.
+
+Vamos iniciar efetuando as alterações na classe 'PessoaDao'. Observe que usamos a anotação @Inject do pacote 'javax.inject.Inject' para que o container faça a injeção de um EntityManager. Observe que não estamos utilizando a classe 'JpaUtil' conforme era feito no exemplo anterior.
+
+.Classe PessoDao com CDI
+[source, java]
+----
+package com.mycompany.projetoexemplo.model.dao;
+
+import javax.persistence.EntityManager;
+import javax.inject.Inject;
+
+@Dependent
+public class PessoaDao {
+    
+    @Inject
+    EntityManager manager;
+
+}
+----
+
+=== Escopos de componentes
+
+No exemplo acima é utilizado a anotação @Dependent, que indica como os componentes serão criados, para que o nosso container possa fazer isso quando necessário. 
+
+O @Dependent é o escopo dependente, ou seja, uma instância será criada para cada objeto que precisar dessa dependência. Este escopo descreve a mesma situação que ocorre quando criamos objetos. Quando esse objeto morrer, a instância do componente morre junto.
+
+Outros escopos são descritos: 
+
+@RequestScoped: o escopo de requisição indica que cada requisição terá uma instância diferente desse componente, que será compartilhada entre todos os objetos que dependerem desse componente. Ao final da requi-
+sição o objeto é destruído.
+
+@SessionScoped: o escopo de sessão indica que cada instância será criada por usuário. 
+
+@ConversationScoped: o escopo de conversação é um escopo intermediário entre o escopo de requisição e o de sessão. Você pode definir o início
+e o fim do escopo explicitamente, recebendo como dependência uma
+Conversation.
+
+@ApplicationScoped: o escopo de aplicação indica que apenas uma instância
+do componente será criada na aplicação. 
+
+=== Criando o Produces
+
+Vamos alterar a classe JpaUtil do capítulo anterior 'JPA e Hibernate', para que
+o CDI consiga injetar o EntityManager. O próprio servidor vai gerenciar a
+implementação, no entanto, precisamos informar ao CDI como fazer isso. 
+
+Na classe JpaUtil, definimos um método para criar um EntityManagerFactory. A @ApplicationScoped indica que esta instância será criada uma única vez, conforme descrito no tópico anterior.
+
+Toda vez que o @Inject é utilizado, o CDI vai procurar por alguma classe que atenda essa implementação. 
+
+Quando a aplicação necessitar do EntityManager, o servidor vai procurar por algum método
+que esteja anotado com @Produces para retornar uma instância dessa dependência. Observe que os métodos factory() e manager() possuem a anotação @Produces. Deste modo, quando for requisitado uma dependência de EntityManager o CDI vai entender que necessita criar um EntityManagerFactoty e vai instanciar a classe e executar o método factoty(). 
+
+.Produces
+[source, java]
+----
+include::../codigo/JpaUtil-2.java[]
+----
+
+Outros dois métodos close() são definidos na classe com parâmetros diferentes, ou seja, callback @Disposes. A anotação @Disposes indica quando a instância do EntityManagerFactory e EntityManager pode ser encerrada.
+
+Como o EntityManagerFactory é @ApplicationScoped, será fechado apenas uma vez, quando o servidor estiver sendo parado. Já o EntityManager será fechado várias vezes, sempre que alguém terminar de usá-lo. 
+
+=== Controller
+
+Nosso controller terá uma instância de 'PessoaDao' anotado com o @Inject. Observe que o servidor vai instânciar essa classe conforme o escopo @dependent definido na classe PessoaDao.
+
+.Controller PessoaController
+[source, java]
+----
+include::../codigo/PessoasController-2.java[]
+----
+
+== Referências
+
+1. http://www.vraptor.org/pt/docs/guia-de-1-minuto/
+1. https://blog.caelum.com.br/use-cdi-no-seu-proximo-projeto-java/
+1. https://blog.caelum.com.br/customizando-a-producao-de-dependencias-no-cdi/

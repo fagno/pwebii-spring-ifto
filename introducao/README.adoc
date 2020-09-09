@@ -1,0 +1,76 @@
+//caminho padrão para imagens
+:imagesdir: ../images
+:figure-caption: Figura
+:doctype: book
+
+//gera apresentacao
+//pode se baixar os arquivos e add no diretório
+:revealjsdir: https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.8.0
+
+//GERAR ARQUIVOS
+//make slides
+//make ebook
+
+//Estilo do Sumário
+:toc2: 
+//após os : insere o texto que deseja ser visível
+:toc-title: Sumário
+:figure-caption: Figura
+//numerar titulos
+:numbered:
+:source-highlighter: highlightjs
+:icons: font
+:chapter-label:
+:doctype: book
+:lang: pt-BR
+//3+| mesclar linha tabela
+
+link:https://fagno.github.io/pwebii-ifto/[HOME]
+
+= Programação para Web II
+Fagno Alves Fonseca <fagno.fonseca@ifto.edu.br>
+Mestre em Modelagem Computacional de Sistemas – UFT.
+
+IMPORTANT: MATERIAL EM CONSTRUÇÃO
+
+== Aplicação WEB
+
+Em uma aplicação na WEB a comunicação é feita através de protocolos populares (HTTP/FTP), que não exige ao usuário ou cliente qualquer sistema operacional em particular instalado em sua máquina.
+
+Tudo que os clientes necessitam é de um sistema operacional qualquer com um navegador WEB (browser).
+Isto traz diversas possibilidades dentro de uma ampla gama de aplicações baseadas na WEB.
+
+Você não precisará se prender aos problemas de distribuição presentes em toda aplicação standalone e irá distribuir sua aplicação a qualquer pessoa que possua um
+navegador WEB.
+
+== O que o seu servidor web faz?
+
+Uma aplicação WEB é um tipo de aplicação que faz uso da chamada estrutura Cliente-Servidor.
+
+Um servidor web recebe uma solicitação e devolve algo para o cliente.
+
+Um browser permite ao usuário solicitar um recurso. O servidor pega a solicitação, encontra o recurso e retorna com algo para o usuário. Algumas vezes este recurso é uma página HTML. Outras, uma figura. Ou um arquivo de som. Ou até mesmo um documento PDF. Não importa - o cliente solicita uma coisa (recurso) e o servidor a envia de volta.
+
+A menos que o recurso não esteja lá, erro "404 Not Found", a resposta que você recebe quando o servidor não pode encontrar o que ele acha que você solicitou.
+
+.Teste [fonte: referência]
+image::servidor-faz.png[]
+
+== O que um cliente web faz?
+
+Um cliente web permite ao usuário fazer solicitações ao servidor, exibindo para ele o resultado do pedido.
+
+Quando falamos em clientes, no entanto, geralmente
+queremos dizer ao mesmo tempo o usuário e o browser (ou
+um dos dois) .
+
+O browser é o software (como o Chrome ou o Firefox) que sabe se comunicar com o servidor. A outra grande tarefa do
+browser é interpretar o código HTML e exibir a página ao
+usuário.
+
+Então, a partir de agora, quando usarmos o termo cliente, geralmente não nos preocuparemos se estamos falando do usuário ou do browser. Em outras palavras, o cliente é o browser jazendo aquilo que o usuário solicitou.
+
+== Referências
+
+1. BASHAM, Bryan; SIERRA, Kathy; BASTES, Bert. Use a cabeça! Servlets &
+JSP. Alta Book Editora-Starlin Alta Con Com Ltda, 2008.
