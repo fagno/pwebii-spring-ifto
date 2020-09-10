@@ -76,12 +76,12 @@ A seguir temos a dependência necessária para que possamos criar um projeto Spr
 .Dependências Spring Boot
 [source, xml]
 ----
-<dependency>
-	<groupId>org.springframework.boot</groupId>
-	<artifactId>spring-boot-starter-web</artifactId>
-</dependency>
----
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+----
 
 == Referências
 
-1. https://spring.io/projects/spring-framework
+1. https://spring.io/
