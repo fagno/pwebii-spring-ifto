@@ -31,8 +31,6 @@ link:https://fagno.github.io/pwebii-ifto/[HOME]
 Fagno Alves Fonseca <fagno.fonseca@ifto.edu.br>
 Mestre em Modelagem Computacional de Sistemas – UFT.
 
-IMPORTANT: MATERIAL EM CONSTRUÇÃO
-
 == Aplicação WEB
 
 Em uma aplicação na WEB a comunicação é feita através de protocolos populares (HTTP/FTP), que não exige ao usuário ou cliente qualquer sistema operacional em particular instalado em sua máquina.
@@ -53,7 +51,7 @@ Um browser permite ao usuário solicitar um recurso. O servidor pega a solicita�
 
 A menos que o recurso não esteja lá, erro "404 Not Found", a resposta que você recebe quando o servidor não pode encontrar o que ele acha que você solicitou.
 
-.Teste [fonte: referência]
+.O que o seu servidor web faz? - fonte [1]
 image::servidor-faz.png[]
 
 == O que um cliente web faz?
@@ -70,7 +68,118 @@ usuário.
 
 Então, a partir de agora, quando usarmos o termo cliente, geralmente não nos preocuparemos se estamos falando do usuário ou do browser. Em outras palavras, o cliente é o browser jazendo aquilo que o usuário solicitou.
 
+.O que um cliente web faz? - fonte [1]
+image::cliente-faz.png[]
+
+== Os clientes e os servidores conhecem HTML e HTTP
+
+O HTML (HyperText Markup Language) informa ao browser como exibir o conteúdo ao usuário.
+
+O HTTP (Hypertext Transfer Protocol) é o protocolo que os clientes e os servidores usam para se comunicarem.
+
+O servidor usa o HTTP para enviar HTML ao cliente. 
+
+.Os clientes e os servidores conhecem HTML e HTTP? - fonte [1]
+image::cliente-servidor-comunicacao.png[]
+
+Quando um servidor responde a uma solicitação, ele geralmente envia algum tipo de conteúdo para o browser, para que este possa exibi-lo.
+
+Os servidores geralmente enviam instruções para o browser escritas em HTML. O HTML diz ao browser como apresentar o conteúdo ao usuário.
+
+A maioria das conversas que ocorre na web entre clientes e servidores é mantida através do protocolo HTTP, que possibilita conversas de request e resposta simples.
+
+O cliente envia uma solicitação HTTP e o servidor retoma  resposta HTTP.
+
+Quando um servidor envia uma página HTML ao cliente, o faz usando o HTTP.
+
+== Protocolo HTTP
+
+É um protocolo de internet de rede de comunicações com características específicas da WEB, que roda no topo do TCP/IP.
+
+O TCP é responsável por garantir que um arquivo enviado de um nó da rede para outro chegue íntegro ao seu destino.
+
+O IP é o protocolo de sustentação que transfere/conduz os blocos (pacotes) de um host para o outro no seu caminho até o destino.
+
+O HTTP depende do TCP/IP para obter a solicitação e a resposta completas de um lugar para o outro.
+
+A estrutura de uma conversa HTTP é uma sequência simples de Solicitação/Resposta; um browser solicita e um servidor responde.
+
+.Protocolo HTTP - fonte [1]
+image::http.png[]
+
+== O HTML é parte da resposta HTTP
+
+Uma resposta HTTP pode conter o HTML. O HTTP acrescenta a informação do header no topo de qualquer que seja o conteúdo da resposta.
+
+Um browser HTML usa aquela informação de header para ajudar no processamento da página HTML.
+
+Considere o conteúdo do HTML como um dado que foi colado dentro de uma resposta HTTP.
+
+.HTML - fonte [1]
+image::html.png[]
+
+== E o que consta na solicitação?
+
+Requisições de um cliente para o servidor contêm a informação sobre o tipo de dado que o usuário necessita.
+
+Um dos itens de informação encapsulados no HTTP Request é a item method.
+
+O nome do método informa ao servidor o tipo de solicitação que está sendo feita e como o resto da mensagem será formatada.
+
+O protocolo HTTP possui diversos métodos, mas os que você usará com mais frequência são o GET e o POST.
+
+.Get - fonte [1]
+image::get.png[]
+
+.Post - fonte [1]
+image::post.png[]
+
+O GET é o método mais simples do HTTP e seu principal trabalho na vida é pedir ao servidor que consiga um recurso e enviá-Io de volta.
+
+Tal recurso pode ser uma página HTML, um JPEG, um PDF, etc. Não importa. O objetivo do GET é conseguir alguma coisa do servidor.
+
+O POST é uma solicitação mais poderosa. É como se fosse um GET++. Com o POST, você pode solicitar algo e, ao mesmo tempo, enviar os dados de um formulário para o servidor.
+
+Você pode enviar dados com o HTTP GET? SIM. Mas você pode não querer. As razões para usarmos o POST no lugar do GET incluem:
+
+1.O total de caracteres no GET é realmente limitado
+(dependendo do servidor). Se o usuário digitar, digamos, um
+trecho extenso em uma caixa de entrada do tipo "Procurar",
+o GET pode não funcionar.
+
+2.Os dados que você envia através do GET são anexados à
+URL, lá em cima, na barra de endereços do browser;
+portanto, seja o que for, ficará exposto. Melhor não colocar a
+senha ou outra informação sensível como parte de um GET.
+
+Uma diferença aparente entre os métodos GET e POST é o modo como eles enviam dados para o servidor.
+
+Como declarado antes, o método GET simplesmente anexa os dados à URL enviada. 
+
+O método POST, por outro lado, esconde os dados dentro do corpo da mensagem enviada.
+
+Quando o servidor recebe a requisição e determina que ela é uma POST, procurará no corpo da mensagem pelos dados.
+
+.Solicitação HTTP Get - fonte [1]
+image::solicitacao-get.png[]
+
+
+.Solicitação HTTP Post - fonte [1]
+image::solicitacao-post.png[]
+
+.Resposta HTTP - fonte [1]
+image::resposta-http.png[]
+
+== Páginas Dinâmicas ou Estáticas
+
+O tipo de conteúdo que pode ser oferecido por um servidor WEB pode ser estático ou dinâmico.
+
+Conteúdo estático é o conteúdo que não é modificado. Este tipo de conteúdo geralmente não executa nada quando o servidor é acessado e é criado durante sua requisição. Quando estes conteúdos são enviados através da resposta do servidor, são enviados exatamente o mesmo conteúdo armazenado no servidor.
+
+O conteúdo dinâmico, por outro lado, muda de acordo com a requisição do cliente. Vale ressaltar que páginas dinâmicas tem muito mais flexibilidade e tem mais utilidade que as páginas estáticas.
+
+É importante perceber que o servidor WEB sozinho não tem capacidade de apresentar conteúdo dinâmico.
+
 == Referências
 
-1. BASHAM, Bryan; SIERRA, Kathy; BASTES, Bert. Use a cabeça! Servlets &
-JSP. Alta Book Editora-Starlin Alta Con Com Ltda, 2008.
+1. BASHAM, Bryan; SIERRA, Kathy; BASTES, Bert. Use a cabeça! Servlets & JSP. Alta Book Editora-Starlin Alta Con Com Ltda, 2008.

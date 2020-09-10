@@ -51,7 +51,7 @@ Temos algumas maneiras de configurar o Spring em nosso projeto web, seja por arq
 
 Em nossas aulas iremos utilizar o Spring Boot para criar nossos projetos web utilizando o Spring.
 
-Para criar nosso projeto com o Spring Boot, vamos utilizar a ferramenta web chamada Spring Initializr (https://start.spring.io/). Nesta ferramenta, definimos as dependências do nosso projeto e ela gera um arquivo com toda a estrutura básica de uma aplicação Spring, pronta para ser executada. link:https://spring.io/quickstart[Spring Quickstart Guide]
+Para criar nosso projeto com o Spring Boot, vamos utilizar a ferramenta web chamada link:https://start.spring.io/[Spring Initializr]. Nesta ferramenta, definimos as dependências do nosso projeto e ela gera um arquivo com toda a estrutura básica de uma aplicação Spring, pronta para ser executada. link:https://spring.io/quickstart[Spring Quickstart Guide]
 
 
 === Depedência
