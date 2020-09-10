@@ -34,7 +34,7 @@ Mestre em Modelagem Computacional de Sistemas – UFT.
 == Spring
 
 O Spring é um framework open source para a plataforma Java. É composto de um conjunto de projetos independentes, da configuração à segurança, aplicativos da web a big data, quaisquer que sejam as necessidades de infraestrutura de seu aplicativo, há um Projeto Spring para ajudá-lo a construí-lo link:https://spring.io/projects[leia mais]. 
-    
+
 Principais projetos:
 
 O Spring Framework: fornece um modelo abrangente de programação e configuração para aplicativos empresariais modernos baseados em Java, permite que o projeto possa rodar na web.
@@ -51,11 +51,12 @@ Temos algumas maneiras de configurar o Spring em nosso projeto web, seja por arq
 
 Em nossas aulas iremos utilizar o Spring Boot para criar nossos projetos web utilizando o Spring.
 
-Para criar nosso projeto com o Spring Boot, vamos utilizar a ferramenta web chamada Spring Initializr (https://start.spring.io/). Nesta ferramenta, definimos as dependências do nosso projeto e ela gera um arquivo com toda a estrutura básica de uma aplicação Spring, pronta para ser executada.
+Para criar nosso projeto com o Spring Boot, vamos utilizar a ferramenta web chamada Spring Initializr (https://start.spring.io/). Nesta ferramenta, definimos as dependências do nosso projeto e ela gera um arquivo com toda a estrutura básica de uma aplicação Spring, pronta para ser executada. link:https://spring.io/quickstart[Spring Quickstart Guide]
+
 
 === Depedência
 
-Ao criar um projeto com Sring Boot as dependências inseridas no projeto não possuem versão devida, ou seja, todas as demais dependências irão seguir a mesma referência definida na dependencia starter-parent conforme a seguir.
+Ao criar um projeto com Sring Boot as dependências inseridas no projeto não possuem versão devida, ou seja, todas as demais dependências irão seguir a mesma referência definida na dependencia starter-parent conforme a seguir. 
 
 .Dependências Spring Boot
 [source, xml]
@@ -70,9 +71,17 @@ Ao criar um projeto com Sring Boot as dependências inseridas no projeto não po
 
 Dependências terminadas com starter informa que essa dependência agrupa outras, tornando essa dependência unica, pois a mesma, representa todas as demais dependências necessária ao uso do recurso. Como beneficio, torna o pom.xml menor.
 
+A seguir temos a dependência necessária para que possamos criar um projeto Spring Web (Build web, including RESTful, applications using Spring MVC). Usa Apache Tomcat como o contêiner embutido padrão.
+
+.Dependências Spring Boot
+[source, xml]
+----
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+---
+
 == Referências
 
 1. https://spring.io/projects/spring-framework
-
-
-IMPORTANT: MATERIAL EM CONSTRUÇÃO
