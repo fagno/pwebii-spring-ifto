@@ -25,7 +25,7 @@
 :lang: pt-BR
 //3+| mesclar linha tabela
 
-link:https://fagno.github.io/pwebii-ifto/[HOME]
+link:https://fagno.github.io/pwebii-spring-ifto/[HOME]
 
 = Programação para Web II
 Fagno Alves Fonseca <fagno.fonseca@ifto.edu.br>
