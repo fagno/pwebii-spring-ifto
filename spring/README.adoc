@@ -56,7 +56,7 @@ Para criar nosso projeto com o Spring Boot, vamos utilizar a ferramenta web cham
 No link:https://spring.io/quickstart[Spring Quickstart Guide] você pode ver como criar um exemplo prático de um projeto web com Spring.
 
 
-=== Depedência
+==== Depedência
 
 Ao criar um projeto com Sring Boot as dependências inseridas no projeto não possuem versão definida, ou seja, todas as demais dependências irão seguir a mesma referência definida na dependencia starter-parent conforme a seguir e disponível no seu arquivo pom.xml. 
 
@@ -86,6 +86,222 @@ A seguir temos a dependência necessária para que possamos criar um projeto Spr
 
 IMPORTANT: O Spring adiciona ao projeto o Apache Tomcat como contêiner padrão.
 
+=== Definindo um Controller
+
+Controller são classes contendo a lógica de negócio do seu sistema. É responsável por receber todas as requisições do usuário. Uma camada intermediária entre a camada de apresentação e a lógica.
+
+Antes de criar nosso controller, vamos definir uma entidade para representar uma pessoa.
+
+.Entidade Pessoa
+[source, java]
+----
+public class Pessoa{
+
+    private Long id;
+    private String nome;
+
+    //getters e setters
+
+}
+----
+
+Após definir a classe Pessoa, vamos criar uma nova classe para representar o Controller e tratar as requisições web. Essa classe vai ser o Controller de pessoas. 
+
+A nova classe deve ser definida com o nome PessoasController. Para indicar ao Spring MVC que uma classe é um Controller, adicione sobre ela a anotação `@Controller` conforme o exemplo a seguir.
+
+
+.Criando um Controller
+[source, java]
+----
+import org.springframework.stereotype.Controller;
+
+@Controller
+public class PessoasController{
+    ...
+} 
+----
+
+Anotando seu controller com `@Controller`, todos os seus métodos públicos serão acessíveis pela web. No exemplo a seguir, uma requisição à URI "http://localhost:8080/pessoas/exemplo" redirecionará para o método exemplo().  
+
+.PessoasController
+[source, java]
+----
+@Controller
+@RequestMapping("pessoas")
+public class PessoasController {   
+        
+    @ResponseBody
+    @GetMapping("/exemplo")
+    public String exemplo(){
+        return "Controller de Pessoas!";
+    }
+       
+}
+----
+
+Com a anotação `@RequestMapping("pessoas")`, caso uma requisição seja enviada para localhost:8080/pessoas, essa requisição será tratada por um dos métodos a serem implementados neste Controller.
+
+A anotação `@ResponseBody` diz ao Spring MVC para jogar o retorno do método na resposta.
+
+A anotação `@GetMapping` indica ao Spring MVC que requisições HTTP do tipo GET enviadas para localhost:8080/pessoas/exemplo devem ser atendidas pelo método exemplo().
+
+==== Definindo o PessoaDAO
+
+No exemplo a seguir, utilizamos um DAO para acesso aos dados das pessoas no banco. Iremos utilizar uma conexão JDBC, pois nosso objetivo nete capítulo é conhecer as funcionalidades do Spring.
+
+.PessoaDAO
+[source, java]
+----
+public class PessoaDAO {
+    
+    /**
+        Método para buscar todas as pessoas da tabela tb_pessoa.
+     */
+    public List<Pessoa> buscarPessoas() {
+        try {
+            //criar um objeto Connection para receber a conexão
+            Connection con = Conexao.criarConexao();
+            //comando sql
+            String sql = "select * from tb_pessoa";
+            PreparedStatement ps = con.prepareStatement(sql);
+            //ResultSet, representa o resultado do comando SQL
+            ResultSet rs = ps.executeQuery();
+            //cria uma lista de pessoas para retornar
+            List<Pessoa> pessoas = new ArrayList();
+            //laço para buscar todas as pessoas do banco
+            while (rs.next()) {
+                Pessoa p = new Pessoa();
+                p.setId(rs.getInt("id"));
+                p.setNome(rs.getString("nome"));
+                //add pessoa na lista
+                pessoas.add(p);
+            }
+            //retorna a lista de pessoas
+            return pessoas;
+        } catch (SQLException ex) {
+            Logger.getLogger(PessoaDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+    
+}
+----
+
+Para efetuar a conexão com o banco de dados, vamos utilizar a classe Conexão conforme exemplo a seguir.
+
+.Conexao.java
+[source, java]
+----
+
+public class Conexao {
+
+    /**
+     * Método para testar sua conexão com o banco   
+     */
+    public static void main(String[] args) {
+        
+        //testar conexão
+        System.out.println(Conexao.criarConexao());
+                
+    }
+    
+    /** 
+     * método que vai retornar uma conexão
+     * @return
+     */
+    public static Connection criarConexao(){
+        try {
+            //carregar o driver de conexão
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            //parâmetros
+            String url = "jdbc:mysql://localhost:3306/primeirocontroller?createDatabaseIfNotExist=true&useSSL=false";
+            String usuario = "usuario";
+            String senha = "senha";
+            //retorna a conexão com o banco de dados
+            return DriverManager.getConnection(url, usuario, senha);
+           
+        } catch (ClassNotFoundException | SQLException ex) {
+            Logger.getLogger(Conexao.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
+    
+}
+----
+
+==== Implementando ações no controller
+
+Com nossa classe PessoaDAO pronta, vamos definir ações para apresentar a lista de pessoas do banco de dados. No controlle, temos o método listar(), definido para que possamos enviar dados para a view.
+
+.Conexao.java
+[source, java]
+----
+@Controller
+@RequestMapping("pessoas")
+public class PessoasController {   
+    
+    PessoaDAO dao = new PessoaDAO();
+        
+    @GetMapping("/list")
+    public ModelAndView listar(ModelMap model) {
+        model.addAttribute("pessoas", dao.buscarPessoas());
+        return new ModelAndView("/pessoas/list", model);
+    }   
+}
+----
+
+Para buscar as pessoas do banco de dados, temos uma intância de PessoaDAO. Através desta instância temos acesso ao método buscarPessoas(), que retorna a lista de pessoas do banco.
+
+O `@param model` representa a implementação de um map feita pelo Spring. O Spring nos fornecerá um objeto desse tipo já instanciado. 
+Através deste objeto, temos acesso ao método addAttribute(), que usamos para enviar dados para a view, adicionando no map o atributo que desejamos enviar.
+
+No return do método, enviamos esses dados utilizando um objeto do tipo ModelAndView. Na instanciação desse objeto passamos por parâmetros o model no qual acabamos de adicionar e uma string, que indica a página a ser exibida. 
+
+Com o retorno do ModelAndView, o Controller enviar as informações para a view, que carrega a página list.html com os dados enviados pelo model, atendendo requisições do tipo GET enviadas para /pessoas/list.
+
+.caminho da view no diretório do projeto
+image::caminho-view-spring.png[]
+
+Observe, que nossa view foi definida em src/main/resources dentro do pacote `templates`. Foi definido um novo pacote `pessoas` para representar as view de Pessoas.
+
+Para visualizar a lista de pessoas através da requisição à URI "http://localhost:8080/pessoas/list" você deve definiar seu arquivo lista.html conforme a seguir.
+
+
+.list.html
+[source, html]
+----
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+
+        <table class="table" border="1">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Descrição</th>
+                </tr>
+            </thead>
+            <tr th:each="p : ${pessoas}">
+                <td th:text="${p.id}"> </td>   
+                <td th:text="${p.nome}"> </td>
+            </tr>
+        </table>
+
+    </body>
+</html>
+----
+
+Na tag raiz do html adicionamos o namespace do Thymeleaf `xmlns:th="http://www.thymeleaf.org"`, para que possamos ter acesso aos componentes do Thymeleaf. 
+
+A instruçẽo `th:each` define um foreach a partir da lista de pessoas enviada pelo nosso controller. Já a `th:text` exibe os dados obtidos por cada item da lista. 
+
+//Para mais informações sobre utilização do Thymeleaf acesse ....
 
 == Referências
 
