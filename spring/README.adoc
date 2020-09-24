@@ -187,7 +187,7 @@ public class PessoaDAO {
 }
 ----
 
-Para efetuar a conexão com o banco de dados, vamos utilizar a classe Conexão conforme exemplo a seguir.
+Para efetuar a conexão com o banco de dados, vamos utilizar a classe Conexão conforme exemplo a seguir. Observe que, ao executar o arquivo o banco `primeirocontroller` será criado caso não exista. No entanto, você deve criar a tabela manualmente e inserir os dados.
 
 .Conexao.java
 [source, java]
