@@ -147,16 +147,13 @@ A anotação `@GetMapping` indica ao Spring MVC que requisições HTTP do tipo G
 
 ==== Definindo o PessoaDAO
 
-No exemplo a seguir, utilizamos um DAO para acesso aos dados das pessoas no banco. Iremos utilizar uma conexão JDBC, pois nosso objetivo nete capítulo é conhecer as funcionalidades do Spring.
+No exemplo a seguir, utilizamos um DAO para operações de CRUD aos dados das pessoas no banco. Iremos utilizar uma conexão JDBC, pois nosso objetivo nete capítulo é conhecer as funcionalidades do Spring.
 
 .PessoaDAO
 [source, java]
 ----
 public class PessoaDAO {
-    
-    /**
-        Método para buscar todas as pessoas da tabela tb_pessoa.
-     */
+     
     public List<Pessoa> buscarPessoas() {
         try {
             //criar um objeto Connection para receber a conexão
@@ -178,6 +175,86 @@ public class PessoaDAO {
             }
             //retorna a lista de pessoas
             return pessoas;
+        } catch (SQLException ex) {
+            Logger.getLogger(PessoaDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+    
+    public boolean remove(Long id) {
+        try {
+            //criar um objeto Connection para receber a conexão
+            Connection con = Conexao.criarConexao();
+            //comando sql
+            String sql = "delete from tb_pessoa where id = ?";
+            PreparedStatement ps = con.prepareStatement(sql);
+            //referênciar o parâmetro do método para a ?
+            ps.setLong(1, id);
+            if(ps.executeUpdate()==1)
+                return true;
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(PessoaDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } 
+        return false;
+    }
+
+    public boolean save(Pessoa pessoa) {
+        try {
+            //criar um objeto Connection para receber a conexão
+            Connection con = Conexao.criarConexao();
+            //comando sql
+            String sql = "insert into tb_pessoa (nome) values (?)";
+            PreparedStatement ps = con.prepareStatement(sql);
+            //referênciar o parâmetro do método para a ?
+            ps.setString(1, pessoa.getNome());
+            
+            if(ps.executeUpdate()==1)
+                return true;
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(PessoaDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } 
+        return false;
+    }
+
+    public boolean update(Pessoa pessoa) {
+        try {
+            //criar um objeto Connection para receber a conexão
+            Connection con = Conexao.criarConexao();
+            //comando sql
+            String sql = "update tb_pessoa set nome=? where id=?";
+            PreparedStatement ps = con.prepareStatement(sql);
+            //referênciar o parâmetro do método para a ?
+            ps.setString(1, pessoa.getNome());
+            ps.setLong(2, pessoa.getId());
+            
+            if (ps.executeUpdate()==1)
+                return true;
+                    
+        } catch (SQLException ex) {
+            Logger.getLogger(PessoaDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return false;
+    }
+    
+    public Pessoa buscarPessoa(Long id) {
+        try {
+            //criar um objeto Connection para receber a conexão
+            Connection con = Conexao.criarConexao();
+            //comando sql
+            String sql = "select * from tb_pessoa where id = ?";
+            PreparedStatement ps = con.prepareStatement(sql);
+            //referênciar o parâmetro do método para a ?
+            ps.setLong(1, id);
+            //ResultSet, representa o resultado do comando SQL
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                Pessoa p = new Pessoa();
+                p.setId(rs.getInt("id"));
+                p.setNome(rs.getString("nome"));
+                return p;
+            }
         } catch (SQLException ex) {
             Logger.getLogger(PessoaDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -232,7 +309,7 @@ public class Conexao {
 
 ==== Implementando ações no controller
 
-Com nossa classe PessoaDAO pronta, vamos definir ações para apresentar a lista de pessoas do banco de dados. No controlle, temos o método listar(), definido para que possamos enviar dados para a view.
+Com nossa classe PessoaDAO pronta podemos definir as operações necessárias no controlador com todas as operações de CRUD para Pessoa.
 
 .Conexao.java
 [source, java]
@@ -243,22 +320,66 @@ public class PessoasController {
     
     PessoaDAO dao = new PessoaDAO();
         
+    /**
+     * @param pessoa necessário devido utilizar no form.html o th:object que faz referência ao objeto esperado no controller. 
+     * @return 
+     */
+    @GetMapping("/form")
+    public String form(Pessoa pessoa){
+        return "/pessoas/form";
+    }
+    
     @GetMapping("/list")
     public ModelAndView listar(ModelMap model) {
         model.addAttribute("pessoas", dao.buscarPessoas());
         return new ModelAndView("/pessoas/list", model);
-    }   
+    }
+    
+    @PostMapping("/save")
+    public ModelAndView save(Pessoa pessoa){
+        dao.save(pessoa);
+        return new ModelAndView("redirect:/pessoas/list");
+    }
+    
+    /**
+     * @param id
+     * @return 
+     * @PathVariable é utilizado quando o valor da variável é passada diretamente na URL
+     */
+    @GetMapping("/remove/{id}")
+    public ModelAndView remove(@PathVariable("id") Long id){
+        dao.remove(id);
+        return new ModelAndView("redirect:/pessoas/list");
+    }
+    
+    /**
+     * @param id
+     * @return 
+     * @PathVariable é utilizado quando o valor da variável é passada diretamente na URL
+     */
+    @GetMapping("/edit/{id}")
+    public ModelAndView edit(@PathVariable("id") Long id, ModelMap model) {
+        model.addAttribute("pessoa", dao.buscarPessoa(id));
+        return new ModelAndView("/pessoas/form", model);
+    }
+    
+    @PostMapping("/update")
+    public ModelAndView update(Pessoa pessoa) {
+        dao.update(pessoa);
+        return new ModelAndView("redirect:/pessoas/list");
+    }
+
 }
 ----
 
-Para buscar as pessoas do banco de dados, temos uma intância de PessoaDAO. Através desta instância temos acesso ao método buscarPessoas(), que retorna a lista de pessoas do banco.
+Com o método form(), atendemos requisições do tipo GET enviadas para /pessoas/form, que tambem carrega a página form.html através do returno do método.  Declaramos um parâmetro do tipo Pessoa, necessário devido utilizar no form.html o th:object que faz referência ao objeto esperado no controller. 
+
+Para buscar as pessoas do banco de dados, temos uma intância de PessoaDAO. Através desta instância temos acesso ao método buscarPessoas(), que retorna a lista de pessoas do banco. 
 
 O `@param model` representa a implementação de um map feita pelo Spring. O Spring nos fornecerá um objeto desse tipo já instanciado. 
 Através deste objeto, temos acesso ao método addAttribute(), que usamos para enviar dados para a view, adicionando no map o atributo que desejamos enviar.
 
-No return do método, enviamos esses dados utilizando um objeto do tipo ModelAndView. Na instanciação desse objeto passamos por parâmetros o model no qual acabamos de adicionar e uma string, que indica a página a ser exibida. 
-
-Com o retorno do ModelAndView, o Controller enviar as informações para a view, que carrega a página list.html com os dados enviados pelo model, atendendo requisições do tipo GET enviadas para /pessoas/list.
+No return de alguns métodos, retornamos um objeto do tipo ModelAndView. Na instanciação desse objeto passamos por parâmetros o model no qual acabamos de adicionar e uma string, que indica a página a ser exibida. Com o retorno do ModelAndView, o Controller enviar as informações para a view, que carrega a página list.html com os dados enviados pelo model, atendendo requisições do tipo GET enviadas para /pessoas/list.
 
 .caminho da view no diretório do projeto
 image::caminho-view-spring.png[]
@@ -279,7 +400,6 @@ Para visualizar a lista de pessoas através da requisição à URI "http://local
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
-
         <table class="table" border="1">
             <thead>
                 <tr>
@@ -288,8 +408,10 @@ Para visualizar a lista de pessoas através da requisição à URI "http://local
                 </tr>
             </thead>
             <tr th:each="p : ${pessoas}">
-                <td th:text="${p.id}"> </td>   
+                <td th:text="${p.id}"> </td>
                 <td th:text="${p.nome}"> </td>
+                <td> <a th:href="@{/pessoas/edit/{id}(id=${p.id})}">Editar</a> </td>
+                <td> <a onclick="return window.confirm('Tem certeza que deseja excluir este registro?')"  th:href="@{/pessoas/remove/{id}(id=${p.id})}">Excluir</a> </td>
             </tr>
         </table>
 
@@ -300,6 +422,33 @@ Para visualizar a lista de pessoas através da requisição à URI "http://local
 Na tag raiz do html adicionamos o namespace do Thymeleaf `xmlns:th="http://www.thymeleaf.org"`, para que possamos ter acesso aos componentes do Thymeleaf. 
 
 A instruçẽo `th:each` define um foreach a partir da lista de pessoas enviada pelo nosso controller. Já a `th:text` exibe os dados obtidos por cada item da lista. 
+
+Para atualizar os dados de uma pessoa, utilizamos o mesmo form.html, através do método edit() carregamos os dados do objeto a ser editado na view. E utilizando o método update() para efetuar as alterações no banco. Observe no código a seguir como definir no form.html.
+
+.form.html
+[source, html]
+----
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        
+        <h1>FORM</h1>
+        <form th:action="${pessoa.id == null} ? @{/pessoas/save} : @{/pessoas/update}" th:object="${pessoa}" method="post">
+            <input type="hidden" th:field="*{id}">
+            <input type="text" th:field="*{nome}"  placeholder="Nome">
+            <input type="submit" value="Enviar">
+        </form>        
+        
+    </body>
+</html>
+----
+
+Observe que temos uma condicional que verifica se o `id` do objeto Pessoa é null. Desta forma, identificamos qual ação o `th:action` deve executar no submit. 
 
 //Para mais informações sobre utilização do Thymeleaf acesse ....
 
