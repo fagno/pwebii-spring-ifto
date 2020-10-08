@@ -45,6 +45,20 @@ Spring Security: é uma estrutura de autenticação e controle de acesso poderos
 
 Spring Boot: facilita a criação de aplicativos baseados em Spring autônomos e de nível de produção que você pode "simplesmente executar". Temos uma visão opinativa da plataforma Spring e das bibliotecas de terceiros para que você possa começar com o mínimo de confusão. A maioria dos aplicativos Spring Boot precisa de configuração mínima do Spring.
 
+=== Spring MVC
+
+O Spring MVC é um framework Java, moderno para desenvolvimento Web que usa recursos atuais da linguagem, com características para simplificar e fornecer maior produtividade ao desenvolvimento de aplicações web, utilizando o padrão arquitetural Model-View-Controller.
+
+==== MVC
+
+É um padrão criado com o objetivo de organizar a arquitetura de aplicações web em camadas com responsabilidades bem definidas.
+
+MODEL: camada que representa as classes do domínio da aplicação, ou seja, a persistência de dados, validação e regras de negócio;
+
+VIEW: camada que representa as views (interface) da nossa aplicação;
+
+CONTROLLER: camada que controla a comunicação (request/response) entre as camadas Model e View.
+
 === Criando um Projeto Web com Spring
 
 Temos algumas maneiras de configurar o Spring em nosso projeto web, seja por arquivos de configuração XML, ou via código Java, ou utilizando o Spring Boot.
