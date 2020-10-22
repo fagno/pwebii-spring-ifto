@@ -433,6 +433,17 @@ Para visualizar a lista de pessoas através da requisição à URI "http://local
 </html>
 ----
 
+Para utilizar o Thymeleaf no seu projeto é necessário adicionar a dependência do mesmo, então basta incluir no seu arquivo pom.xml a depência a seguir, caso ainda não tenha feito.
+
+.pom.xml
+[source, xml]
+----
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-thymeleaf</artifactId>
+</dependency>
+----
+
 Na tag raiz do html adicionamos o namespace do Thymeleaf `xmlns:th="http://www.thymeleaf.org"`, para que possamos ter acesso aos componentes do Thymeleaf. 
 
 A instruçẽo `th:each` define um foreach a partir da lista de pessoas enviada pelo nosso controller. Já a `th:text` exibe os dados obtidos por cada item da lista. 
