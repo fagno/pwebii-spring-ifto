@@ -179,7 +179,6 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 
-@Transactional
 @Repository
 public class PessoaDAO {
      
@@ -226,6 +225,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.stereotype.Controller;
 import org.springframework.beans.factory.annotation.Autowired;
 
+@Transactional
 @Controller
 @RequestMapping("pessoas")
 public class PessoasController {   
