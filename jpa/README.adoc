@@ -216,6 +216,10 @@ O atributo do tipo EntityManager anotado com `@PersistenceContext` informa ao co
 == Alterando nosso Controller
 
 Devemos alterar nosso controller do exemplo anterior de modo que a instância da nossa classe PessoaDAO sejá controlada pelo container. Com a anotação `@Autowired` o Spring fará a injeção dessa dependência no momento que o controller for criado.
+
+Incluimos também no nosso controller a anotação `@Transactional`, fazendo com que o Spring assuma a responsabilidade em gerenciar as transações. 
+
+//Usando o gerenciamento de transação pelo Spring exige a presença do construtor padrão.
      
 .Classe PessoaDao
 [source, java]
