@@ -179,6 +179,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 
+@Transactional
 @Repository
 public class PessoaDAO {
      
@@ -186,10 +187,7 @@ public class PessoaDAO {
     private EntityManager em;
         
     public void save(Pessoa pessoa){
-        //inicia a transação
-        em.getTransaction().begin();
         em.persist(pessoa);
-        em.getTransaction().commit();
     }
 
     public Pessoa pessoa(Long id){
@@ -202,16 +200,12 @@ public class PessoaDAO {
     }
 
     public void remove(Long id){
-        em.getTransaction().begin();
         Pessoa p = em.find(Pessoa.class, id);
         em.remove(p);
-        em.getTransaction().commit();
     }
 
     public void update(Pessoa pessoa){
-        em.getTransaction().begin();
         em.merge(pessoa);
-        em.getTransaction().commit();
     }    
 }
 ----
