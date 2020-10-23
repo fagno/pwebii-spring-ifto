@@ -61,10 +61,10 @@ Após criar o projeto web com maven utilizando o Spring Boot, adicione ao arquiv
 
 <!-- MySQL JDBC and R2DBC driver -->
 <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <scope>runtime</scope>
-        </dependency>
+    <groupId>mysql</groupId>
+    <artifactId>mysql-connector-java</artifactId>
+    <scope>runtime</scope>
+</dependency>
 ----
 
 IMPORTANT: Você pode adicionar as dependências ao criar o projeto no Spring Boot ou adicionar caso o já exista.
@@ -174,6 +174,11 @@ Criaremos a classe PessoaDAO para acesso aos dados da entidade Pessoa.
 [source, java]
 ----
 ...
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import org.springframework.stereotype.Repository;
+
 @Repository
 public class PessoaDAO {
      
@@ -223,6 +228,10 @@ Devemos alterar nosso controller do exemplo anterior de modo que a instância da
 [source, java]
 ----
 ...
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.stereotype.Controller;
+import org.springframework.beans.factory.annotation.Autowired;
+
 @Controller
 @RequestMapping("pessoas")
 public class PessoasController {   
