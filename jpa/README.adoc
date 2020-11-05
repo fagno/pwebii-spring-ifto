@@ -54,10 +54,9 @@ Após criar o projeto web com maven utilizando o Spring Boot, adicione ao arquiv
 ----
 <!-- Persist data in SQL stores with Java Persistence API using Spring Data and Hibernate.-->
 <dependency>
-    <groupId>mysql</groupId>
-        <artifactId>mysql-connector-java</artifactId>
-        <version>5.1.48</version>
-</dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-jpa</artifactId>
+</dependency> 
 
 <!-- MySQL JDBC and R2DBC driver -->
 <dependency>
