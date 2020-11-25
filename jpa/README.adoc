@@ -165,6 +165,32 @@ A Inversão de Controle permite a outro elemento o controle e responsabilidade s
 
 A injeção de dependência define as dependências declaradas de uma maneira segura e dinâmica. Injeção de dependência é tornar disponível a instância de uma classe quando for necessário. Desta forma, passamos a responsabilidade de criar instâncias para o container.
 
+=== Escopos de componentes
+
+O escopo de um bean define o ciclo de vida e a visibilidade desse bean nos contextos em que é usado. Através da injeção de dependência, indicamos como os componentes serão criados, para que o nosso container possa fazer isso quando necessário.
+
+- Singleton (padrão): um bean com escopo singleton indica ao container criar uma única instância de bean. Este escopo é o valor padrão se nenhum outro escopo for especificado.
+//Uma instância por contexto
+//@Scope("singleton") ou @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
+
+- Prototype: um bean com escopo prototype indica uma instância diferente toda vez que for solicitado ao contêiner.
+//Um bean por cada requisição
+//@Scope("prototype") ou @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+
+Existem quatro escopos adicionais disponíveis apenas em um contexto de aplicativo com reconhecimento da Web.
+
+- Request: cria uma instância de bean para uma única solicitação HTTP, ou seja, cada solicitação HTTP tem sua própria instância de um bean criada.
+//Um bean por cada requisição HTTP
+
+- Session: cria uma instância de bean única para uma Sessão HTTP.
+//Um bean por cada sessão HTTP
+//session global: escopa uma definição de único bean para o ciclo de vida de uma session HTTP global. Normalmente, apenas é válido quando usado em um contexto de portlet. Válido apenas no contexto de um Spring ApplicationContext com reconhecimento da web.
+
+- aplicativo: cria uma instância única do bean para o ciclo de vida de um ServletContext. 
+//Semelhante ao escopo singleton, no escopo de application, a mesma instância do bean é compartilhada entre vários aplicativos baseados em servlet em execução no mesmo ServletContext, enquanto os beans com escopo singleton têm escopo apenas para um único contexto de aplicativo.
+
+- websocket: cria uma única definição de bean para o ciclo de vida de um WebSocket. 
+
 === Definindo o DAO
 
 Criaremos a classe PessoaDAO para acesso aos dados da entidade Pessoa. 
@@ -212,7 +238,7 @@ A anotação `@Repository` definida em nossa classe, indica que esta classe se t
 
 O atributo do tipo EntityManager anotado com `@PersistenceContext` informa ao container do Spring a responsabilidade de gerenciar a dependência que temos de um EntityManager.
 
-== Alterando nosso Controller
+=== Alterando nosso Controller
 
 Devemos alterar nosso controller do exemplo anterior de modo que a instância da nossa classe PessoaDAO sejá controlada pelo container. Com a anotação `@Autowired` o Spring fará a injeção dessa dependência no momento que o controller for criado.
 
