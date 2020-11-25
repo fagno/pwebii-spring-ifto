@@ -186,7 +186,7 @@ Existem quatro escopos adicionais disponíveis apenas em um contexto de aplicati
 //Um bean por cada sessão HTTP
 //session global: escopa uma definição de único bean para o ciclo de vida de uma session HTTP global. Normalmente, apenas é válido quando usado em um contexto de portlet. Válido apenas no contexto de um Spring ApplicationContext com reconhecimento da web.
 
-- aplicativo: cria uma instância única do bean para o ciclo de vida de um ServletContext. 
+- Application: cria uma instância única do bean para o ciclo de vida de um ServletContext. 
 //Semelhante ao escopo singleton, no escopo de application, a mesma instância do bean é compartilhada entre vários aplicativos baseados em servlet em execução no mesmo ServletContext, enquanto os beans com escopo singleton têm escopo apenas para um único contexto de aplicativo.
 
 - websocket: cria uma única definição de bean para o ciclo de vida de um WebSocket. 
