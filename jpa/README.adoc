@@ -695,7 +695,6 @@ public class PessoaJuridica extends Pessoa{
 ...
 ----
 
-
 == Referências
 
 1. https://spring.io/

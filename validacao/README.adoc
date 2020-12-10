@@ -1,0 +1,195 @@
+//caminho padrão para imagens
+:imagesdir: ../images
+:figure-caption: Figura
+:doctype: book
+
+//gera apresentacao
+//pode se baixar os arquivos e add no diretório
+:revealjsdir: https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.8.0
+
+//GERAR ARQUIVOS
+//make slides
+//make ebook
+
+//Estilo do Sumário
+:toc2: 
+//após os : insere o texto que deseja ser visível
+:toc-title: Sumário
+:figure-caption: Figura
+//numerar titulos
+:numbered:
+:source-highlighter: highlightjs
+:icons: font
+:chapter-label:
+:doctype: book
+:lang: pt-BR
+//3+| mesclar linha tabela
+
+link:https://fagno.github.io/pwebii-spring-ifto/[HOME]
+
+= Programação para Web II
+Fagno Alves Fonseca <fagno.fonseca@ifto.edu.br>
+Mestre em Modelagem Computacional de Sistemas – UFT.
+
+== Validação
+
+A validação do Spring tira proveito do Bean Validation, especificação que permite validar nosso modelo baseado em anotações. 
+
+No back-end do nosso projeto, podemos validar os dados enviados a partir de um formulário e definir como exibir as mensagens de validação na view.
+
+Antes de iniciar, é necessário adicionar uma biblioteca que implementa a Bean Validation, como o Hibernate validator. 
+
+.pom.xml
+[source, xml]
+----
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-validation</artifactId>
+</dependency>
+----
+
+Em nosso exemplo, vamos definir as anotações para validar os dados de Pessoa. A classe Pessoa, exemplo a seguir, possui os atributos nome e idade. Anotamos os mesmos com as anotações @NotBlank e @Min.
+
+- @NotBlank: falha se for nulo e ainda se for vazia.
+
+- @Min(18): Não permite que a idade seja inferior a 18 anos.
+
+.Entidade Pessoa
+[source, java]
+----
+import java.io.Serializable;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.validation.constraints.NotBlank;
+
+@Entity
+public class Pessoa implements Serializable {
+   
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    private Long id;
+
+    @NotBlank
+    private String nome;
+
+    @Min(18)
+    private double idade;
+
+    //getters e setters
+
+}
+----
+
+Em nosso Controller, vamos incluir no método save() a anotação `@Valid` para reunir os atributos preenchidos no formulário que serão recebidos para serem armazenados. Definimos também no método save(), um objeto BindingResult para que você possa testar e recuperar erros de validação.
+
+Você pode recuperar todos os atributos do formulário, que está vinculado a Pessoa. No código, você testa os erros, utilizando o objeto BindingResult. Se houver erro, enviamos os dados já preenchidos de Pessoa de volta ao form. Nessa situação, todos os atributos de erro são exibidos.
+
+Se todos os atributos da pessoa forem válidos, ele continua a execução do método save().
+
+.Controller
+[source, java]
+----
+
+import javax.transaction.Transactional;
+import javax.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+@Transactional
+@Controller
+@RequestMapping("pessoas")
+public class PessoasController {   
+    
+    @Autowired
+    PessoaDAO dao;
+        
+    @GetMapping("/form")
+    public ModelAndView form(Pessoa pessoa){
+        return new ModelAndView("/pessoas/form");
+    }
+    
+    @GetMapping("/list")
+    public ModelAndView listar(ModelMap model) {
+        model.addAttribute("pessoas", dao.pessoas());
+        return new ModelAndView("/pessoas/list", model);
+    }
+    
+    @PostMapping("/save")
+    public ModelAndView save(@Valid Pessoa pessoa, BindingResult result){
+        if(result.hasErrors())
+            return form(pessoa);//para manter o objeto com dados preenchidos
+
+        dao.save(pessoa);
+        return new ModelAndView("redirect:/pessoas/list");
+    }
+}
+----
+
+Se o usuário inserir um nome ou idade que viole as restrições do `@Valid`, ele retorna para esta página com a mensagem de erro exibida.
+
+=== Apresentando os erros de validação com Thymeleaf
+
+O Thymeleaf oferece a possibilidade de obter informações de erro de formulário na forma de beans, com os atributos fieldName(String), message(String) e global(booleano).
+
+Esses erros podem ser obtidos por meio do método #fields.detailedErrors().
+
+fieldName: representa o caminho do atributo que originou o erro, cujo valor é uma convenção para objeto.atributo
+message: representa a mensagem padrão da API do Bean Validation, normalmente um sufixo como: “deve estar no futuro”, “não pode ser nulo”, etc.
+
+[source, html]
+----
+<div th:each="erro : ${#fields.detailedErrors()}">
+    <span th:text="${erro.fieldName}+' '+${erro.message}"></span>
+</div>
+----
+
+==== Exibindo erros fora dos formulários
+
+Os erros de validação de formulário também podem ser exibidos fora dos formulários usando as expressões variable ${...} em vez de selection *{...} e prefixando o nome do bean de apoio de formulário:
+
+[source, html]
+----
+<div class="alert alert-danger" th:errors="${pessoa.*}"></div>
+----
+
+As mensagens de erros serão exibidas seguindo um padrão definido. No entanto, você pode definir a mensagem como desejar incluindo 'message' na anotação conforme a seguir. 
+
+[source, java]
+----
+...
+    @NotBlank(message = "Nome é obrigatório!")
+    private String nome;
+...
+}
+----
+
+==== Mensagens de validação por arquivo .properties
+
+Em algumas situações, por exemplo internacionalizar as mensagens ou desejar separar as mensagens de validação, se faz necessário customizar nossas mensagens do Bean Validation através de um arquivo `.properties`. Este arquivo deve ser definido no diretório src/main/resources da aplicação.
+
+Devemos customizar as mensagens no arquivo conforme exemplo a seguir. 
+
+.messages.properties
+[source, properties]
+----
+Min.pessoa.idade = Idade deve ser maior que ou igual à {1}
+----
+
+- Min: indica a valiação @Min()
+- pessoa: nossa classe
+- idade: atributo da validação 
+
+
+== Referências
+
+1. https://spring.io/guides/gs/validating-form-input/
+
+1. https://www.thymeleaf.org/doc/tutorials/3.0/thymeleafspring.html#validation-and-error-messages
