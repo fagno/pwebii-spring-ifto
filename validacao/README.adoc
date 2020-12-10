@@ -31,7 +31,7 @@ link:https://fagno.github.io/pwebii-spring-ifto/[HOME]
 Fagno Alves Fonseca <fagno.fonseca@ifto.edu.br>
 Mestre em Modelagem Computacional de Sistemas – UFT.
 
-== Validação
+== Validação com Bean Validation
 
 A validação do Spring tira proveito do Bean Validation, especificação que permite validar nosso modelo baseado em anotações. 
 

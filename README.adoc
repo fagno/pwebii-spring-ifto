@@ -33,7 +33,7 @@ Mestre em Modelagem Computacional de Sistemas – UFT.
 1. link:ambiente-desenvolvimento/[Preparação do Ambiente de Desenvolvimento]
 1. link:spring/[Spring]
 1. link:jpa/[JPA - Java Persistence API]
-//1. link:thymeleaf/[Thymeleaf]
+1. link:validacao/[Validação com Bean Validation]
 
 
 IMPORTANT: MATERIAL EM CONSTRUÇÃO
