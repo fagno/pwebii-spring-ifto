@@ -168,7 +168,6 @@ As mensagens de erros serão exibidas seguindo um padrão definido. No entanto, 
     @NotBlank(message = "Nome é obrigatório!")
     private String nome;
 ...
-}
 ----
 
 ==== Mensagens de validação por arquivo .properties
