@@ -60,8 +60,6 @@ Para adicionar o Spring Security em nosso projeto web, você deve inserir no `po
 
 Após adicionar a dependência, sua aplicação já terá o controle de acesso habilitado, com formulário de login padrão. Ao executar o projeto uma senha será disponibilizada no console, utilize `user` como usuário.
 
-== 
-
 == Referências
 
 1. https://spring.io/projects/spring-security
