@@ -54,8 +54,8 @@ Para adicionar o Spring Security em nosso projeto web, você deve inserir no `po
 ----
 <dependency>
     <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-validation</artifactId>
-</dependency>
+    <artifactId>spring-boot-starter-security</artifactId>
+</dependency>    
 ----
 
 Após adicionar a dependência, sua aplicação já terá o controle de acesso habilitado, com formulário de login padrão. Ao executar o projeto uma senha será disponibilizada no console, utilize `user` como usuário.
