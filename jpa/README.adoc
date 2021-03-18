@@ -191,11 +191,11 @@ Existem quatro escopos adicionais disponíveis apenas em um contexto de aplicati
 
 - websocket: cria uma única definição de bean para o ciclo de vida de um WebSocket. 
 
-=== Definindo o DAO
+=== Definindo um Repository
 
-Criaremos a classe PessoaDAO para acesso aos dados da entidade Pessoa. 
+Criaremos a classe PessoaRepository para acesso aos dados da entidade Pessoa. 
 
-.Classe PessoaDao
+.Classe PessoaRepository
 [source, java]
 ----
 ...
@@ -205,7 +205,7 @@ import javax.persistence.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class PessoaDAO {
+public class PessoaRepository {
      
     @PersistenceContext
     private EntityManager em;
@@ -240,13 +240,13 @@ O atributo do tipo EntityManager anotado com `@PersistenceContext` informa ao co
 
 === Alterando nosso Controller
 
-Devemos alterar nosso controller do exemplo anterior de modo que a instância da nossa classe PessoaDAO sejá controlada pelo container. Com a anotação `@Autowired` o Spring fará a injeção dessa dependência no momento que o controller for criado.
+Devemos alterar nosso controller do exemplo anterior de modo que a instância da nossa classe PessoaRepository sejá controlada pelo container. Com a anotação `@Autowired` o Spring fará a injeção dessa dependência no momento que o controller for criado.
 
 Incluimos também no nosso controller a anotação `@Transactional`, fazendo com que o Spring assuma a responsabilidade em gerenciar as transações. 
 
 //Usando o gerenciamento de transação pelo Spring exige a presença do construtor padrão.
      
-.Classe PessoaDao
+.Classe PessoasController
 [source, java]
 ----
 ...
@@ -260,7 +260,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class PessoasController {   
     
     @Autowired
-    PessoaDAO dao;
+    PessoaRepository repository;
     ...
 
 }
