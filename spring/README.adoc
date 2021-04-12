@@ -168,10 +168,15 @@ No exemplo a seguir, utilizamos um DAO para operações de CRUD aos dados das pe
 ----
 public class PessoaDAO {
      
+    //criar um objeto Connection para receber a conexão
+    Connection con;
+    
+    public PessoaDAO(){
+        con = Conexao.criarConexao();
+    }
+
     public List<Pessoa> buscarPessoas() {
         try {
-            //criar um objeto Connection para receber a conexão
-            Connection con = Conexao.criarConexao();
             //comando sql
             String sql = "select * from tb_pessoa";
             PreparedStatement ps = con.prepareStatement(sql);
@@ -215,8 +220,6 @@ public class PessoaDAO {
 
     public boolean save(Pessoa pessoa) {
         try {
-            //criar um objeto Connection para receber a conexão
-            Connection con = Conexao.criarConexao();
             //comando sql
             String sql = "insert into tb_pessoa (nome) values (?)";
             PreparedStatement ps = con.prepareStatement(sql);
@@ -234,8 +237,6 @@ public class PessoaDAO {
 
     public boolean update(Pessoa pessoa) {
         try {
-            //criar um objeto Connection para receber a conexão
-            Connection con = Conexao.criarConexao();
             //comando sql
             String sql = "update tb_pessoa set nome=? where id=?";
             PreparedStatement ps = con.prepareStatement(sql);
@@ -254,8 +255,6 @@ public class PessoaDAO {
     
     public Pessoa buscarPessoa(Long id) {
         try {
-            //criar um objeto Connection para receber a conexão
-            Connection con = Conexao.criarConexao();
             //comando sql
             String sql = "select * from tb_pessoa where id = ?";
             PreparedStatement ps = con.prepareStatement(sql);
@@ -332,7 +331,11 @@ Com nossa classe PessoaDAO pronta podemos definir as operações necessárias no
 @RequestMapping("pessoas")
 public class PessoasController {   
     
-    PessoaDAO dao = new PessoaDAO();
+    PessoaDAO dao;
+    
+    public PessoasController(){
+        dao = new PessoaDAO();
+    }
         
     /**
      * @param pessoa necessário devido utilizar no form.html o th:object que faz referência ao objeto esperado no controller. 
