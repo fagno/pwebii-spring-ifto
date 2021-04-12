@@ -171,8 +171,8 @@ public class PessoaDAO {
     //criar um objeto Connection para receber a conexão
     Connection con;
     
-    public PessoaDAO(Connection connection){
-        this.con = connection;
+    public PessoaDAO(){
+        con = MinhaConexao.conexao();
     }
 
     public List<Pessoa> buscarPessoas() {
@@ -277,21 +277,39 @@ public class PessoaDAO {
 }
 ----
 
-Para efetuar a conexão com o banco de dados, vamos utilizar a classe Conexão conforme exemplo a seguir. Observe que, ao executar o arquivo o banco `primeirocontroller` será criado caso não exista. No entanto, você deve criar a tabela manualmente e inserir os dados.
+Para efetuar a conexão com o banco de dados, vamos utilizar a interface e classes definidas a seguir. Você deve criar banco e tabela manualmente, por fim inserir os dados.
 
-.Conexao.java
+.Interface ConexaoJDBC.java
 [source, java]
 ----
+...
+import java.sql.Connection;
 
-public class Conexao {
+public interface ConexaoJDBC{
+    
+    public Connection criarConexao();
+    
+}
+----
 
-    /**
-     * Método para testar sua conexão com o banco   
-     */
+A seguir temos as classes para conexão com banco Mysql e Postgres. Utilize a classe do banco de dados de sua escolha.
+
+.Classe ConexaoMysql.java
+[source, java]
+----
+...
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class ConexaoMysql implements ConexaoJDBC{
+
     public static void main(String[] args) {
         
         //testar conexão
-        System.out.println(Conexao.criarConexao());
+        System.out.println(new ConexaoMysql().criarConexao());
                 
     }
     
@@ -299,23 +317,87 @@ public class Conexao {
      * método que vai retornar uma conexão
      * @return
      */
-    public static Connection criarConexao(){
+    @Override
+    public Connection criarConexao(){
         try {
             //carregar o driver de conexão
             Class.forName("com.mysql.cj.jdbc.Driver");
             //parâmetros
-            String url = "jdbc:mysql://localhost:3306/primeirocontroller?createDatabaseIfNotExist=true&useSSL=false";
-            String usuario = "usuario";
+            String url = "jdbc:mysql://localhost:3306/teste";
+            String usuario = "root";
             String senha = "senha";
             //retorna a conexão com o banco de dados
             return DriverManager.getConnection(url, usuario, senha);
            
         } catch (ClassNotFoundException | SQLException ex) {
-            Logger.getLogger(Conexao.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ConexaoMysql.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+}
+----
+
+.Classe ConexaoPostgre
+[source, java]
+----
+...
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+public class ConexaoPostgre implements ConexaoJDBC{
+
+    public static void main(String[] args) {
+        
+        //testar conexão
+        System.out.println(new ConexaoPostgre().criarConexao());
+                
+    }
+    
+    /** 
+     * método que vai retornar uma conexão
+     * @return
+     */
+    @Override
+    public Connection criarConexao(){
+        try {
+            //carregar o driver de conexão
+            Class.forName("org.postgresql.Driver");
+            //parâmetros
+            String url = "jdbc:postgresql://localhost:5432/teste";
+            String usuario = "postgres";
+            String senha = "senha";
+            //retorna a conexão com o banco de dados
+            return DriverManager.getConnection(url, usuario, senha);
+           
+        } catch (ClassNotFoundException | SQLException ex) {
+            Logger.getLogger(ConexaoPostgre.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }
 
+    
+}
+----
+
+.Classe que define sua conexão com o banco de dados.
+[source, java]
+----
+...
+import java.sql.Connection;
+
+/**
+ *
+ * @author fagno
+ */
+public class MinhaConexao{
+    
+    public static Connection conexao(){
+        ConexaoJDBC conexao = new ConexaoMysql();
+        return conexao.criarConexao();
+    }
     
 }
 ----
@@ -332,11 +414,11 @@ Com nossa classe PessoaDAO pronta podemos definir as operações necessárias no
 public class PessoasController {   
     
     PessoaDAO dao;
-
+    
     public PessoasController(){
-        dao = new PessoaDAO(Conexao.criarConexao());
+        dao = new PessoaDAO();
     }
-        
+    
     /**
      * @param pessoa necessário devido utilizar no form.html o th:object que faz referência ao objeto esperado no controller. 
      * @return 
