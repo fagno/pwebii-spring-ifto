@@ -277,7 +277,7 @@ public class PessoaDAO {
 }
 ----
 
-Para efetuar a conexão com o banco de dados, vamos utilizar a interface e classes definidas a seguir. Você deve criar banco e tabela manualmente, por fim inserir os dados.
+Para efetuar a conexão com o banco de dados, vamos utilizar a interface e classes definidas a seguir. Você deve criar banco e tabela manualmente.
 
 .Interface ConexaoJDBC.java
 [source, java]
@@ -388,10 +388,6 @@ public class ConexaoPostgre implements ConexaoJDBC{
 ...
 import java.sql.Connection;
 
-/**
- *
- * @author fagno
- */
 public class MinhaConexao{
     
     public static Connection conexao(){
