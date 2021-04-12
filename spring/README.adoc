@@ -171,8 +171,8 @@ public class PessoaDAO {
     //criar um objeto Connection para receber a conexão
     Connection con;
     
-    public PessoaDAO(){
-        con = Conexao.criarConexao();
+    public PessoaDAO(Connection connection){
+        this.con = connection;
     }
 
     public List<Pessoa> buscarPessoas() {
@@ -332,9 +332,9 @@ Com nossa classe PessoaDAO pronta podemos definir as operações necessárias no
 public class PessoasController {   
     
     PessoaDAO dao;
-    
+
     public PessoasController(){
-        dao = new PessoaDAO();
+        dao = new PessoaDAO(Conexao.criarConexao());
     }
         
     /**
