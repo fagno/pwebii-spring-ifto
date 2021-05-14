@@ -151,7 +151,7 @@ message: representa a mensagem padrão da API do Bean Validation, normalmente um
 </div>
 ----
 
-==== Exibindo erros fora dos formulários
+=== Exibindo erros fora dos formulários
 
 Os erros de validação de formulário também podem ser exibidos fora dos formulários usando as expressões variable ${...} em vez de selection *{...} e prefixando o nome do bean de apoio de formulário:
 
@@ -170,7 +170,7 @@ As mensagens de erros serão exibidas seguindo um padrão definido. No entanto, 
 ...
 ----
 
-==== Mensagens de validação por arquivo .properties
+=== Mensagens de validação por arquivo .properties
 
 Em algumas situações, por exemplo internacionalizar as mensagens ou desejar separar as mensagens de validação, se faz necessário customizar nossas mensagens do Bean Validation através de um arquivo `.properties`. Este arquivo deve ser definido no diretório src/main/resources da aplicação.
 
@@ -187,7 +187,7 @@ Min.pessoa.idade = Idade deve ser maior que ou igual à {1}
 - idade: atributo da validação 
 
 
-==== Enviar atributos no redirecionamento
+=== Enviar atributos no redirecionamento
 
 Em algum momento, temos a necessidade de enviar atributos quando a solicitação for redirecionada, por exemplo, quando desejamos enviar uma mensagem de sucesso para o usuário. Deste modo, podemos especificar um parâmetro do tipo RedirectAttributes para enviar atributos em um redirecionamento, conforme exemplo a seguir.
 
