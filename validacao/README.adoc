@@ -187,6 +187,34 @@ Min.pessoa.idade = Idade deve ser maior que ou igual à {1}
 - idade: atributo da validação 
 
 
+==== Enviar atributos no redirecionamento
+
+Em algum momento, temos a necessidade de enviar atributos quando a solicitação for redirecionada, por exemplo, quando desejamos enviar uma mensagem de sucesso para o usuário. Deste modo, podemos especificar um parâmetro do tipo RedirectAttributes para enviar atributos em um redirecionamento, conforme exemplo a seguir.
+
+[source, java]
+----
+...
+    @GetMapping("/exemplo")
+    public ModelAndView exemplo(RedirectAttributes attributes){
+            attributes.addFlashAttribute("chave", "valor");
+            return new ModelAndView("redirect:/...");
+    }
+...
+----
+
+addFlashAttribute(): armazena atributos em um mapa de flash, mantido internamente nos usuários session até o próximo request. 
+
+addAttribute(): cria parâmetros de solicitação de seus atributos e redireciona para a página destino.
+
+Para exibir o valor do atributo enviado, usando Thymeleaf, faça como o exemplo a seguir.
+
+[source, html]
+----
+...
+    <span th:text="${!#strings.isEmpty(chave)} ? ${chave}"> </span>
+...
+----
+
 == Referências
 
 1. https://spring.io/guides/gs/validating-form-input/
