@@ -137,7 +137,7 @@ Se o usuário inserir um nome ou idade que viole as restrições do `@Valid`, el
 
 === Apresentando os erros de validação com Thymeleaf
 
-O Thymeleaf oferece a possibilidade de obter informações de erro de formulário na forma de beans, com os atributos fieldName(String), message(String) e global(booleano).
+O Thymeleaf oferece a possibilidade de obter informações de erro de `formulário` na forma de beans, com os atributos fieldName(String), message(String) e global(booleano).
 
 Esses erros podem ser obtidos por meio do método #fields.detailedErrors().
 
@@ -149,6 +149,13 @@ message: representa a mensagem padrão da API do Bean Validation, normalmente um
 <div th:each="erro : ${#fields.detailedErrors()}">
     <span th:text="${erro.fieldName}+' '+${erro.message}"></span>
 </div>
+----
+
+Exemplo de mensagem sobre cada campo.
+
+[source, html]
+----
+    <label th:if="${#fields.hasErrors('fieldName')}" th:errors="*{fieldName}"></label>
 ----
 
 === Exibindo erros fora dos formulários
