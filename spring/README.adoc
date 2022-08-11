@@ -202,8 +202,6 @@ public class PessoaDAO {
     
     public boolean remove(Long id) {
         try {
-            //criar um objeto Connection para receber a conexão
-            Connection con = Conexao.criarConexao();
             //comando sql
             String sql = "delete from tb_pessoa where id = ?";
             PreparedStatement ps = con.prepareStatement(sql);
