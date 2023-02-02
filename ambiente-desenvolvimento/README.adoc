@@ -41,7 +41,7 @@ Download na página da Oracle link:http://www.oracle.com/technetwork/pt/java/jav
 
 2) Utilizar uma IDE para aumentar a produtividade:
 
-**IntelliJ IDEA**, download link:https://www.jetbrains.com/pt-br/idea/[aqui].
+//**IntelliJ IDEA**, download link:https://www.jetbrains.com/pt-br/idea/[aqui].
 
 Você pode utilizar outra IDE de sua preferência caso desejar.
 
