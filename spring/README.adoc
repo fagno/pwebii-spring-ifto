@@ -159,7 +159,7 @@ A anotação `@ResponseBody` diz ao Spring MVC para jogar o retorno do método n
 
 A anotação `@GetMapping` indica ao Spring MVC que requisições HTTP do tipo GET enviadas para localhost:8080/pessoas/exemplo devem ser atendidas pelo método exemplo().
 
-==== Definindo o PessoaDAO
+=== Definindo o PessoaDAO
 
 No exemplo a seguir, utilizamos um DAO para operações de CRUD aos dados das pessoas no banco. Iremos utilizar uma conexão JDBC, pois nosso objetivo nete capítulo é conhecer as funcionalidades do Spring.
 
@@ -275,7 +275,7 @@ public class PessoaDAO {
 }
 ----
 
-Para efetuar a conexão com o banco de dados, vamos utilizar a interface e classes definidas a seguir. Você deve criar banco e tabela manualmente.
+Para efetuar a conexão com o banco de dados, vamos utilizar a interface e classes definidas a seguir.
 
 .Interface ConexaoJDBC.java
 [source, java]
@@ -396,7 +396,28 @@ public class MinhaConexao{
 }
 ----
 
-==== Implementando ações no controller
+==== Banco de dados em memória
+
+O H2 é um sistema de gerenciamento de banco de dados relacional escrito em Java.
+
+O H2 possui suporte a bancos de dados persistentes e na memória, não tendo limite para o número de bancos de dados abertos simultaneamente ou para o número de conexões abertas.
+
+Para criar um banco de dados em mémoria, adicione as propriedades a seguir no seu arquivo `application.properties`.
+
+[source, properties]
+----
+##H2database
+spring.datasource.url=jdbc:h2:mem:dbname
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.username=user
+spring.datasource.password=password
+----
+
+Por fim, incluir no diretório 'resources' do seu projeto o arquivo 'data.sql'. Neste arquivo, você deve incluir comandos para criar tabelas e fazer inserções de dados.
+
+Quando rodarmos o projeto com este arquivo no classpath, o Spring irá usá-lo para preencher o banco de dados.
+
+=== Implementando ações no controller
 
 Com nossa classe PessoaDAO pronta podemos definir as operações necessárias no controlador com todas as operações de CRUD para Pessoa.
 
