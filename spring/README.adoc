@@ -417,6 +417,16 @@ Por fim, incluir no diretório `resources` do seu projeto o arquivo `data.sql`. 
 
 Quando rodarmos o projeto com este arquivo no classpath, o Spring irá usá-lo para preencher o banco de dados.
 
+Você pode habilitar o console GUI (interface gráfica do utilizador) embutido para navegar pelo conteúdo do banco de dados e executar consultas SQL. 
+
+Para acessar o console utilize o endereço http://localhost:8080/h2-console. 
+
+[source, properties]
+----
+#h2 console
+spring.h2.console.enabled=true
+----
+
 === Implementando ações no controller
 
 Com nossa classe PessoaDAO pronta podemos definir as operações necessárias no controlador com todas as operações de CRUD para Pessoa.
