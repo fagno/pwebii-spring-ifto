@@ -159,7 +159,7 @@ A anotação `@ResponseBody` diz ao Spring MVC para jogar o retorno do método n
 
 A anotação `@GetMapping` indica ao Spring MVC que requisições HTTP do tipo GET enviadas para localhost:8080/pessoas/exemplo devem ser atendidas pelo método exemplo().
 
-=== Definindo o PessoaDAO
+=== Definindo PessoaDAO
 
 No exemplo a seguir, utilizamos um DAO para operações de CRUD aos dados das pessoas no banco. Iremos utilizar uma conexão JDBC, pois nosso objetivo nete capítulo é conhecer as funcionalidades do Spring.
 
@@ -402,7 +402,7 @@ O H2 é um sistema de gerenciamento de banco de dados relacional escrito em Java
 
 O H2 possui suporte a bancos de dados persistentes e na memória, não tendo limite para o número de bancos de dados abertos simultaneamente ou para o número de conexões abertas.
 
-Para criar um banco de dados em mémoria, adicione as propriedades a seguir no seu arquivo `application.properties`.
+Para criar um banco de dados em mémoria, adicione as propriedades a seguir no seu arquivo `application.properties` .
 
 [source, properties]
 ----
@@ -413,7 +413,7 @@ spring.datasource.username=user
 spring.datasource.password=password
 ----
 
-Por fim, incluir no diretório 'resources' do seu projeto o arquivo 'data.sql'. Neste arquivo, você deve incluir comandos para criar tabelas e fazer inserções de dados.
+Por fim, incluir no diretório `resources` do seu projeto o arquivo `data.sql`. Neste arquivo, você deve incluir comandos para criar tabelas e fazer inserções de dados.
 
 Quando rodarmos o projeto com este arquivo no classpath, o Spring irá usá-lo para preencher o banco de dados.
 
