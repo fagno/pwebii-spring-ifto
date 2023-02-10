@@ -429,6 +429,18 @@ Para acessar o console utilize o endereço http://localhost:8080/h2-console.
 spring.h2.console.enabled=true
 ----
 
+Necessário incluir a depência do JPA a seguir.
+
+.Dependência
+[source, xml]
+----
+<!-- Persist data in SQL stores with Java Persistence API using Spring Data and Hibernate.-->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-jpa</artifactId>
+</dependency> 
+----
+
 === Implementando ações no controller
 
 Com nossa classe PessoaDAO pronta podemos definir as operações necessárias no controlador com todas as operações de CRUD para Pessoa.
