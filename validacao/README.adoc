@@ -155,7 +155,8 @@ Exemplo de mensagem sobre cada campo.
 
 [source, html]
 ----
-    <label th:if="${#fields.hasErrors('fieldName')}" th:errors="*{fieldName}"></label>
+    <input class="form-control" type="text" th:field="*{fieldName}" th:errorclass="is-invalid">
+    <label class="invalid-feedback" th:if="${#fields.hasErrors('fieldName')}" th:errors="*{fieldName}"></label>
 ----
 
 === Exibindo erros fora dos formulários
