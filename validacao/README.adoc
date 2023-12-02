@@ -227,4 +227,6 @@ Para exibir o valor do atributo enviado, usando Thymeleaf, faça como o exemplo 
 
 1. https://spring.io/guides/gs/validating-form-input/
 
+1. https://jakarta.ee/specifications/bean-validation/3.0/jakarta-bean-validation-spec-3.0.html#builtinconstraints
+
 1. https://www.thymeleaf.org/doc/tutorials/3.0/thymeleafspring.html#validation-and-error-messages
