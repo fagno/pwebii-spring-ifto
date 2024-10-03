@@ -36,7 +36,7 @@ Mestre em Modelagem Computacional de Sistemas – UFT.
 1. link:validacao/[Validação com Bean Validation]
 1. link:security/[Spring Security]
 
-IMPORTANT: MATERIAL EM CONSTRUÇÃO
+//IMPORTANT: MATERIAL EM CONSTRUÇÃO
 
 // .Teste [fonte: referência]
 // image::cliente-faz.png[] 
