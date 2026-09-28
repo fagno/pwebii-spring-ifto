@@ -756,19 +756,16 @@ Substitua a classe manual `PessoaRepository` pela interface abaixo. Elas são du
 ----
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 public interface PessoaRepository extends JpaRepository<Pessoa, Long> {
 
-    List<Pessoa> findByNomeContainingIgnoreCase(String nome);
-
-    @Query("select p from Pessoa p where p.idade >= :idadeMinima order by p.nome, p.id")
-    List<Pessoa> buscarPorIdadeMinima(@Param("idadeMinima") Integer idadeMinima);
+    List<Pessoa> findByNome(String nome);
 }
 ----
 
 `Pessoa` é o tipo da entidade e `Long` é o tipo de sua chave. Coloque a interface no pacote da aplicação ou em um subpacote para que a configuração automática a encontre. Não é necessário implementar seus métodos nem adicionar `@Repository` à interface neste caso.
+
+Ao estender `JpaRepository`, a interface já recebe os métodos básicos de acesso aos dados. Você não precisa declará-los novamente: o Spring Data JPA fornece a implementação em tempo de execução. O método `findByNome`, declarado no exemplo, acrescenta uma busca específica da nossa aplicação.
 
 [cols="2,3",options="header"]
 |===
@@ -785,11 +782,88 @@ No controller anterior, troque `repository.pessoas()` por `repository.findAll()`
 
 Referência: link:https://docs.spring.io/spring-data/jpa/reference/4.0/api/java/org/springframework/data/jpa/repository/JpaRepository.html[API de JpaRepository].
 
-=== Consultas derivadas e JPQL
+=== Criando uma busca simples pelo nome
 
-`findByNomeContainingIgnoreCase` deriva uma busca por trecho de nome ignorando diferenças de caixa. Os nomes dos métodos usam atributos Java: um atributo inexistente torna a consulta inválida.
+Para buscar pessoas pelo nome, declaramos apenas a assinatura do método:
 
-`@Query` permite declarar JPQL explicitamente. No exemplo, `:idadeMinima` recebe um parâmetro nomeado com `@Param`, sem concatenar valores enviados pelo usuário. Consultas SQL nativas exigem `nativeQuery = true` e usam tabelas e colunas do banco.
+[source,java]
+----
+List<Pessoa> findByNome(String nome);
+----
+
+O Spring Data JPA interpreta o nome do método para criar a consulta. Esse recurso é chamado de *consulta derivada*:
+
+* `findBy` indica uma busca por uma condição.
+* `Nome` corresponde ao atributo `nome` da entidade `Pessoa`.
+* O parâmetro `nome` fornece o valor que será comparado por igualdade.
+* `List<Pessoa>` permite retornar várias pessoas com o mesmo nome. Se nenhuma for encontrada, a lista estará vazia.
+
+Por exemplo, em um método de serviço ou controller que já recebeu o repositório por construtor:
+
+[source,java]
+----
+List<Pessoa> pessoas = repository.findByNome("Ana");
+----
+
+Importe `java.util.List` na classe que faz a chamada. A consulta procura o nome informado, em vez de um trecho dele. A diferenciação entre maiúsculas, minúsculas e acentos depende das regras de comparação do banco de dados.
+
+Não é necessário escrever SQL, usar `@Query` ou criar uma classe que implemente essa interface para realizar essa busca. O nome após `findBy` deve corresponder a um atributo existente na entidade. Os métodos herdados, como `findAll()` e `save()`, continuam disponíveis normalmente.
+
+Referência: link:https://docs.spring.io/spring-data/jpa/reference/jpa/query-methods.html[Spring Data JPA — consultas derivadas dos nomes dos métodos].
+
+=== Criação de consultas pelo nome do método (Query Creation)
+
+Podemos combinar atributos de `Pessoa` com palavras-chave para declarar outras buscas. Os métodos abaixo retornam `List<Pessoa>` e devem ser declarados na interface para serem utilizados.
+
+[cols="1,3,2",options="header"]
+|===
+|Palavra-chave |Assinatura do método |Condição
+|Igualdade |`findByNome(String nome)` |Nome igual ao parâmetro.
+|`And` |`findByNomeAndIdade(String nome, Integer idade)` |Nome e idade correspondem.
+|`Or` |`findByNomeOrIdade(String nome, Integer idade)` |Nome ou idade corresponde.
+|`Containing` |`findByNomeContaining(String trecho)` |Nome contém o trecho.
+|`StartingWith` |`findByNomeStartingWith(String inicio)` |Nome começa com o texto.
+|`EndingWith` |`findByNomeEndingWith(String fim)` |Nome termina com o texto.
+|`IgnoreCase` |`findByNomeIgnoreCase(String nome)` |Igualdade ignorando maiúsculas/minúsculas.
+|`GreaterThanEqual` |`findByIdadeGreaterThanEqual(Integer idade)` |Idade maior ou igual.
+|`LessThan` |`findByIdadeLessThan(Integer idade)` |Idade menor.
+|`Between` |`findByIdadeBetween(Integer minima, Integer maxima)` |Intervalo inclusivo de idades.
+|`IsNull` |`findByIdadeIsNull()` |Idade não informada.
+|`In` |`findByIdadeIn(List<Integer> idades)` |Idade presente na lista.
+|`OrderBy` |`findByNomeOrderByIdadeAsc(String nome)` |Filtra nome; ordena idade crescente.
+|===
+
+`Asc` indica ordem crescente; `Desc`, decrescente. Métodos sem `OrderBy` ou ordenação explícita não garantem a ordem dos resultados.
+
+.PessoaRepository.java — ampliando o exemplo
+[source,java]
+----
+import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface PessoaRepository extends JpaRepository<Pessoa, Long> {
+
+    List<Pessoa> findByNome(String nome);
+
+    List<Pessoa> findByNomeContaining(String trecho);
+
+    List<Pessoa> findByIdadeGreaterThanEqual(Integer idade);
+
+    List<Pessoa> findByNomeAndIdade(String nome, Integer idade);
+}
+----
+
+.Chamadas em um método com repository já injetado por construtor
+[source,java]
+----
+List<Pessoa> nomes = repository.findByNomeContaining("Ana");
+List<Pessoa> adultos = repository.findByIdadeGreaterThanEqual(18);
+List<Pessoa> pessoas = repository.findByNomeAndIdade("Ana", 20);
+----
+
+Na última chamada, as duas condições devem ser atendidas. Os parâmetros seguem a ordem dos atributos no nome do método. Não redeclare os métodos herdados da tabela anterior.
+
+Referência: link:https://docs.spring.io/spring-data/jpa/reference/jpa/query-methods.html#jpa.query-methods.query-creation[Spring Data JPA — Query Creation].
 
 === Paginação e ordenação
 
