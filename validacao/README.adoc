@@ -33,14 +33,16 @@ Mestre em Modelagem Computacional de Sistemas – UFT.
 
 == Validação com Bean Validation
 
-A validação do Spring tira proveito do Bean Validation, especificação que permite validar nosso modelo baseado em anotações. 
+Bean Validation é a especificação que permite declarar restrições sobre objetos Java por meio de anotações. O Hibernate Validator implementa essa especificação; o Spring integra a validação ao recebimento de dados, e o Thymeleaf apresenta os erros no formulário.
 
-No back-end do nosso projeto, podemos validar os dados enviados a partir de um formulário e definir como exibir as mensagens de validação na view.
+Neste capítulo, vamos validar o cadastro de uma pessoa antes de salvá-la. O fluxo será: receber os campos, verificar as restrições, reapresentar o formulário quando houver erros e salvar quando os dados forem válidos.
 
-Antes de iniciar, é necessário adicionar uma biblioteca que implementa a Bean Validation, como o Hibernate validator. 
+=== Dependência e compatibilidade
+
+Adicione o starter de validação ao projeto Spring Boot. A versão da dependência deve ser gerenciada pelo parent ou BOM do Spring Boot utilizado na aplicação.
 
 .pom.xml
-[source, xml]
+[source,xml]
 ----
 <dependency>
     <groupId>org.springframework.boot</groupId>
@@ -48,50 +50,141 @@ Antes de iniciar, é necessário adicionar uma biblioteca que implementa a Bean 
 </dependency>
 ----
 
-Em nosso exemplo, vamos definir as anotações para validar os dados de Pessoa. A classe Pessoa, exemplo a seguir, possui os atributos nome e idade. Anotamos os mesmos com as anotações @NotBlank e @Min.
+NOTE: Os exemplos mantêm os imports `javax.validation` e `javax.persistence` para acompanhar o Spring Boot 2 usado nos demais capítulos. No Spring Boot 3, utilize `jakarta.validation` e `jakarta.persistence`. A referência Jakarta Bean Validation 3.0 usa o namespace `jakarta`; não misture os dois namespaces no mesmo exemplo.
 
-- @NotBlank: falha se for nulo e ainda se for vazia.
+=== Principais anotações
 
-- @Min(18): Não permite que a idade seja inferior a 18 anos.
+As restrições abaixo pertencem ao pacote `javax.validation.constraints` no Bean Validation 2.0 (ou `jakarta.validation.constraints` no Jakarta Bean Validation 3.0).
+
+[cols="2,3,3",options="header"]
+|===
+|Anotação |Regra |Exemplo de uso
+
+|`@NotNull`
+|Rejeita `null`.
+|`@NotNull Integer idade;`
+
+|`@NotEmpty`
+|Rejeita `null` e tamanho zero em texto, coleção, mapa ou array.
+|`@NotEmpty List<String> telefones;`
+
+|`@NotBlank`
+|Exige texto com algum caractere que não seja espaço em branco.
+|`@NotBlank String nome;`
+
+|`@Size`
+|Limita o tamanho de texto, coleção, mapa ou array.
+|`@Size(min = 2, max = 100) String nome;`
+
+|`@Min` / `@Max`
+|Definem limites numéricos inclusivos.
+|`@Min(18) @Max(120) Integer idade;`
+
+|`@DecimalMin` / `@DecimalMax`
+|Definem limites decimais; `inclusive = false` exclui o limite.
+|`@DecimalMin("0.01") BigDecimal preco;`
+
+|`@Positive` / `@PositiveOrZero`
+|Exigem valor positivo / não negativo.
+|`@Positive Integer quantidade;`
+
+|`@Negative` / `@NegativeOrZero`
+|Exigem valor negativo / não positivo.
+|`@Negative BigDecimal saldoDevedor;`
+
+|`@Digits`
+|Limita a quantidade de dígitos inteiros e fracionários.
+|`@Digits(integer = 8, fraction = 2) BigDecimal valor;`
+
+|`@Email`
+|Verifica o formato de e-mail.
+|`@Email String email;`
+
+|`@Pattern`
+|Exige correspondência com uma expressão regular.
+|`@Pattern(regexp = "[0-9]{8}") String cep;`
+
+|`@Past` / `@PastOrPresent`
+|Exigem data passada / passada ou presente.
+|`@PastOrPresent LocalDate nascimento;`
+
+|`@Future` / `@FutureOrPresent`
+|Exigem data futura / futura ou presente.
+|`@Future LocalDate vencimento;`
+
+|`@AssertTrue` / `@AssertFalse`
+|Exigem valor booleano verdadeiro / falso.
+|`@AssertTrue Boolean aceitouTermos;`
+
+|`@Null`
+|Exige `null`.
+|`@Null Long id;`
+|===
+
+Consulte os tipos aceitos por cada restrição na link:https://jakarta.ee/specifications/bean-validation/3.0/jakarta-bean-validation-spec-3.0.html#builtinconstraints[especificação]. Por exemplo, `@NotBlank` não se aplica a números, e `@Size` não limita o valor de uma idade.
+
+==== Obrigatoriedade e valores nulos
+
+`@NotNull` aceita `""` e `"   "`; `@NotEmpty` rejeita `""`, mas aceita `"   "`; `@NotBlank` rejeita ambos e também `null`.
+
+As demais restrições da tabela, exceto `@Null`, aceitam `null`. Combine-as com uma restrição de obrigatoriedade quando necessário. Por exemplo, use `@NotBlank @Email` para um e-mail obrigatório. A validação de formato não confirma a existência da caixa postal.
+
+Para valores monetários, prefira `BigDecimal`. `@Min` e `@Max` não oferecem suporte portátil a `double` e `float`.
+
+=== Validando a entidade Pessoa
+
+O cadastro exige nome preenchido, com até 100 caracteres, e idade informada, a partir de 18 anos.
 
 .Entidade Pessoa
-[source, java]
+[source,java]
 ----
 import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Entity
 public class Pessoa implements Serializable {
-   
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
+    @NotBlank(message = "Informe o nome.")
+    @Size(max = 100, message = "O nome deve ter no máximo {max} caracteres.")
     private String nome;
 
-    @Min(18)
-    private double idade;
+    @NotNull(message = "Informe a idade.")
+    @Min(value = 18, message = "A idade deve ser maior ou igual a {value}.")
+    private Integer idade;
 
-    //getters e setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
+
+    public Integer getIdade() { return idade; }
+    public void setIdade(Integer idade) { this.idade = idade; }
 }
 ----
 
-Em nosso Controller, vamos incluir no método save() a anotação `@Valid` para reunir os atributos preenchidos no formulário que serão recebidos para serem armazenados. Definimos também no método save(), um objeto BindingResult para que você possa testar e recuperar erros de validação.
+Usamos `Integer` para representar a ausência de idade por `null`. Assim, `@NotNull` trata o campo não informado e `@Min` trata o limite. Anotações JPA, como `@Entity` e `@Id`, têm outro papel: mapear a persistência.
 
-Você pode recuperar todos os atributos do formulário, que está vinculado a Pessoa. No código, você testa os erros, utilizando o objeto BindingResult. Se houver erro, enviamos os dados já preenchidos de Pessoa de volta ao form. Nessa situação, todos os atributos de erro são exibidos.
+=== Acionando a validação no Controller
 
-Se todos os atributos da pessoa forem válidos, ele continua a execução do método save().
+`@Valid` solicita a validação do objeto recebido. A associação dos campos da requisição ao objeto é feita pelo Spring MVC; no exemplo, `@ModelAttribute("pessoa")` explicita o nome usado no formulário.
+
+O parâmetro `BindingResult` deve ficar imediatamente após o objeto validado. Ele reúne tanto violações das restrições quanto erros de conversão, como receber `abc` para uma idade inteira.
 
 .Controller
-[source, java]
+[source,java]
 ----
-
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,134 +192,202 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Transactional
 @Controller
-@RequestMapping("pessoas")
-public class PessoasController {   
-    
+@RequestMapping("/pessoas")
+public class PessoasController {
+
     @Autowired
-    PessoaDAO dao;
-        
+    private PessoaDAO dao;
+
     @GetMapping("/form")
-    public ModelAndView form(Pessoa pessoa){
-        return new ModelAndView("/pessoas/form");
+    public ModelAndView form(@ModelAttribute("pessoa") Pessoa pessoa) {
+        return new ModelAndView("pessoas/form");
     }
-    
+
     @GetMapping("/list")
     public ModelAndView listar(ModelMap model) {
         model.addAttribute("pessoas", dao.pessoas());
-        return new ModelAndView("/pessoas/list", model);
+        return new ModelAndView("pessoas/list", model);
     }
-    
+
     @PostMapping("/save")
-    public ModelAndView save(@Valid Pessoa pessoa, BindingResult result){
-        if(result.hasErrors())
-            return form(pessoa);//para manter o objeto com dados preenchidos
+    public ModelAndView save(@Valid @ModelAttribute("pessoa") Pessoa pessoa,
+                             BindingResult result,
+                             RedirectAttributes attributes) {
+        if (result.hasErrors()) {
+            return new ModelAndView("pessoas/form");
+        }
 
         dao.save(pessoa);
+        attributes.addFlashAttribute("mensagem", "Pessoa cadastrada com sucesso.");
         return new ModelAndView("redirect:/pessoas/list");
     }
 }
 ----
 
-Se o usuário inserir um nome ou idade que viole as restrições do `@Valid`, ele retorna para esta página com a mensagem de erro exibida.
+O exemplo pressupõe o `PessoaDAO` do capítulo de persistência, com os métodos `save()` e `pessoas()`, e os templates `pessoas/form.html` e `pessoas/list.html`.
 
-=== Apresentando os erros de validação com Thymeleaf
+Quando há erros, retornamos a view na mesma requisição, preservando os dados e o `BindingResult`. O redirecionamento acontece depois de salvar.
 
-O Thymeleaf oferece a possibilidade de obter informações de erro de `formulário` na forma de beans, com os atributos fieldName(String), message(String) e global(booleano).
+==== Validação em cascata e grupos
 
-Esses erros podem ser obtidos por meio do método #fields.detailedErrors().
+Em um atributo que referencia outro objeto, `@Valid` permite validar suas restrições internas. Para exigir também a presença desse objeto, combine-a com `@NotNull`:
 
-fieldName: representa o caminho do atributo que originou o erro, cujo valor é uma convenção para objeto.atributo
-message: representa a mensagem padrão da API do Bean Validation, normalmente um sufixo como: “deve estar no futuro”, “não pode ser nulo”, etc.
-
-[source, html]
+.Trecho de uma classe com endereço
+[source,java]
 ----
-<div th:each="erro : ${#fields.detailedErrors()}">
-    <span th:text="${erro.fieldName}+' '+${erro.message}"></span>
-</div>
+@NotNull
+@Valid
+private Endereco endereco;
 ----
 
-Exemplo de mensagem sobre cada campo.
+Nesse trecho, importe `javax.validation.Valid` e `javax.validation.constraints.NotNull`, e declare as restrições na classe `Endereco`.
 
-[source, html]
+A anotação `@Validated`, do pacote `org.springframework.validation.annotation`, permite selecionar grupos de validação no Spring, por exemplo `@Validated(Cadastro.class)`. As restrições podem declarar `groups = Cadastro.class`, sendo `Cadastro` uma interface marcadora. Sem grupos explícitos, utiliza-se o grupo `Default`. O cadastro deste capítulo usa apenas `@Valid`.
+
+Para criar o grupo, declare a interface em um arquivo `Cadastro.java`, no pacote de sua aplicação destinado aos grupos de validação:
+
+.Cadastro.java
+[source,java]
 ----
-    <input class="form-control" type="text" th:field="*{fieldName}" th:errorclass="is-invalid">
-    <label class="invalid-feedback" th:if="${#fields.hasErrors('fieldName')}" th:errors="*{fieldName}"></label>
-----
-
-=== Exibindo erros fora dos formulários
-
-Os erros de validação de formulário também podem ser exibidos fora dos formulários usando as expressões variable ${...} em vez de selection *{...} e prefixando o nome do bean de apoio de formulário:
-
-[source, html]
-----
-<div class="alert alert-danger" th:errors="${pessoa.*}"></div>
+public interface Cadastro {
+}
 ----
 
-As mensagens de erros serão exibidas seguindo um padrão definido. No entanto, você pode definir a mensagem como desejar incluindo 'message' na anotação conforme a seguir. 
+A interface não precisa de métodos: ela apenas identifica o grupo. Importe-a nas classes de outros pacotes que a utilizarem. Para associar uma restrição a esse grupo, por exemplo:
 
-[source, java]
+[source,java]
 ----
-...
-    @NotBlank(message = "Nome é obrigatório!")
-    private String nome;
-...
+@NotBlank(message = "Informe o nome.", groups = Cadastro.class)
+private String nome;
 ----
 
-=== Mensagens de validação por arquivo .properties
+Essa restrição será verificada ao selecionar o grupo com `@Validated(Cadastro.class)`. Restrições sem `groups` pertencem ao grupo `Default` e não são incluídas automaticamente nessa seleção. Para validar ambos, use `@Validated({Default.class, Cadastro.class})`, importando `javax.validation.groups.Default`.
 
-Em algumas situações, por exemplo internacionalizar as mensagens ou desejar separar as mensagens de validação, se faz necessário customizar nossas mensagens do Bean Validation através de um arquivo `.properties`. Este arquivo deve ser definido no diretório src/main/resources da aplicação.
+=== Apresentando os erros com Thymeleaf
 
-Devemos customizar as mensagens no arquivo conforme exemplo a seguir. 
+No template `src/main/resources/templates/pessoas/form.html`, associe o formulário a `pessoa`. `th:field` vincula os campos; `th:errors` apresenta as mensagens; `th:errorclass` adiciona uma classe CSS quando há erro.
+
+.Formulário de cadastro
+[source,html]
+----
+<form th:action="@{/pessoas/save}" th:object="${pessoa}" method="post">
+    <label for="nome">Nome</label>
+    <input type="text" th:field="*{nome}" th:errorclass="is-invalid">
+    <span th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></span>
+
+    <label for="idade">Idade</label>
+    <input type="number" th:field="*{idade}" th:errorclass="is-invalid">
+    <span th:if="${#fields.hasErrors('idade')}" th:errors="*{idade}"></span>
+
+    <button type="submit">Salvar</button>
+</form>
+----
+
+A classe `is-invalid` precisa de uma definição CSS (própria ou de uma biblioteca, como Bootstrap) para alterar a aparência.
+
+Para apresentar um resumo, inclua este trecho dentro do formulário:
+
+[source,html]
+----
+<ul th:if="${#fields.hasAnyErrors()}">
+    <li th:each="erro : ${#fields.detailedErrors()}">
+        <span th:text="${erro.message}"></span>
+    </li>
+</ul>
+----
+
+Cada erro detalhado possui `fieldName` (nome/caminho do campo), `message` (mensagem resolvida) e `global` (se o erro é do objeto, em vez de um campo específico).
+
+==== Exibindo erros fora do formulário
+
+Fora de `th:object`, use o nome do objeto em uma expressão `${...}`:
+
+[source,html]
+----
+<div th:if="${#fields.hasErrors('pessoa.*')}"
+     th:errors="${pessoa.*}"></div>
+----
+
+=== Personalizando mensagens
+
+O atributo `message` permite escrever a mensagem diretamente na restrição, como nos exemplos de `Pessoa`. Parâmetros como `{value}` e `{max}` são substituídos pelos atributos da anotação.
+
+==== Mensagens do Bean Validation
+
+Para separar as mensagens do código, crie `src/main/resources/ValidationMessages.properties` e use a chave entre chaves na anotação:
+
+[source,java]
+----
+@Min(value = 18, message = "{pessoa.idade.minima}")
+private Integer idade;
+----
+
+.ValidationMessages.properties
+[source,properties]
+----
+pessoa.idade.minima=A idade deve ser maior ou igual a {value}.
+----
+
+Essa é a convenção do Bean Validation. É possível criar variantes por idioma, como `ValidationMessages_pt_BR.properties`.
+
+==== Mensagens do Spring MVC
+
+O Spring também resolve códigos de erro pelo seu `MessageSource`. Em uma aplicação Spring Boot com a configuração padrão, use `src/main/resources/messages.properties` para personalizar a apresentação dos erros:
 
 .messages.properties
-[source, properties]
+[source,properties]
 ----
-Min.pessoa.idade = Idade deve ser maior que ou igual à {1}
-----
-
-- Min: indica a valiação @Min()
-- pessoa: nossa classe
-- idade: atributo da validação 
-
-
-=== Enviar atributos no redirecionamento
-
-Em algum momento, temos a necessidade de enviar atributos quando a solicitação for redirecionada, por exemplo, quando desejamos enviar uma mensagem de sucesso para o usuário. Deste modo, podemos especificar um parâmetro do tipo RedirectAttributes para enviar atributos em um redirecionamento, conforme exemplo a seguir.
-
-[source, java]
-----
-...
-    @GetMapping("/exemplo")
-    public ModelAndView exemplo(RedirectAttributes attributes){
-            attributes.addFlashAttribute("chave", "valor");
-            return new ModelAndView("redirect:/...");
-    }
-...
+Min.pessoa.idade=A idade deve ser maior ou igual a {1}.
+typeMismatch.pessoa.idade=Informe uma idade inteira válida.
 ----
 
-addFlashAttribute(): armazena atributos em um mapa de flash, mantido internamente nos usuários session até o próximo request. 
+No primeiro código, `Min` identifica a restrição, `pessoa` é o nome do objeto no modelo e `idade` é o campo. Nesse erro, `{0}` representa o campo e `{1}` recebe o limite de `@Min`. Já `typeMismatch` trata uma falha de conversão, não uma restrição do Bean Validation.
 
-addAttribute(): cria parâmetros de solicitação de seus atributos e redireciona para a página destino.
+NOTE: `ValidationMessages.properties` usa parâmetros como `{value}`; `messages.properties`, na resolução de erros do Spring, usa argumentos posicionais como `{1}`. São mecanismos distintos.
 
-Para exibir o valor do atributo enviado, usando Thymeleaf, faça como o exemplo a seguir.
+=== Enviando uma mensagem no redirecionamento
 
-[source, html]
+O método `save()` usa `addFlashAttribute()` para disponibilizar a mensagem na requisição de destino. Os atributos flash são mantidos temporariamente, normalmente na sessão, e removidos após o uso. `addAttribute()` é usado para expandir variáveis da URL ou acrescentar parâmetros de consulta.
+
+No template `pessoas/list.html`, apresente a mensagem:
+
+[source,html]
 ----
-...
-    <span th:text="${!#strings.isEmpty(chave)} ? ${chave}"> </span>
-...
+<p th:if="${mensagem != null}" th:text="${mensagem}"></p>
 ----
+
+=== Verificando o comportamento
+
+Após integrar os exemplos à aplicação, experimente:
+
+[cols="2,2,3",options="header"]
+|===
+|Nome |Idade |Resultado esperado
+|Vazio ou apenas espaços |18 |Erro de nome obrigatório.
+|Mais de 100 caracteres |18 |Erro de tamanho do nome.
+|Ana |Vazia |Erro de idade obrigatória.
+|Ana |17 |Erro de idade mínima.
+|Ana |18 |Cadastro e redirecionamento com mensagem de sucesso.
+|Ana |Texto não numérico |Erro de conversão; nenhuma gravação.
+|===
+
+O navegador pode impedir texto em um campo `type="number"`. Para verificar a conversão no servidor, envie uma requisição POST com `idade=abc` por uma ferramenta HTTP, mantendo os demais requisitos da aplicação.
+
+Restrições HTML, como `required` e `min`, podem melhorar a experiência, mas a requisição precisa continuar sendo validada no servidor.
 
 == Referências
 
-1. https://spring.io/guides/gs/validating-form-input/
-
-1. https://jakarta.ee/specifications/bean-validation/3.0/jakarta-bean-validation-spec-3.0.html#builtinconstraints
-
-1. https://www.thymeleaf.org/doc/tutorials/3.0/thymeleafspring.html#validation-and-error-messages
+. https://spring.io/guides/gs/validating-form-input/[Spring — Validating Form Input].
+. https://jakarta.ee/specifications/bean-validation/3.0/jakarta-bean-validation-spec-3.0.html#builtinconstraints[Jakarta Bean Validation 3.0 — Built-in constraints].
+. https://www.thymeleaf.org/doc/tutorials/3.0/thymeleafspring.html#validation-and-error-messages[Thymeleaf + Spring — Validation and Error Messages].
+. https://docs.hibernate.org/validator/6.2/reference/en-US/html_single/[Hibernate Validator 6.2 — restrições, validação em cascata e mensagens].
+. https://docs.spring.io/spring-framework/docs/5.3.39/reference/html/core.html#validation-beanvalidation[Spring Framework 5.3 — Bean Validation e grupos].
+. https://docs.spring.io/spring-framework/docs/5.3.39/reference/html/web.html#mvc-ann-modelattrib-method-args[Spring MVC 5.3 — ModelAttribute e BindingResult].
