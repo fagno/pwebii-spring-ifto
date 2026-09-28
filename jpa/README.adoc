@@ -865,6 +865,44 @@ Na última chamada, as duas condições devem ser atendidas. Os parâmetros segu
 
 Referência: link:https://docs.spring.io/spring-data/jpa/reference/jpa/query-methods.html#jpa.query-methods.query-creation[Spring Data JPA — Query Creation].
 
+=== Declarando consultas com @Query
+
+A anotação `@Query`, colocada acima do método, permite escrever a consulta diretamente na interface. Neste exemplo, acrescentamos uma busca pelo nome à mesma `PessoaRepository`; mantenha os métodos anteriores.
+
+.Trecho de PessoaRepository
+[source,java]
+----
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+// Dentro da interface PessoaRepository:
+@Query("select p from Pessoa p where p.nome = :nome")
+List<Pessoa> buscarPorNome(@Param("nome") String nome);
+----
+
+Mantenha também o import de `java.util.List`. A consulta usa *JPQL*, que trabalha com entidades e atributos Java:
+
+[cols="1,3",options="header"]
+|===
+|Trecho |Significado
+|`select p` |Retorna as pessoas encontradas.
+|`from Pessoa p` |Consulta a entidade `Pessoa`, identificada pelo apelido `p`.
+|`where p.nome = :nome` |Compara o atributo `nome` com o parâmetro informado.
+|`@Param("nome")` |Associa o argumento do método ao parâmetro `:nome`.
+|===
+
+.Chamada em um método com repository injetado por construtor
+[source,java]
+----
+List<Pessoa> pessoas = repository.buscarPorNome("Ana");
+----
+
+Para esse argumento, a busca equivale à de `findByNome("Ana")`. Com `@Query`, a consulta está na anotação; o nome `buscarPorNome` não precisa seguir a convenção `findBy`. Os métodos herdados continuam disponíveis.
+
+NOTE: Em JPQL, use `Pessoa` e seus atributos, não o nome da tabela `tb_pessoa`. O valor recebido é vinculado pelo parâmetro, sem concatená-lo à consulta. Consultas SQL nativas exigem `nativeQuery = true` e utilizam tabelas e colunas.
+
+Referência: link:https://docs.spring.io/spring-data/jpa/reference/jpa/query-methods.html[Spring Data JPA — Using @Query e Using Named Parameters].
+
 === Paginação e ordenação
 
 .Trecho de um método de consulta com repository injetado
