@@ -50,11 +50,11 @@ Adicione o starter de validação ao projeto Spring Boot. A versão da dependên
 </dependency>
 ----
 
-NOTE: Os exemplos mantêm os imports `javax.validation` e `javax.persistence` para acompanhar o Spring Boot 2 usado nos demais capítulos. No Spring Boot 3, utilize `jakarta.validation` e `jakarta.persistence`. A referência Jakarta Bean Validation 3.0 usa o namespace `jakarta`; não misture os dois namespaces no mesmo exemplo.
+NOTE: Os exemplos usam Spring Boot 4, Java 17 ou superior e Jakarta Validation 3.1. Utilize `jakarta.validation` para validação e `jakarta.persistence` para persistência. A anotação `@Transactional` usada aqui pertence ao Spring: `org.springframework.transaction.annotation.Transactional`.
 
 === Principais anotações
 
-As restrições abaixo pertencem ao pacote `javax.validation.constraints` no Bean Validation 2.0 (ou `jakarta.validation.constraints` no Jakarta Bean Validation 3.0).
+As restrições abaixo pertencem ao pacote `jakarta.validation.constraints`, da especificação Jakarta Validation 3.1.
 
 [cols="2,3,3",options="header"]
 |===
@@ -121,7 +121,7 @@ As restrições abaixo pertencem ao pacote `javax.validation.constraints` no Bea
 |`@Null Long id;`
 |===
 
-Consulte os tipos aceitos por cada restrição na link:https://jakarta.ee/specifications/bean-validation/3.0/jakarta-bean-validation-spec-3.0.html#builtinconstraints[especificação]. Por exemplo, `@NotBlank` não se aplica a números, e `@Size` não limita o valor de uma idade.
+Consulte os tipos aceitos por cada restrição na link:https://jakarta.ee/specifications/bean-validation/3.1/jakarta-validation-spec-3.1.html#builtinconstraints[especificação]. Por exemplo, `@NotBlank` não se aplica a números, e `@Size` não limita o valor de uma idade.
 
 ==== Obrigatoriedade e valores nulos
 
@@ -139,14 +139,14 @@ O cadastro exige nome preenchido, com até 100 caracteres, e idade informada, a 
 [source,java]
 ----
 import java.io.Serializable;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 @Entity
 public class Pessoa implements Serializable {
@@ -185,9 +185,8 @@ O parâmetro `BindingResult` deve ficar imediatamente após o objeto validado. E
 .Controller
 [source,java]
 ----
-import javax.transaction.Transactional;
-import javax.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -203,8 +202,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/pessoas")
 public class PessoasController {
 
-    @Autowired
-    private PessoaDAO dao;
+    private final PessoaRepository repository;
+
+    public PessoasController(PessoaRepository repository) {
+        this.repository = repository;
+    }
 
     @GetMapping("/form")
     public ModelAndView form(@ModelAttribute("pessoa") Pessoa pessoa) {
@@ -213,7 +215,7 @@ public class PessoasController {
 
     @GetMapping("/list")
     public ModelAndView listar(ModelMap model) {
-        model.addAttribute("pessoas", dao.pessoas());
+        model.addAttribute("pessoas", repository.findAll());
         return new ModelAndView("pessoas/list", model);
     }
 
@@ -225,14 +227,16 @@ public class PessoasController {
             return new ModelAndView("pessoas/form");
         }
 
-        dao.save(pessoa);
+        repository.save(pessoa);
         attributes.addFlashAttribute("mensagem", "Pessoa cadastrada com sucesso.");
         return new ModelAndView("redirect:/pessoas/list");
     }
 }
 ----
 
-O exemplo pressupõe o `PessoaDAO` do capítulo de persistência, com os métodos `save()` e `pessoas()`, e os templates `pessoas/form.html` e `pessoas/list.html`.
+O exemplo utiliza a interface `PessoaRepository extends JpaRepository<Pessoa, Long>` apresentada no tópico de Spring Data JPA do capítulo de persistência, com os métodos `save()` e `findAll()`, e os templates `pessoas/form.html` e `pessoas/list.html`.
+
+O repositório é recebido pelo construtor e armazenado em um campo `final`. Como a classe possui um único construtor, o Spring o utiliza automaticamente, sem exigir `@Autowired`. Essa abordagem explicita a dependência obrigatória e permite fornecer o repositório diretamente ao criar o controller em um teste. Consulte a link:https://docs.spring.io/spring-framework/reference/core/beans/annotation-config/autowired.html[documentação de injeção do Spring].
 
 Quando há erros, retornamos a view na mesma requisição, preservando os dados e o `BindingResult`. O redirecionamento acontece depois de salvar.
 
@@ -248,7 +252,7 @@ Em um atributo que referencia outro objeto, `@Valid` permite validar suas restri
 private Endereco endereco;
 ----
 
-Nesse trecho, importe `javax.validation.Valid` e `javax.validation.constraints.NotNull`, e declare as restrições na classe `Endereco`.
+Nesse trecho, importe `jakarta.validation.Valid` e `jakarta.validation.constraints.NotNull`, e declare as restrições na classe `Endereco`.
 
 A anotação `@Validated`, do pacote `org.springframework.validation.annotation`, permite selecionar grupos de validação no Spring, por exemplo `@Validated(Cadastro.class)`. As restrições podem declarar `groups = Cadastro.class`, sendo `Cadastro` uma interface marcadora. Sem grupos explícitos, utiliza-se o grupo `Default`. O cadastro deste capítulo usa apenas `@Valid`.
 
@@ -269,7 +273,7 @@ A interface não precisa de métodos: ela apenas identifica o grupo. Importe-a n
 private String nome;
 ----
 
-Essa restrição será verificada ao selecionar o grupo com `@Validated(Cadastro.class)`. Restrições sem `groups` pertencem ao grupo `Default` e não são incluídas automaticamente nessa seleção. Para validar ambos, use `@Validated({Default.class, Cadastro.class})`, importando `javax.validation.groups.Default`.
+Essa restrição será verificada ao selecionar o grupo com `@Validated(Cadastro.class)`. Restrições sem `groups` pertencem ao grupo `Default` e não são incluídas automaticamente nessa seleção. Para validar ambos, use `@Validated({Default.class, Cadastro.class})`, importando `jakarta.validation.groups.Default`.
 
 === Apresentando os erros com Thymeleaf
 
@@ -386,8 +390,10 @@ Restrições HTML, como `required` e `min`, podem melhorar a experiência, mas a
 == Referências
 
 . https://spring.io/guides/gs/validating-form-input/[Spring — Validating Form Input].
-. https://jakarta.ee/specifications/bean-validation/3.0/jakarta-bean-validation-spec-3.0.html#builtinconstraints[Jakarta Bean Validation 3.0 — Built-in constraints].
-. https://www.thymeleaf.org/doc/tutorials/3.0/thymeleafspring.html#validation-and-error-messages[Thymeleaf + Spring — Validation and Error Messages].
-. https://docs.hibernate.org/validator/6.2/reference/en-US/html_single/[Hibernate Validator 6.2 — restrições, validação em cascata e mensagens].
-. https://docs.spring.io/spring-framework/docs/5.3.39/reference/html/core.html#validation-beanvalidation[Spring Framework 5.3 — Bean Validation e grupos].
-. https://docs.spring.io/spring-framework/docs/5.3.39/reference/html/web.html#mvc-ann-modelattrib-method-args[Spring MVC 5.3 — ModelAttribute e BindingResult].
+. https://jakarta.ee/specifications/bean-validation/3.1/jakarta-validation-spec-3.1.html#builtinconstraints[Jakarta Validation 3.1 — Built-in constraints].
+. https://www.thymeleaf.org/doc/tutorials/3.1/thymeleafspring.html#validation-and-error-messages[Thymeleaf + Spring — Validation and Error Messages].
+. https://docs.hibernate.org/validator/9.0/reference/en-US/html_single/[Hibernate Validator 9.0 — restrições, validação em cascata e mensagens].
+. https://docs.spring.io/spring-framework/reference/core/validation/beanvalidation.html[Spring Framework 7 — Bean Validation e grupos].
+. https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-methods/modelattrib-method-args.html[Spring MVC 7 — ModelAttribute e BindingResult].
+. https://docs.spring.io/spring-boot/4.0/reference/io/validation.html[Spring Boot 4 — integração com Jakarta Validation].
+. https://docs.spring.io/spring-boot/4.0/system-requirements.html[Spring Boot 4 — requisitos de Java e ferramentas].

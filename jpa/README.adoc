@@ -33,495 +33,519 @@ Mestre em Modelagem Computacional de Sistemas – UFT.
 
 == Java Persistence API e Frameworks ORM
 
-A Java Persistence API (JPA) é uma especificação para persistência de dados em Java, que oferece uma API de mapeamento objeto-relacional e soluções para integrar persistência em sistemas corporativos. Ela foi criada com o intuito de ter uma padronização no desenvolvimento de soluções com ORM em Java.
+A Java Persistence API (JPA), atualmente denominada Jakarta Persistence, especifica como mapear objetos Java para um banco de dados relacional e gerenciar sua persistência. Ela define contratos e anotações; uma implementação, como Hibernate ORM ou EclipseLink, executa esse trabalho.
 
-Mapeamento objeto relacional (object-relational mapping, ORM) é uma técnica de programação para conversão de dados entre banco
-de dados relacionais e linguagens de programação orientada a objetos. Entre os principais framework ORM, podemos destacar Hibernate, TopLink, EclipseLink, entre outros.   
+O mapeamento objeto-relacional (_object-relational mapping_, ORM) relaciona classes, atributos e associações a tabelas, colunas e chaves estrangeiras. Ele reduz o código repetitivo de acesso a dados, mas o entendimento de SQL e do modelo relacional continua necessário para avaliar consultas e desempenho.
 
-// === Spring Data JPA
+Neste capítulo, partiremos do mapeamento de `Pessoa`, utilizaremos o `EntityManager` e estudaremos associações e herança. Ao final, veremos como o Spring Data JPA simplifica a implementação dos repositórios.
 
-// O Spring Data JPA, embora não seja um framework ORM, foi desenvolvido com base no padrão JPA 2 para trabalhar com qualquer framework que siga tal especificação.
-
-//É importante saber que o Spring Data JPA utiliza as próprias funcionalidades da especificação JPA, mas encapsula os seus recursos.
-
+NOTE: Os exemplos usam Spring Boot 4, Java 17 ou superior e Jakarta Persistence 3.2, com imports `jakarta.persistence`. As dependências devem ser gerenciadas pelo parent ou BOM da versão de Spring Boot adotada no projeto.
 
 === Dependências
 
-Após criar o projeto web com maven utilizando o Spring Boot, adicione ao arquivo pom.xml as dependências a seguir. 
+Em um projeto Maven com o parent ou BOM do Spring Boot 4, adicione o starter de persistência e o driver JDBC do MySQL:
 
-.Dependência
-[source, xml]
+.pom.xml
+[source,xml]
 ----
-<!-- Persist data in SQL stores with Java Persistence API using Spring Data and Hibernate.-->
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-data-jpa</artifactId>
-</dependency> 
+</dependency>
 
-<!-- MySQL JDBC and R2DBC driver -->
 <dependency>
-    <groupId>mysql</groupId>
-    <artifactId>mysql-connector-java</artifactId>
+    <groupId>com.mysql</groupId>
+    <artifactId>mysql-connector-j</artifactId>
     <scope>runtime</scope>
 </dependency>
 ----
 
-IMPORTANT: Você pode adicionar as dependências ao criar o projeto no Spring Boot ou adicionar caso o já exista.
+O starter reúne Spring Data JPA, Hibernate ORM e a infraestrutura JDBC. Mesmo antes de usar interfaces do Spring Data, podemos trabalhar diretamente com o `EntityManager`.
+
+As versões devem acompanhar o gerenciamento de dependências do Spring Boot 4. Use `com.mysql:mysql-connector-j`, sem fixar uma versão diferente da gerenciada pelo BOM. Consulte a link:https://dev.mysql.com/doc/connector-j/en/connector-j-installing-maven.html[documentação do Connector/J]. Esse driver é JDBC, não R2DBC.
 
 === Mapeamento básico
 
-Para efetuar o mapeamento objeto/relacional de uma classe, precisamos inserir a anotação @Entity em uma classe. 
-
-.Criando uma entidade
-[source, java]
-----
-import javax.persistence.Entity;
-
-@Entity
-public class Pessoa{
-}
-----
-
-A anotação @Entity diz que a classe é uma entidade, que representa uma tabela do banco de dados.
-
-Precisamos inserir também as anotações @Id, que declara o identificador no banco de dados e a anotação @GeneratedValue, que determina esse identificador sendo do tipo auto-incremento, neste caso, o atributo 'id'.
+Uma entidade é uma classe anotada com `@Entity`, com identificador e construtor sem argumentos público ou protegido. Para portabilidade em JPA 3.2, a classe e seus membros persistentes não devem ser `final`.
 
 .Entidade Pessoa
-[source, java]
+[source,java]
 ----
-import java.io.Serializable;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tb_pessoa")
-public class Pessoa implements Serializable{
+public class Pessoa {
 
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    private int id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, length = 100)
     private String nome;
-    private int idade;
 
-    //getters e setters
+    private Integer idade;
 
+    public Pessoa() {
+    }
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
+
+    public Integer getIdade() { return idade; }
+    public void setIdade(Integer idade) { this.idade = idade; }
 }
 ----
 
-A classe possui a anotação @Table(name = "tb_pessoa"), que define o nome da tabela ao persistir os dados no banco. Caso você não utilize a anotação a tabela terá o mesmo nome da classe, ou seja, 'Pessoa'.
+O `Long` permite representar um identificador ainda não atribuído por `null`. `GenerationType.IDENTITY` utiliza a coluna de identidade do banco, como o `AUTO_INCREMENT` do MySQL. `@GeneratedValue` também admite `SEQUENCE`, `TABLE`, `AUTO` e `UUID` (para identificadores UUID ou String); portanto, a anotação, isoladamente, não significa auto incremento.
 
-Em JPA é uma boa pratica sempre implementar a interface Serializable. Quando o objeto é serializado, todas as variáveis de instância referentes a classe deste objeto serão serializadas. A serialização significa salvar o estado atual dos objetos em arquivos em formato binário para o seu computador, sendo assim esse estado poderá ser recuperado posteriormente recriando o objeto em memória assim como ele estava no momento da sua serialização.
+`@Table` explicita a tabela. Sem ela, o nome lógico padrão é o nome da entidade, mas a estratégia de nomes físicos do provedor ou do Spring Boot pode transformar esse nome. Como `@Id` está no campo, os exemplos usam acesso aos campos: o provedor não depende dos getters e setters para persistir os atributos.
 
-- Principais anotações:
+Implementar `Serializable` não é uma exigência geral de uma entidade. Essa interface é necessária em cenários que exigem serialização da instância, como sua passagem por valor em uma interface remota.
 
+==== Principais anotações
+
+[cols="2,4",options="header"]
+|===
+|Anotação |Finalidade
+|`@Entity` |Declara uma entidade gerenciada pela JPA.
+|`@Table` |Configura a tabela e suas restrições.
+|`@Id` / `@EmbeddedId` |Declaram uma chave simples / composta representada por um objeto embutido.
+|`@GeneratedValue` |Configura a geração de uma chave simples.
+|`@Column` |Configura nome, nulabilidade, tamanho e outras características da coluna.
+|`@Transient` |Exclui um atributo do mapeamento persistente.
+|`@Enumerated(EnumType.STRING)` |Persiste o nome de uma constante enum; evita depender de sua posição ordinal.
+|`@Embeddable` / `@Embedded` |Declaram e incorporam um objeto de valor, sem identidade própria de entidade.
+|`@Version` |Define o atributo usado no controle de concorrência otimista.
+|`@OneToOne`, `@OneToMany`, `@ManyToOne`, `@ManyToMany` |Definem associações entre entidades.
+|`@JoinColumn` / `@JoinTable` |Configuram a coluna de junção / tabela de associação.
+|`@Inheritance` |Seleciona a estratégia de herança entre entidades.
+|===
+
+`@Column(nullable = false)` descreve a coluna do banco. Para apresentar um erro de preenchimento no formulário, use também Bean Validation, como `@NotBlank`, conforme o link:../validacao/README.adoc[capítulo de validação].
 
 === O arquivo application.properties
 
-Neste arquivo são informadas as propriedades a serem utilizadas na nossa aplicação, neste caso, as configurações de conexão com nosso banco de dados, entre outras configurações da JPA. Este arquivo já é definido por padrão ao criar o projeto no diretório src/main/resources da aplicação.
+Configure a conexão em `src/main/resources/application.properties`. Crie previamente o banco `pwebii` e um usuário com acesso a ele. Defina as variáveis de ambiente `DB_USER` e `DB_PASSWORD` antes de iniciar a aplicação.
 
-.application.properties
-[source, properties]
+.application.properties — ambiente de estudo
+[source,properties]
 ----
-##MYSQL
-spring.datasource.url= jdbc:mysql://localhost:3306/BANCO_DADOS?createDatabaseIfNotExist=true
-spring.datasource.username= USUARIO
-spring.datasource.password= SENHA
+spring.datasource.url=jdbc:mysql://localhost:3306/pwebii
+spring.datasource.username=${DB_USER}
+spring.datasource.password=${DB_PASSWORD}
 
-##JPA
-spring.jpa.hibernate.ddl-auto= update
-spring.jpa.show-sql= true
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
 ----
 
-No arquivo 'application.properties' as propriedades de conexão com o banco de dados são definidas utilizando as principais propriedades abaixo:
+`url`, `username` e `password` identificam o banco e as credenciais. `show-sql` exibe comandos SQL e `format_sql` facilita sua leitura.
 
-- spring.datasource.url: descrição da URL de conexão com o banco de dados
-- spring.datasource.username: nome do usuário do banco de dados
-- spring.datasource.password: senha do usuário do banco de dados
+A propriedade `ddl-auto` controla a interação do Hibernate com o esquema:
 
-Outras propriedades do Hibernate são inseridas no arquivo conforme descrito abaixo.
+[cols="1,4",options="header"]
+|===
+|Valor |Comportamento
+|`none` |Não gerencia o esquema.
+|`validate` |Verifica a compatibilidade do esquema com o mapeamento, sem alterá-lo.
+|`update` |Tenta atualizar o esquema existente.
+|`create` |Recria o esquema na inicialização, removendo os dados anteriores.
+|`create-drop` |Recria o esquema na inicialização e o remove no encerramento.
+|===
 
-- spring.jpa.show-sql: informa se os comandos SQL devem ser exibidos na console (importante para debug, mas deve ser desabilitado em ambiente de produção)
-- spring.jpa.hibernate.ddl-auto: cria ou atualiza automaticamente a estrutura das tabelas no banco de dados.
-
-Pronto! Para gerar a tabela no banco de dados, basta apenas executar o projeto.
+`update` é conveniente para exercícios, mas não substitui um histórico de migrações. Em uma aplicação publicada, prefira migrações com Flyway ou Liquibase e uma escolha explícita de `none` ou `validate`. Consulte a link:https://docs.spring.io/spring-boot/4.0/how-to/data-initialization.html[documentação de inicialização do banco no Spring Boot].
 
 == EntityManager
 
-Um EntityManager é responsável por gerenciar entidades no contexto de persistência. Através dos métodos dessa interface, é possível persistir, pesquisar e excluir objetos do banco de dados.
+O `EntityManager` oferece operações para inserir, localizar, consultar e remover entidades. Ele atua sobre um *contexto de persistência*, que acompanha as instâncias gerenciadas.
 
-Para criar um EntityManager necessitamos de uma instância de EntityManagerFactory. No entanto, em nossos exemplos o Spring tem a responsabilidade de gerenciar as dependências que temos de um EntityManager, ou seja, não precisamos nos preocupar com a criação do EntityManager. Temos apenas que indicar ao Spring que o faça através de anotações.
+[cols="1,3",options="header"]
+|===
+|Estado |Significado
+|Novo (_new_) |Objeto criado na aplicação e ainda não persistido.
+|Gerenciado (_managed_) |Objeto associado ao contexto; suas alterações podem ser sincronizadas com o banco.
+|Desanexado (_detached_) |Objeto com identidade persistente, mas fora do contexto atual.
+|Removido (_removed_) |Objeto marcado para exclusão na sincronização com o banco.
+|===
 
-O Spring controla todo o ciclo da vida do EntityManagerFactory e do EntityManager, bem como suas transações, através da Injeção de dependências.  
+`persist()` torna uma entidade nova gerenciada. `find()` busca pelo identificador e retorna `null` quando não encontra. `merge()` copia o estado recebido para uma instância gerenciada e retorna essa instância; o argumento não se torna automaticamente gerenciado. `remove()` recebe uma entidade gerenciada.
 
-// Mas a inversão de controle não se limita a inicialização de objetos. O Spring também tira do desenvolvedor a responsabilidade de controlar a transação. Ao delegar o controle do EntityManager para o Spring, ele consegue abrir e fechar transações automaticamente.
+`flush()` sincroniza alterações pendentes com o banco, mas não confirma a transação. O SQL pode ser executado antes do commit, inclusive para obter um identificador. Em uma transação, alterações de uma entidade gerenciada são detectadas pelo provedor (_dirty checking_).
+
+No Spring Boot, a infraestrutura configura o `EntityManagerFactory`. Usaremos `@PersistenceContext` para obter acesso ao `EntityManager` associado ao contexto transacional, sem criá-lo ou fechá-lo manualmente.
+
+Referência: link:https://jakarta.ee/specifications/persistence/3.2/apidocs/jakarta.persistence/jakarta/persistence/entitymanager[API de EntityManager].
 
 == Inversão de controle e Injeção de dependência
 
-Injeção de dependências (ou Dependency Injection – DI) é um tipo de inversão de controle (ou Inversion of Control – IoC), processo responsável por fazer o controle da injeção de dependências nas aplicações.
+Na inversão de controle (IoC), o contêiner assume responsabilidades como criar e conectar componentes. A injeção de dependências (DI) é uma forma de realizar essa conexão: o componente recebe os colaboradores de que precisa.
 
-A Inversão de Controle permite a outro elemento o controle e responsabilidade sobre como e quando um objeto deve ser criado.
-
-A injeção de dependência define as dependências declaradas de uma maneira segura e dinâmica. Injeção de dependência é tornar disponível a instância de uma classe quando for necessário. Desta forma, passamos a responsabilidade de criar instâncias para o container.
+No exemplo, o Spring cria o repositório e o injeta no controller. Para que isso ocorra com a configuração padrão do Spring Boot, coloque esses componentes no pacote da classe principal da aplicação ou em seus subpacotes.
 
 === Escopos de componentes
 
-O escopo de um bean define o ciclo de vida e a visibilidade desse bean nos contextos em que é usado. Através da injeção de dependência, indicamos como os componentes serão criados, para que o nosso container possa fazer isso quando necessário.
+O escopo determina quando uma instância de bean é criada e compartilhada:
 
-- Singleton (padrão): um bean com escopo singleton indica ao container criar uma única instância de bean. Este escopo é o valor padrão se nenhum outro escopo for especificado.
-//Uma instância por contexto
-//@Scope("singleton") ou @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
+[cols="1,4",options="header"]
+|===
+|Escopo |Duração e compartilhamento
+|`singleton` |Padrão: uma instância por definição de bean em cada contêiner Spring.
+|`prototype` |Uma nova instância a cada solicitação do bean ao contêiner.
+|`request` |Uma instância por requisição HTTP.
+|`session` |Uma instância por sessão HTTP.
+|`application` |Uma instância por `ServletContext`.
+|`websocket` |Uma instância por sessão WebSocket.
+|===
 
-- Prototype: um bean com escopo prototype indica uma instância diferente toda vez que for solicitado ao contêiner.
-//Um bean por cada requisição
-//@Scope("prototype") ou @Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+Os quatro últimos escopos exigem um contexto web adequado. Um bean `prototype` injetado diretamente em um `singleton` é resolvido na criação desse singleton; isso não produz uma nova instância a cada chamada de método.
 
-Existem quatro escopos adicionais disponíveis apenas em um contexto de aplicativo com reconhecimento da Web.
+Controllers e repositórios singleton devem evitar campos mutáveis com dados de usuários ou requisições. A injeção de `EntityManager` gerenciada pelo Spring usa um proxy; não significa que um único `EntityManager` real possa ser compartilhado livremente entre threads.
 
-- Request: cria uma instância de bean para uma única solicitação HTTP, ou seja, cada solicitação HTTP tem sua própria instância de um bean criada.
-//Um bean por cada requisição HTTP
-
-- Session: cria uma instância de bean única para uma Sessão HTTP.
-//Um bean por cada sessão HTTP
-//session global: escopa uma definição de único bean para o ciclo de vida de uma session HTTP global. Normalmente, apenas é válido quando usado em um contexto de portlet. Válido apenas no contexto de um Spring ApplicationContext com reconhecimento da web.
-
-- Application: cria uma instância única do bean para o ciclo de vida de um ServletContext. 
-//Semelhante ao escopo singleton, no escopo de application, a mesma instância do bean é compartilhada entre vários aplicativos baseados em servlet em execução no mesmo ServletContext, enquanto os beans com escopo singleton têm escopo apenas para um único contexto de aplicativo.
-
-- websocket: cria uma única definição de bean para o ciclo de vida de um WebSocket. 
+Referência: link:https://docs.spring.io/spring-framework/reference/core/beans/factory-scopes.html[escopos de beans no Spring Framework].
 
 === Definindo um Repository
 
-Criaremos a classe PessoaRepository para acesso aos dados da entidade Pessoa. 
+A classe `PessoaRepository` concentra o acesso aos dados. As operações de escrita usam transações; consultas são marcadas como somente leitura.
 
 .Classe PessoaRepository
-[source, java]
+[source,java]
 ----
-...
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
+import java.util.List;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
+@Transactional(readOnly = true)
 public class PessoaRepository {
-     
+
     @PersistenceContext
     private EntityManager em;
-        
-    public void save(Pessoa pessoa){
+
+    @Transactional
+    public void save(Pessoa pessoa) {
         em.persist(pessoa);
     }
 
-    public Pessoa pessoa(Long id){
+    public Pessoa pessoa(Long id) {
         return em.find(Pessoa.class, id);
     }
 
-    public List<Pessoa> pessoas(){
-        Query query = em.createQuery("from Pessoa");
-        return query.getResultList();
+    public List<Pessoa> pessoas() {
+        return em.createQuery(
+            "select p from Pessoa p order by p.nome, p.id", Pessoa.class
+        ).getResultList();
     }
 
-    public void remove(Long id){
-        Pessoa p = em.find(Pessoa.class, id);
-        em.remove(p);
+    @Transactional
+    public void remove(Long id) {
+        Pessoa pessoa = em.find(Pessoa.class, id);
+        if (pessoa != null) {
+            em.remove(pessoa);
+        }
     }
 
-    public void update(Pessoa pessoa){
-        em.merge(pessoa);
-    }    
+    @Transactional
+    public Pessoa update(Pessoa pessoa) {
+        return em.merge(pessoa);
+    }
 }
 ----
 
-A anotação `@Repository` definida em nossa classe, indica que esta classe se trata de um repositório, ou seja, um componente responsável pelo acesso a dados em algum mecanismo de persistência, neste exemplo, um banco de dados.
+`@Repository` identifica um componente de acesso a dados e permite sua participação na tradução de exceções de persistência do Spring. `@PersistenceContext` fornece o acesso ao contexto de persistência.
 
-O atributo do tipo EntityManager anotado com `@PersistenceContext` informa ao container do Spring a responsabilidade de gerenciar a dependência que temos de um EntityManager.
+A consulta usa *JPQL*: `Pessoa` e `nome` são a entidade e o atributo Java, não a tabela `tb_pessoa` e suas colunas. Informar `Pessoa.class` cria uma consulta tipada e evita conversões de uma lista sem tipo.
+
+O método `save()` acima insere entidades novas; `update()` demonstra `merge()`. Esses nomes são escolhas desta classe e não possuem automaticamente o comportamento dos métodos do Spring Data JPA.
 
 === Alterando nosso Controller
 
-Devemos alterar nosso controller do exemplo anterior de modo que a instância da nossa classe PessoaRepository sejá controlada pelo container. Com a anotação `@Autowired` o Spring fará a injeção dessa dependência no momento que o controller for criado.
+A injeção por construtor deixa explícita a dependência obrigatória do controller e permite armazená-la em um campo `final`. Quando há apenas um construtor, o Spring o utiliza automaticamente, sem exigir `@Autowired`. Este é o padrão adotado nos exemplos de controllers e serviços deste material, conforme a link:https://docs.spring.io/spring-framework/reference/core/beans/dependencies/factory-collaborators.html[documentação de injeção de dependências] e a link:https://docs.spring.io/spring-framework/reference/core/beans/annotation-config/autowired.html[regra de seleção do construtor].
 
-Incluimos também no nosso controller a anotação `@Transactional`, fazendo com que o Spring assuma a responsabilidade em gerenciar as transações. 
-
-//Usando o gerenciamento de transação pelo Spring exige a presença do construtor padrão.
-     
 .Classe PessoasController
-[source, java]
+[source,java]
 ----
-...
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.stereotype.Controller;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
-@Transactional
 @Controller
-@RequestMapping("pessoas")
-public class PessoasController {   
-    
-    @Autowired
-    PessoaRepository repository;
-    ...
+@RequestMapping("/pessoas")
+public class PessoasController {
 
+    private final PessoaRepository repository;
+
+    public PessoasController(PessoaRepository repository) {
+        this.repository = repository;
+    }
+
+    @GetMapping("/list")
+    public String listar(Model model) {
+        model.addAttribute("pessoas", repository.pessoas());
+        return "pessoas/list";
+    }
 }
 ----
+
+O template `src/main/resources/templates/pessoas/list.html` recebe a coleção `pessoas`. As transações deste exemplo ficam no repositório. Quando uma operação de negócio envolve várias chamadas, delimite a transação em um serviço, como veremos no tópico de Spring Data JPA.
+
+`@Transactional` funciona por interceptação das chamadas ao bean. Na configuração padrão por proxy, chamar um método anotado a partir de outro método da mesma instância não inicia uma nova interceptação. Por padrão, `RuntimeException` e `Error` provocam rollback; exceções verificadas exigem configuração quando também devem provocá-lo. `readOnly = true` é uma indicação de otimização, não um bloqueio universal de escrita.
+
+Referência: link:https://docs.spring.io/spring-framework/reference/data-access/transaction/declarative/annotations.html[transações declarativas no Spring].
 
 == Mapeamento com associações
 
+Associações expressam relações entre entidades. A cardinalidade informa quantos objetos podem se relacionar; a direção indica quais referências existem no código Java.
+
+Em uma associação bidirecional, o *lado proprietário* define a atualização da relação no banco. O *lado inverso* usa `mappedBy`, cujo valor é o nome do atributo Java no proprietário. Não se trata de uma classificação de entidades em “fortes” e “fracas”.
+
+IMPORTANT: Os exemplos a seguir são alternativas de modelagem. Não acrescente todas as associações à mesma classe `Pessoa`. Nos trechos, mantenha os campos básicos, construtores e acessores apresentados anteriormente e acrescente os imports indicados.
+
+Os diagramas deste capítulo foram elaborados para este material, em SVG editável, a partir dos exemplos. As referências documentam os conceitos, sem reprodução de figuras das documentações. A procedência e os arquivos estão descritos em link:../images/jpa/README.adoc[Diagramas de JPA].
+
 === um-para-um
 
-O relacionamento um-para-um, também conhecido como one-to-one. Neste relacionamento teremos os atributos das entidades relacionadas que serão persistidas na mesma tabela. Como exemplo, iremos utilizar uma classe Pessoa que tem um relacionamento One-to-One com a classe endereço.
+No exemplo, cada pessoa possui um endereço obrigatório, e um endereço pode estar vinculado a, no máximo, uma pessoa. As entidades ocupam *tabelas distintas*. A chave estrangeira fica em `tb_pessoa.id_endereco`, com restrição de unicidade.
 
-.@OneToOne
-image::one-to-one.png[]
+.Um-para-um unidirecional — elaboração própria
+image::jpa/one-to-one.svg[Pessoa referencia Endereco; tb_pessoa contém uma chave estrangeira única para tb_endereco,width=1000]
 
-A implementação do exemplo acima é descrito a seguir. Na classe Pessoa, adicionamos o atributo endereco e e mapeamos com @OneToOne. Adicionamos também a anotação @JoinColumn para definir o nome da coluna que faz referência ao id da tabela tb_endereco na tabela tb_pessoa.
-
-Por padrão, o nome da coluna é definido com o nome do atributo da associação, mais underscore, mais o nome do atributo do identificador da entidade destino caso você não utilize o @JoinColumn.
-
-.Classe Pessoa
-[source, java]
+.Trecho de Pessoa
+[source,java]
 ----
-...
-@Entity
-@Table(name = "tb_pessoa")
-public class Pessoa{
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 
-    @Id
-    @GeneratedValue
-    private int id;
-    
-    private String nome;
+// Dentro de Pessoa:
+@OneToOne(optional = false)
+@JoinColumn(name = "id_endereco", nullable = false, unique = true)
+private Endereco endereco;
 
-    private int idade;
-
-    @OneToOne
-    @JoinColumn(name = "id_endereco")
-    private Endereco endereco;
-
-    //getters e setters
-
-}
+public Endereco getEndereco() { return endereco; }
+public void setEndereco(Endereco endereco) { this.endereco = endereco; }
 ----
 
 .Classe Endereco
-[source, java]
+[source,java]
 ----
-...
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
 @Entity
 @Table(name = "tb_endereco")
-public class Endereco{
+public class Endereco {
 
     @Id
-    @GeneratedValue
-    private int id;
-    
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     private String logradouro;
-    
     private String bairro;
-    
     private String cep;
 
-    //getters e setters
-    
+    public Endereco() {
+    }
+
+    // Getters e setters dos campos.
 }
 ----
 
-IMPORTANT: Não esqueça que precisamos de uma instância persistida de Endereço para atribuir a Pessoa. 
+`optional = false` declara que a referência é obrigatória; `nullable = false` e `unique = true` descrevem as restrições da coluna. Como não configuramos cascata, associe uma instância de `Endereco` já persistida ou persista o endereço antes da pessoa, na mesma transação.
+
+Um objeto de valor que deva compartilhar a tabela da pessoa pode ser modelado com `@Embeddable` e `@Embedded`, em vez desta associação entre entidades.
 
 ==== Associação bidirecional
 
-A associação do exemplo entre pessoa e endereço é unidirecional, ou seja, podemos obter o endereço a partir de uma pessoa, mas não conseguimos obter a pessoa a partir de um endereco. 
+Para navegar também de endereço para pessoa, acrescente a referência inversa em `Endereco`:
 
-.@OneToOne bidirecional
-image::one-to-one-bi.png[]
+.Um-para-um bidirecional — elaboração própria
+image::jpa/one-to-one-bi.svg[Pessoa e Endereco possuem referências Java; a chave estrangeira continua somente em tb_pessoa,width=1000]
 
-Para tornar a associação um-para-um bidirecional, precisamos apenas incluir o atributo de Pessoa na classe Endereco e mapearmos com @OneToOne usando o atributo mappedBy.
-
-.Classe Endereco
-[source, java]
+.Trecho de Endereco
+[source,java]
 ----
-...
-@Entity
-@Table(name = "tb_endereco")
-public class Endereco{
+import jakarta.persistence.OneToOne;
 
-    @Id
-    @GeneratedValue
-    private int id;
-    
-    private String logradouro;
-    
-    private String bairro;
-    
-    private String cep;
+// Dentro de Endereco:
+@OneToOne(mappedBy = "endereco")
+private Pessoa pessoa;
 
-    @OneToOne(mappedBy="endereco")
-    private Pessoa pessoa;
-
-    //getters e setters
-    
-}
+public Pessoa getPessoa() { return pessoa; }
+public void setPessoa(Pessoa pessoa) { this.pessoa = pessoa; }
 ----
 
-IMPORTANT: O valor do mappedBy deve ser igual ao nome do atributo de endereço definido na classe Pessoa.
+`mappedBy = "endereco"` aponta para `Pessoa.endereco`. A bidirecionalidade não cria uma segunda chave estrangeira. Ao montar a relação em memória, atualize ambos os lados:
 
-Em relacionamentos OneToOne, qualquer um dos lados pode ser o dominante. O mappedBy deve ser colocado na classe que não é dona do relacionamento, ou seja, o lado fraco. Neste exemplo, definimos Pessoa como classe dominante. Na tabela tb_endereco não terá id da tabela tb_pessoa.
+[source,java]
+----
+pessoa.setEndereco(endereco);
+endereco.setPessoa(pessoa);
+----
+
+Alterar apenas `Endereco.pessoa` não atualiza o lado proprietário. Referência: link:https://jakarta.ee/specifications/persistence/3.2/apidocs/jakarta.persistence/jakarta/persistence/onetoone[API de OneToOne].
 
 === um-para-muitos
 
-Neste exemplo, vamos alterar nosso relacionamento para que uma pessoa tenha vários endereços e um endereço só tenha uma pessoa. A anotação @OneToMany deve ser utilizada para mapear coleções, neste caso, inserida do lado não dominante (fraco).
+Agora uma pessoa pode possuir zero ou vários endereços, e cada endereço pertence a uma pessoa. Substitua o mapeamento anterior: a chave estrangeira passa para `tb_endereco.id_pessoa`.
 
-.@OneToMany bidirecional
-image::one-to-many-bi.png[]
+.Um-para-muitos bidirecional — elaboração própria
+image::jpa/one-to-many-bi.svg[Pessoa possui vários Endereco; Endereco é proprietário e contém a chave estrangeira id_pessoa,width=1000]
 
-.Classe Pessoa
-[source, java]
+.Trecho de Pessoa
+[source,java]
 ----
-...
-@Entity
-@Table(name = "tb_pessoa")
-public class Pessoa{
+import java.util.ArrayList;
+import java.util.List;
+import jakarta.persistence.OneToMany;
 
-    @Id
-    @GeneratedValue
-    private int id;
-    
-    private String nome;
+// Dentro de Pessoa:
+@OneToMany(mappedBy = "pessoa")
+private List<Endereco> enderecos = new ArrayList<>();
 
-    private int idade;
+public List<Endereco> getEnderecos() { return enderecos; }
 
-    @OneToMany(mappedBy = "pessoa")
-    private List<Endereco> enderecos;
-
-    //getters e setters
-
+public void adicionarEndereco(Endereco endereco) {
+    enderecos.add(endereco);
+    endereco.setPessoa(this);
 }
 ----
 
-.Classe Endereco
-[source, java]
+.Trecho de Endereco
+[source,java]
 ----
-...
-@Entity
-@Table(name = "tb_endereco")
-public class Endereco{
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
-    @Id
-    @GeneratedValue
-    private int id;
-    
-    private String logradouro;
-    
-    private String bairro;
-    
-    private String cep;
+// Dentro de Endereco:
+@ManyToOne(optional = false)
+@JoinColumn(name = "id_pessoa", nullable = false)
+private Pessoa pessoa;
 
-    @ManyToOne
-    @JoinColumn(name = "id_pessoa")
-    private Pessoa pessoa;
-
-    //getters e setters
-    
-}
+public Pessoa getPessoa() { return pessoa; }
+public void setPessoa(Pessoa pessoa) { this.pessoa = pessoa; }
 ----
+
+O lado `@ManyToOne` é o proprietário desta associação. O método auxiliar mantém as referências consistentes ao adicionar um novo endereço; uma transferência entre pessoas também deve retirar o endereço da coleção anterior.
+
+Sem cascata, persistir `Pessoa` não persiste automaticamente seus novos endereços. Na mesma transação, persista a pessoa, associe os endereços e persista cada um deles.
+
+`@OneToMany` também admite mapeamento unidirecional; o uso de `mappedBy` neste exemplo decorre da escolha bidirecional. Referência: link:https://jakarta.ee/specifications/persistence/3.2/apidocs/jakarta.persistence/jakarta/persistence/onetomany[API de OneToMany].
 
 === muitos-para-muitos
 
-Neste exemplo, vamos alterar nosso relacionamento para que uma pessoa tenha vários endereços e um endereço tenha várias pessoas. Usamos a anotação @ManyToMany para mapear a propriedade de coleção. 
+Nesta alternativa, pessoas podem compartilhar endereços, e cada pessoa pode ter vários endereços. Uma tabela intermediária registra os pares de identificadores.
 
-No relacionamento muitos para muitos é criada uma tabela de associação com os nomes das entidades relacionadas, separados por underscore, com duas colunas, com nomes dos identificadores gerados automaticamente.
+.Muitos-para-muitos bidirecional — elaboração própria
+image::jpa/many-to-many.svg[Pessoa e Endereco possuem coleções; Pessoa configura a tabela de associação e Endereco usa mappedBy,width=1000]
 
-Podemos customizar o nome da tabela de associação e das colunas com a
-anotação @JoinTable, conforme exeplo a seguir.
- 
-.@OneToMany bidirecional
-image::many-to-many.png[]
-
-.Classe Pessoa
-[source, java]
+.Trecho de Pessoa
+[source,java]
 ----
-...
-@Entity
-public class Pessoa implements Serializable{
-    
-    @Id
-    @GeneratedValue
-    private int id;
+import java.util.HashSet;
+import java.util.Set;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.UniqueConstraint;
 
-    private String nome;
-
-    private int idade;
-    
-    @ManyToMany
-    @JoinTable(name = "pessoas_enderecos",
+// Dentro de Pessoa:
+@ManyToMany
+@JoinTable(
+    name = "pessoas_enderecos",
     joinColumns = @JoinColumn(name = "id_pessoa"),
-    inverseJoinColumns = @JoinColumn(name = "id_endereco"))
-    private List<Endereco> enderecos=new ArrayList();
+    inverseJoinColumns = @JoinColumn(name = "id_endereco"),
+    uniqueConstraints = @UniqueConstraint(
+        columnNames = {"id_pessoa", "id_endereco"}
+    )
+)
+private Set<Endereco> enderecos = new HashSet<>();
 
-    //getters e setters
+public Set<Endereco> getEnderecos() { return enderecos; }
 
-...
+public void adicionarEndereco(Endereco endereco) {
+    enderecos.add(endereco);
+    endereco.getPessoas().add(this);
+}
 ----
 
-No exemplo acima, foi definido com a anotação @JoinTable o nome da tabela que será gerada e também com a anotação @JoinColumn o nome das colunas que representam os identificadores da associação entre pessoa e endereço.
-
-Na classe endereço vamos utilizar a anotação @ManyToMany, porém apontando apenas o "mappedby" conforme a seguir.
-
-
-.Classe Endereco
-[source, java]
+.Trecho de Endereco
+[source,java]
 ----
-...
-@Entity
-public class Endereco implements Serializable{
-    
-    @Id
-    @GeneratedValue
-    private int id;
-    
-    private String logradouro;
-    
-    private String bairro;
-    
-    private String cep;
-   
-    @ManyToMany(mappedBy = "enderecos")
-    private List<Pessoa> pessoas=new ArrayList();
+import java.util.HashSet;
+import java.util.Set;
+import jakarta.persistence.ManyToMany;
 
-    //getters e setters
+// Dentro de Endereco:
+@ManyToMany(mappedBy = "enderecos")
+private Set<Pessoa> pessoas = new HashSet<>();
 
-...
+public Set<Pessoa> getPessoas() { return pessoas; }
 ----
 
-Um nova tabela será gerada de acordo a nomeclatura definida nas anotações e apresentada na figura a seguir.
+`joinColumns` identifica a referência ao proprietário, `Pessoa`; `inverseJoinColumns` identifica a referência a `Endereco`. A restrição composta impede repetir o mesmo par no banco.
 
-.tabela pessoas_enderecos
-image::tabela-n-to-n.png[]
+O `Set` evita duplicatas conforme `equals()` e `hashCode()`. Ao implementá-los em entidades, não use associações nem atributos mutáveis que alterem o hash enquanto o objeto estiver na coleção.
+
+.Tabela de associação pessoas_enderecos — elaboração própria
+image::jpa/tabela-n-to-n.svg[Tabela pessoas_enderecos com chaves estrangeiras para tb_pessoa e tb_endereco e pares únicos,width=1000]
+
+Se a relação precisar de atributos próprios, como “data de início da residência”, modele uma entidade associativa com duas relações `@ManyToOne`. Referência: link:https://jakarta.ee/specifications/persistence/3.2/apidocs/jakarta.persistence/jakarta/persistence/manytomany[API de ManyToMany].
+
+==== Cascata, remoção de órfãos e carregamento
+
+`cascade` propaga operações do ciclo de vida, como `PERSIST` e `MERGE`; não define o carregamento da associação. `CascadeType.ALL` inclui `REMOVE`, portanto não deve ser aplicado indiscriminadamente a objetos compartilhados.
+
+`orphanRemoval = true`, disponível em `@OneToOne` e `@OneToMany`, permite remover do banco um filho retirado da relação. Use-o quando o filho pertence exclusivamente ao ciclo de vida do pai. Nos exemplos, essa opção não foi ativada.
+
+O padrão é `EAGER` para `@OneToOne` e `@ManyToOne`, e `LAZY` para coleções `@OneToMany` e `@ManyToMany`. `LAZY` é uma indicação ao provedor; `EAGER` exige carregamento, mas não garante uma única consulta SQL.
+
+Planeje o carregamento para cada caso de uso, usando, quando adequado, JPQL com `join fetch` ou grafos de entidades. Observe o SQL para identificar consultas adicionais a cada item de uma lista (problema N+1). Com Hibernate, acessar uma relação não inicializada após fechar o contexto pode causar `LazyInitializationException`.
 
 == Mapeamento com Herança
 
-A JPA define 3 formas de se fazer o mapeamento de herança:
+A JPA oferece três estratégias para hierarquias de entidades. Os exemplos abaixo são alternativas: use apenas uma estratégia por hierarquia. Nesta parte, `Pessoa` será uma classe abstrata, diferente da entidade concreta dos exemplos anteriores.
 
-• Tabela Única por Hierarquia de Classes (single table)
-• Uma tabela para cada classe da hierarquia (joined)
-• Uma tabela para cada classe concreta (table per class)
+[cols="1,2,2",options="header"]
+|===
+|Estratégia |Organização |Característica
+|`SINGLE_TABLE` |Uma tabela para toda a hierarquia. |Consultas sem junções entre tabelas da hierarquia; colunas específicas podem ficar nulas.
+|`JOINED` |Tabela da raiz e tabelas das subclasses. |Evita repetir campos comuns; consultas podem exigir junções.
+|`TABLE_PER_CLASS` |Tabela para cada entidade concreta. |Repete campos herdados; consultas polimórficas podem exigir uniões.
+|===
+
+.Comparação das estratégias de herança — elaboração própria
+image::jpa/heranca.svg[Comparação das tabelas e campos nas estratégias SINGLE_TABLE JOINED e TABLE_PER_CLASS,width=1000]
 
 === Tabela Única por Hierarquia de Classes
 
-Essa estratégia de mapeamento define uma unica tabela para toda a hierarquia de classes. Por exemplo, considere a Classe Pessoa como Superclasse, e outras 2 classes PessoaFisica e PessoaJuridica estendendo de Pessoa, teremos uma tabela com os dados de toda a hierarquia. 
-
-Pontos importantes:
-
-- As classes filhas precisam aceitar valores nulos. A falta da constraint NOT NULL pode ser um problema.
-
-A identificaçao de quem é Pessoa Física ou Jurídica é feita por um atributo chamado discriminator, ou seja, um campo que identifica PessoaFisica(PF) e PessoaJuridica (PJ). 
-
+Em `SINGLE_TABLE`, uma coluna discriminadora identifica a subclasse de cada registro. É a estratégia padrão quando uma hierarquia de entidades não declara outra estratégia.
 
 .Classe Pessoa
-[source, java]
+[source,java]
 ----
-...
+import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.Table;
+
 @Entity
 @Table(name = "tb_pessoa")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -529,172 +553,310 @@ A identificaçao de quem é Pessoa Física ou Jurídica é feita por um atributo
 public abstract class Pessoa {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String nome;
 
-    //getters e setters
-
-...
+    // Construtor sem argumentos implícito; getters e setters omitidos.
+}
 ----
-
-A estratégia é definida com a anotação @Inheritance, neste caso SINGLE_TABLE. A anotação @DiscriminatorColumn foi usada para definir o nome da coluna do discriminator e identificar se é PF ou PJ.
-
-A seguir vamos definir a classe PessoaFisica com a anotação @DiscriminatorValue indicando o discriminador como "F".
 
 .Classe PessoaFisica
-[source, java]
+[source,java]
 ----
-...
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+
 @Entity
 @DiscriminatorValue("F")
-public class PessoaFisica extends Pessoa{
+public class PessoaFisica extends Pessoa {
 
     private String cpf;
 
-    //getters e setters
-
-...
+    // Getters e setters.
+}
 ----
-
-A seguir vamos definir a classe PessoaJuridica com a anotação @DiscriminatorValue indicando o discriminador como "J".
 
 .Classe PessoaJuridica
-[source, java]
+[source,java]
 ----
-...
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+
 @Entity
 @DiscriminatorValue("J")
-public class PessoaJuridica extends Pessoa{
+public class PessoaJuridica extends Pessoa {
 
     private String cnpj;
 
-    //getters e setters
-
-...
+    // Getters e setters.
+}
 ----
+
+A tabela `tb_pessoa` contém `id`, `nome`, `tipo`, `cpf` e `cnpj`. Em um registro do tipo `F`, `cnpj` não se aplica; em um registro do tipo `J`, `cpf` não se aplica. Por isso, uma restrição `NOT NULL` incondicional nessas colunas específicas não representa corretamente essa modelagem. Campos comuns, como `nome`, ainda podem ser obrigatórios.
 
 === Uma tabela para cada classe da hierarquia
 
-Essa estratégia de mapeamento define uma tabela para cada classe da hierarquia. No nosso exemplo, teremos uma tabelas para a classe Pessoa, uma tabela para PessoaFisica e uma para PessoaJuridica.
-
-Alteramos o exemplo anterior, definir a estratégia de herança para JOINED na entidade Pessoa.
+Em `JOINED`, os campos comuns ficam na tabela da raiz, e os específicos ficam nas tabelas das subclasses. O identificador da subclasse também referencia o registro da raiz.
 
 .Classe Pessoa
-[source, java]
+[source,java]
 ----
-...
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.Table;
+
 @Entity
-@Table(name = "tbpessoa")
+@Table(name = "tb_pessoa")
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Pessoa {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String nome;
 
-    //getters e setters
-
-...
+    // Getters e setters.
+}
 ----
-
-Nas subclasses, vamos adicionar a anotação @PrimaryKeyJoinColumn para informar o nome da coluna que faz referência à superclasse.
 
 .Classe PessoaFisica
-[source, java]
+[source,java]
 ----
-...
+import jakarta.persistence.Entity;
+import jakarta.persistence.PrimaryKeyJoinColumn;
+import jakarta.persistence.Table;
+
 @Entity
 @Table(name = "tb_pessoafisica")
 @PrimaryKeyJoinColumn(name = "id_pessoa")
-public class PessoaFisica extends Pessoa{
+public class PessoaFisica extends Pessoa {
 
     private String cpf;
 
-    //getters e setters
-
-...
+    // Getters e setters.
+}
 ----
 
 .Classe PessoaJuridica
-[source, java]
+[source,java]
 ----
-...
+import jakarta.persistence.Entity;
+import jakarta.persistence.PrimaryKeyJoinColumn;
+import jakarta.persistence.Table;
+
 @Entity
 @Table(name = "tb_pessoajuridica")
 @PrimaryKeyJoinColumn(name = "id_pessoa")
-public class PessoaJuridica extends Pessoa{
+public class PessoaJuridica extends Pessoa {
 
     private String cnpj;
 
-    //getters e setters
-
-...
+    // Getters e setters.
+}
 ----
+
+Uma pessoa física ocupa uma linha em `tb_pessoa` e outra em `tb_pessoafisica`, ligadas pelo identificador. As subclasses herdam `@Id`; não declaram uma nova identidade. Nesta alternativa, retire os discriminadores do exemplo `SINGLE_TABLE`.
 
 === Uma tabela para cada classe concreta
 
-Essa estratégia de mapeamento define tabelas apenas para classes concretas (subclasses). Cada tabela deve possuir as propriedades da subclasse incluindo as da superclasse.
-
-Para utilizar essa forma de mapeamento, devemos anotar a classe conforme a seguir.
+Em `TABLE_PER_CLASS`, cada tabela concreta reúne os campos próprios e herdados. Como `Pessoa` é abstrata, neste exemplo não há uma tabela para instâncias diretas dela.
 
 .Classe Pessoa
-[source, java]
+[source,java]
 ----
-...
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.TableGenerator;
+
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class Pessoa {
 
     @Id
-    @GeneratedValue(generator = "inc")
-    @GenericGenerator(name = "inc", strategy = "increment")    
+    @TableGenerator(
+        name = "pessoa_ids",
+        table = "gerador_ids",
+        pkColumnName = "segmento",
+        valueColumnName = "proximo_valor",
+        pkColumnValue = "pessoa",
+        allocationSize = 1
+    )
+    @GeneratedValue(strategy = GenerationType.TABLE, generator = "pessoa_ids")
     private Long id;
 
     private String nome;
 
-    //getters e setters
-
-...
+    // Getters e setters.
+}
 ----
-
-Tivemos que mudar a estratégia de geração de identificadores. Não podemos usar a geração automática de chaves nativa do banco de dados.
-
-Nas subclasses, definimos conforme a seguir.
 
 .Classe PessoaFisica
-[source, java]
+[source,java]
 ----
-...
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+
 @Entity
 @Table(name = "tb_pessoafisica")
-public class PessoaFisica extends Pessoa{
+public class PessoaFisica extends Pessoa {
 
     private String cpf;
 
-    //getters e setters
-
-...
+    // Getters e setters.
+}
 ----
 
 .Classe PessoaJuridica
-[source, java]
+[source,java]
 ----
-...
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+
 @Entity
 @Table(name = "tb_pessoajuridica")
-public class PessoaJuridica extends Pessoa{
+public class PessoaJuridica extends Pessoa {
 
     private String cnpj;
 
-    //getters e setters
-
-...
+    // Getters e setters.
+}
 ----
+
+O gerador em tabela compartilha a geração de IDs da hierarquia e funciona com o MySQL deste exemplo. No Hibernate, `IDENTITY` não é suportado nessa estratégia. `TABLE` exige acesso adicional à tabela geradora; bancos com sequências permitem avaliar `SEQUENCE` como alternativa.
+
+Retire `@PrimaryKeyJoinColumn` das subclasses nesta alternativa: os campos herdados ficam em cada tabela concreta, sem uma tabela raiz para a junção. O suporte a `TABLE_PER_CLASS` é opcional na especificação JPA 3.2, embora seja oferecido pelo Hibernate.
+
+NOTE: `@MappedSuperclass` permite compartilhar mapeamentos sem tornar a superclasse uma entidade consultável. É uma opção diferente de uma hierarquia de entidades consultada polimorficamente.
+
+Referências: link:https://jakarta.ee/specifications/persistence/3.2/apidocs/jakarta.persistence/jakarta/persistence/inheritance[API de Inheritance] e link:https://docs.hibernate.org/orm/7.2/userguide/html_single/#entity-inheritance[herança no Hibernate ORM].
+
+== Spring Data JPA
+
+O Spring Data JPA cria implementações de repositórios a partir de interfaces. Ele utiliza JPA e seu provedor, como Hibernate; não substitui o ORM, os mapeamentos nem a necessidade de compreender transações e consultas.
+
+O starter já foi adicionado no início do capítulo. Neste tópico, volte à `Pessoa` concreta do mapeamento básico, com `Long id`, `String nome` e `Integer idade`, sem a hierarquia de herança.
+
+=== Criando uma interface de repositório
+
+Substitua a classe manual `PessoaRepository` pela interface abaixo. Elas são duas alternativas de implementação, não devem coexistir com o mesmo nome.
+
+.PessoaRepository.java
+[source,java]
+----
+import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+public interface PessoaRepository extends JpaRepository<Pessoa, Long> {
+
+    List<Pessoa> findByNomeContainingIgnoreCase(String nome);
+
+    @Query("select p from Pessoa p where p.idade >= :idadeMinima order by p.nome, p.id")
+    List<Pessoa> buscarPorIdadeMinima(@Param("idadeMinima") Integer idadeMinima);
+}
+----
+
+`Pessoa` é o tipo da entidade e `Long` é o tipo de sua chave. Coloque a interface no pacote da aplicação ou em um subpacote para que a configuração automática a encontre. Não é necessário implementar seus métodos nem adicionar `@Repository` à interface neste caso.
+
+[cols="2,3",options="header"]
+|===
+|Método herdado |Uso
+|`save(pessoa)` |Salva uma entidade; usa `persist()` ou `merge()` conforme a detecção de entidade nova. Utilize o objeto retornado.
+|`findById(id)` |Retorna `Optional<Pessoa>`, permitindo tratar a ausência.
+|`findAll()` |Consulta todas as pessoas; para conjuntos maiores, prefira paginação.
+|`findAll(pageable)` |Consulta uma página de resultados.
+|`existsById(id)` |Verifica a existência pelo identificador.
+|`delete(pessoa)` / `deleteById(id)` |Solicitam a exclusão, sujeita às restrições do banco.
+|===
+
+No controller anterior, troque `repository.pessoas()` por `repository.findAll()`. O nome `save()` agora segue o contrato do Spring Data, diferente do método manual que apenas chamava `persist()`.
+
+Referência: link:https://docs.spring.io/spring-data/jpa/reference/4.0/api/java/org/springframework/data/jpa/repository/JpaRepository.html[API de JpaRepository].
+
+=== Consultas derivadas e JPQL
+
+`findByNomeContainingIgnoreCase` deriva uma busca por trecho de nome ignorando diferenças de caixa. Os nomes dos métodos usam atributos Java: um atributo inexistente torna a consulta inválida.
+
+`@Query` permite declarar JPQL explicitamente. No exemplo, `:idadeMinima` recebe um parâmetro nomeado com `@Param`, sem concatenar valores enviados pelo usuário. Consultas SQL nativas exigem `nativeQuery = true` e usam tabelas e colunas do banco.
+
+=== Paginação e ordenação
+
+.Trecho de um método de consulta com repository injetado
+[source,java]
+----
+import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
+// Dentro de um método:
+Pageable pageable = PageRequest.of(0, 10, Sort.by("nome").and(Sort.by("id")));
+Page<Pessoa> pagina = repository.findAll(pageable);
+
+List<Pessoa> pessoas = pagina.getContent();
+long total = pagina.getTotalElements();
+----
+
+O índice da primeira página é zero. Ordenar também por `id` desempata nomes iguais. `Page` oferece totais, podendo executar uma consulta de contagem; `Slice` é uma alternativa em métodos de consulta quando basta saber se há uma próxima parte.
+
+=== Transações na camada de serviço
+
+Um serviço define a unidade de trabalho. Neste exemplo, buscamos a pessoa e alteramos seu nome dentro da mesma transação:
+
+.PessoaService.java
+[source,java]
+----
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class PessoaService {
+
+    private final PessoaRepository repository;
+
+    public PessoaService(PessoaRepository repository) {
+        this.repository = repository;
+    }
+
+    @Transactional
+    public void alterarNome(Long id, String novoNome) {
+        Pessoa pessoa = repository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Pessoa não encontrada."));
+
+        pessoa.setNome(novoNome);
+    }
+}
+----
+
+A entidade obtida permanece gerenciada na transação; o Hibernate detecta a alteração sem exigir outro `save()`. O controller deve receber e chamar o serviço para executar essa operação. Valide `novoNome` conforme as regras da aplicação antes de atribuí-lo.
+
+As operações CRUD herdadas possuem configuração transacional. Métodos de consulta declarados na interface não recebem automaticamente a mesma configuração; para operações de leitura que exijam um limite transacional, use um serviço com `@Transactional(readOnly = true)`.
+
+Referência: link:https://docs.spring.io/spring-data/jpa/reference/4.0/jpa/transactions.html[transações no Spring Data JPA].
 
 == Referências
 
-1. https://spring.io/
+. https://jakarta.ee/specifications/persistence/3.2/[Jakarta Persistence 3.2 — especificação e API compatíveis com jakarta.persistence].
+. https://jakarta.ee/specifications/persistence/3.2/apidocs/jakarta.persistence/module-summary[Jakarta Persistence 3.2 — anotações e interfaces].
+. https://docs.hibernate.org/orm/7.2/userguide/html_single/[Hibernate ORM 7.2 — mapeamento, associações, carregamento e herança].
+. https://docs.spring.io/spring-boot/4.0/reference/data/sql.html[Spring Boot 4.0 — acesso a bancos SQL].
+. https://docs.spring.io/spring-boot/4.0/how-to/data-initialization.html[Spring Boot 4.0 — inicialização e migração do banco].
+. https://docs.spring.io/spring-framework/reference/core/beans.html[Spring Framework 7 — contêiner IoC, injeção e escopos].
+. https://docs.spring.io/spring-framework/reference/data-access.html[Spring Framework 7 — acesso a dados e transações].
+. https://docs.spring.io/spring-data/jpa/reference/4.0/[Spring Data JPA 4.0 — repositórios, consultas e transações].
+. https://docs.spring.io/spring-data/jpa/reference/4.0/api/java/org/springframework/data/jpa/repository/JpaRepository.html[Spring Data JPA 4.0 — API de JpaRepository].
+. https://dev.mysql.com/doc/connector-j/en/connector-j-installing-maven.html[MySQL Connector/J — dependência Maven].
+. https://docs.spring.io/spring-boot/4.0/system-requirements.html[Spring Boot 4 — requisitos de Java e ferramentas].

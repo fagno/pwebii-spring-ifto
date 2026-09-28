@@ -1,0 +1,39 @@
+= Diagramas de JPA
+:lang: pt-BR
+
+Os arquivos SVG desta pasta foram elaborados especificamente para os exemplos do link:../../jpa/README.adoc[capítulo de JPA]. O desenho, a disposição dos elementos e os registros fictícios são próprios deste material; nenhuma imagem de terceiros foi copiada, traçada ou adaptada.
+
+Os diagramas acompanham a link:../../LICENSE[licença MIT do repositório]. As documentações abaixo são referências conceituais, não fontes de imagens nem concessões de licença sobre figuras externas.
+
+== Arquivos e referências conceituais
+
+[cols="2,3,3",options="header"]
+|===
+|Arquivo |Conteúdo |Referência
+|link:one-to-one.svg[one-to-one.svg]
+|Referência unidirecional e chave estrangeira única em Pessoa.
+|https://jakarta.ee/specifications/persistence/3.2/apidocs/jakarta.persistence/jakarta/persistence/onetoone[Jakarta Persistence 3.2 — OneToOne].
+|link:one-to-one-bi.svg[one-to-one-bi.svg]
+|Referência inversa e uso de mappedBy, sem segunda chave estrangeira.
+|https://jakarta.ee/specifications/persistence/3.2/apidocs/jakarta.persistence/jakarta/persistence/onetoone[Jakarta Persistence 3.2 — OneToOne].
+|link:one-to-many-bi.svg[one-to-many-bi.svg]
+|Coleção em Pessoa e chave estrangeira em Endereco.
+|https://jakarta.ee/specifications/persistence/3.2/apidocs/jakarta.persistence/jakarta/persistence/onetomany[Jakarta Persistence 3.2 — OneToMany].
+|link:many-to-many.svg[many-to-many.svg]
+|Coleções bidirecionais e tabela intermediária.
+|https://jakarta.ee/specifications/persistence/3.2/apidocs/jakarta.persistence/jakarta/persistence/manytomany[Jakarta Persistence 3.2 — ManyToMany].
+|link:tabela-n-to-n.svg[tabela-n-to-n.svg]
+|Registros fictícios que ilustram o compartilhamento de endereços.
+|https://jakarta.ee/specifications/persistence/3.2/apidocs/jakarta.persistence/jakarta/persistence/jointable[Jakarta Persistence 3.2 — JoinTable].
+|link:heranca.svg[heranca.svg]
+|Comparação de SINGLE_TABLE, JOINED e TABLE_PER_CLASS.
+|https://docs.hibernate.org/orm/7.2/userguide/html_single/#entity-inheritance[Hibernate ORM 7.2 — Entity inheritance].
+|===
+
+== Convenções de leitura e edição
+
+* A parte de objetos Java mostra referências, coleções e os lados proprietário e inverso. As setas indicam navegação; os números próximos às entidades indicam multiplicidade.
+* Na parte relacional, as setas vão da chave estrangeira (FK) para a chave primária (PK) referenciada. UNIQUE indica unicidade e NOT NULL indica obrigatoriedade da coluna.
+* Os desenhos são esquemas didáticos; campos sem relação com o conceito podem ser omitidos. Eles não representam todo o DDL gerado pelo provedor.
+* Cada SVG contém título, descrição acessível e metadados de procedência. Não utiliza fontes remotas, scripts ou imagens incorporadas de terceiros.
+* Os arquivos são vetoriais e podem ser editados como texto ou em um editor SVG. Ao alterar os exemplos, mantenha nomes de campos, cardinalidades e chaves consistentes com o capítulo.
