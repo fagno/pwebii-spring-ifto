@@ -242,21 +242,21 @@ Quando há erros, retornamos a view na mesma requisição, preservando os dados 
 
 ==== Validação em cascata e grupos
 
-Em um atributo que referencia outro objeto, `@Valid` permite validar suas restrições internas. Para exigir também a presença desse objeto, combine-a com `@NotNull`:
+`@Valid` permite percorrer uma associação e validar o objeto referenciado. Os grupos selecionam quais restrições serão aplicadas nessa validação.
 
-.Trecho de uma classe com endereço
-[source,java]
-----
-@NotNull
-@Valid
-private Endereco endereco;
-----
+*Cenário: cadastrar e editar uma pessoa com endereço*
 
-Nesse trecho, importe `jakarta.validation.Valid` e `jakarta.validation.constraints.NotNull`, e declare as restrições na classe `Endereco`.
+No cadastro, `Pessoa` e `Endereco` são novos e ainda não possuem identificadores. Na edição, ambos já existem e precisam ser identificados. Neste exemplo, editar significa alterar a pessoa e seu endereço existente, sem substituir o endereço por um novo.
 
-A anotação `@Validated`, do pacote `org.springframework.validation.annotation`, permite selecionar grupos de validação no Spring, por exemplo `@Validated(Cadastro.class)`. As restrições podem declarar `groups = Cadastro.class`, sendo `Cadastro` uma interface marcadora. Sem grupos explícitos, utiliza-se o grupo `Default`. O cadastro deste capítulo usa apenas `@Valid`.
+[cols="1,3",options="header"]
+|===
+|Grupo |Regras
+|`Cadastro` |Não acrescenta restrições aos IDs neste exemplo; o cadastro verifica as regras comuns de `Default`.
+|`Edicao` |Os identificadores devem estar preenchidos.
+|`Default` |Nome, logradouro e CEP são obrigatórios nas duas operações.
+|===
 
-Para criar o grupo, declare a interface em um arquivo `Cadastro.java`, no pacote de sua aplicação destinado aos grupos de validação:
+Crie as interfaces em arquivos separados. Elas apenas identificam os grupos e não precisam de métodos.
 
 .Cadastro.java
 [source,java]
@@ -265,15 +265,173 @@ public interface Cadastro {
 }
 ----
 
-A interface não precisa de métodos: ela apenas identifica o grupo. Importe-a nas classes de outros pacotes que a utilizarem. Para associar uma restrição a esse grupo, por exemplo:
-
+.Edicao.java
 [source,java]
 ----
-@NotBlank(message = "Informe o nome.", groups = Cadastro.class)
-private String nome;
+public interface Edicao {
+}
 ----
 
-Essa restrição será verificada ao selecionar o grupo com `@Validated(Cadastro.class)`. Restrições sem `groups` pertencem ao grupo `Default` e não são incluídas automaticamente nessa seleção. Para validar ambos, use `@Validated({Default.class, Cadastro.class})`, importando `jakarta.validation.groups.Default`.
+*Definindo as regras e a associação*
+
+As classes abaixo isolam o exemplo de validação, com a associação `Pessoa.endereco`. O mapeamento JPA foi omitido; consulte o capítulo de persistência para `@Entity`, `@Id` e `@OneToOne`. Não crie outra classe com o mesmo nome no mesmo pacote: adapte o exemplo à classe existente. Se os grupos estiverem em outro pacote, importe-os.
+
+.Pessoa.java
+[source,java]
+----
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+public class Pessoa {
+
+    @NotNull(groups = Edicao.class)
+    private Long id;
+
+    @NotBlank(message = "Informe o nome.")
+    private String nome;
+
+    @NotNull(message = "Informe o endereço.")
+    @Valid
+    private Endereco endereco;
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
+
+    public Endereco getEndereco() { return endereco; }
+    public void setEndereco(Endereco endereco) { this.endereco = endereco; }
+}
+----
+
+.Endereco.java
+[source,java]
+----
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+
+public class Endereco {
+
+    @NotNull(groups = Edicao.class)
+    private Long id;
+
+    @NotBlank(message = "Informe o logradouro.")
+    private String logradouro;
+
+    @NotBlank(message = "Informe o CEP.")
+    @Pattern(regexp = "[0-9]{8}", message = "O CEP deve conter oito dígitos.")
+    private String cep;
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getLogradouro() { return logradouro; }
+    public void setLogradouro(String logradouro) { this.logradouro = logradouro; }
+
+    public String getCep() { return cep; }
+    public void setCep(String cep) { this.cep = cep; }
+}
+----
+
+As restrições sem `groups` pertencem a `Default`. `@NotNull` exige a presença do endereço; `@Valid` verifica suas restrições internas. A cascata ignora referências nulas, por isso as duas anotações têm funções complementares.
+
+Sem conversão de grupos, os grupos selecionados para `Pessoa` também são propagados a `Endereco`. Assim, na edição, os IDs de ambos os objetos devem estar preenchidos. No cadastro, não há restrição de validação sobre os IDs. Sem `message` personalizado, `@NotNull` utiliza a mensagem padrão. Essa cascata de validação não é a cascata de persistência da JPA.
+
+*Usando Cadastro e Edicao no controller*
+
+Selecione `Default` junto com o grupo da operação para verificar também os campos comuns:
+
+[cols="1,3",options="header"]
+|===
+|Operação |Anotação no parâmetro
+|Cadastrar |`@Validated({Default.class, Cadastro.class})`
+|Editar |`@Validated({Default.class, Edicao.class})`
+|===
+
+O controller a seguir demonstra somente a validação. Ele retorna os erros ou uma mensagem de dados válidos; a gravação deve ser realizada pelo serviço da aplicação.
+
+.ConferenciaPessoaController.java
+[source,java]
+----
+import jakarta.validation.groups.Default;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+@Controller
+public class ConferenciaPessoaController {
+
+    @PostMapping("/pessoas/conferir-cadastro")
+    public ModelAndView conferirCadastro(
+            @Validated({Default.class, Cadastro.class})
+            @ModelAttribute("pessoa") Pessoa pessoa,
+            BindingResult result) {
+
+        ModelAndView view = new ModelAndView("pessoas/form-grupos");
+        if (result.hasErrors()) {
+            return view;
+        }
+
+        view.addObject("mensagem", "Dados válidos para cadastro.");
+        return view;
+    }
+
+    @PostMapping("/pessoas/conferir-edicao")
+    public ModelAndView conferirEdicao(
+            @Validated({Default.class, Edicao.class})
+            @ModelAttribute("pessoa") Pessoa pessoa,
+            BindingResult result) {
+
+        ModelAndView view = new ModelAndView("pessoas/form-grupos");
+        if (result.hasErrors()) {
+            return view;
+        }
+
+        view.addObject("mensagem", "Dados válidos para edição.");
+        return view;
+    }
+}
+----
+
+`BindingResult` fica imediatamente após o objeto validado. Um erro no CEP aparece no caminho `endereco.cep`. No template `templates/pessoas/form-grupos.html`, dentro de um formulário com `th:object="${pessoa}"`, apresente-o assim:
+
+[source,html]
+----
+<label for="endereco.cep">CEP</label>
+<input type="text" th:field="*{endereco.cep}">
+<span th:if="${#fields.hasErrors('endereco.cep')}"
+      th:errors="*{endereco.cep}"></span>
+----
+
+Complete o formulário com os campos `nome` e `endereco.logradouro`. No cadastro, envie o POST para `/pessoas/conferir-cadastro`, sem IDs. Na edição, use `/pessoas/conferir-edicao` e envie `id` e `endereco.id` em campos `type="hidden"`. A abertura da tela por GET deve colocar `pessoa` no modelo, com um `Endereco` inicializado no cadastro ou os dados carregados para edição. A mensagem pode ser exibida com `th:text="${mensagem}"`.
+
+Na operação real de edição, o serviço deve buscar os registros e conferir se o endereço pertence à pessoa. `@NotNull` verifica apenas o preenchimento do ID, não a existência nem a relação entre os registros.
+
+*Selecionando os grupos conforme a operação*
+
+Com essas regras, `@Validated({Default.class, Cadastro.class, Edicao.class})` também exige os IDs, pois inclui `Edicao`. Não há conflito entre as restrições, mas essa seleção não serve ao cadastro de novos registros sem ID. Selecione o grupo da operação junto com `Default`. A interface `Cadastro` fica disponível para futuras regras específicas; atualmente, selecioná-la junto com `Default` tem o mesmo efeito de validar apenas `Default`.
+
+Considere nome, logradouro e CEP válidos:
+
+[cols="2,2,2",options="header"]
+|===
+|Dados |Default + Cadastro |Default + Edicao
+|Pessoa e endereço sem IDs |Válido |Erros nos dois IDs.
+|Pessoa com ID 10 e endereço com ID 20 |Válido para a validação. |Válido para a validação.
+|Pessoa com ID 10 e endereço sem ID |Válido para a validação. |Erro no ID do endereço.
+|Pessoa e endereço sem IDs, mas CEP inválido |Erro em endereco.cep. |Erros nos IDs e em endereco.cep.
+|Endereço nulo |Erro de endereço obrigatório. |Erro de endereço obrigatório e, se ausente, do ID da pessoa.
+|===
+
+Uma regra pode pertencer aos dois grupos com `groups = {Cadastro.class, Edicao.class}`; isso significa aplicá-la quando qualquer um deles for selecionado. É diferente de solicitar todos os grupos em uma única validação. Para as regras comuns deste exemplo, usamos `Default`.
+
+Referências: link:https://docs.hibernate.org/validator/9.0/reference/en-US/html_single/#chapter-groups[Hibernate Validator — grupos de validação] e link:https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-methods/modelattrib-method-args.html[Spring MVC — validação de ModelAttribute].
 
 === Apresentando os erros com Thymeleaf
 
@@ -321,6 +479,8 @@ Fora de `th:object`, use o nome do objeto em uma expressão `${...}`:
 ----
 
 === Personalizando mensagens
+
+NOTE: O atributo `message` é opcional. Quando ele não é informado, a validação utiliza a mensagem padrão da restrição, como em `@NotNull` ou `@NotBlank`. Defina `message` apenas quando desejar personalizar o texto apresentado ao usuário.
 
 O atributo `message` permite escrever a mensagem diretamente na restrição, como nos exemplos de `Pessoa`. Parâmetros como `{value}` e `{max}` são substituídos pelos atributos da anotação.
 
