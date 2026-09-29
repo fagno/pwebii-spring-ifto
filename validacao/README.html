@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.26">
+<title>Programação para Web II</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<style>
+/*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
+/* Uncomment the following line when using as a custom stylesheet */
+/* @import "https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700"; */
+html{font-family:sans-serif;-webkit-text-size-adjust:100%}
+a{background:none}
+a:focus{outline:thin dotted}
+a:active,a:hover{outline:0}
+h1{font-size:2em;margin:.67em 0}
+b,strong{font-weight:bold}
+abbr{font-size:.9em}
+abbr[title]{cursor:help;border-bottom:1px dotted #dddddf;text-decoration:none}
+dfn{font-style:italic}
+hr{height:0}
+mark{background:#ff0;color:#000}
+code,kbd,pre,samp{font-family:monospace;font-size:1em}
+pre{white-space:pre-wrap}
+q{quotes:"\201C" "\201D" "\2018" "\2019"}
+small{font-size:80%}
+sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}
+sup{top:-.5em}
+sub{bottom:-.25em}
+img{border:0}
+svg:not(:root){overflow:hidden}
+figure{margin:0}
+audio,video{display:inline-block}
+audio:not([controls]){display:none;height:0}
+fieldset{border:1px solid silver;margin:0 2px;padding:.35em .625em .75em}
+legend{border:0;padding:0}
+button,input,select,textarea{font-family:inherit;font-size:100%;margin:0}
+button,input{line-height:normal}
+button,select{text-transform:none}
+button,html input[type=button],input[type=reset],input[type=submit]{-webkit-appearance:button;cursor:pointer}
+button[disabled],html input[disabled]{cursor:default}
+input[type=checkbox],input[type=radio]{padding:0}
+button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0}
+textarea{overflow:auto;vertical-align:top}
+table{border-collapse:collapse;border-spacing:0}
+*,::before,::after{box-sizing:border-box}
+html,body{font-size:100%}
+body{background:#fff;color:rgba(0,0,0,.8);padding:0;margin:0;font-family:"Noto Serif","DejaVu Serif",serif;line-height:1;position:relative;cursor:auto;-moz-tab-size:4;-o-tab-size:4;tab-size:4;word-wrap:anywhere;-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased}
+a:hover{cursor:pointer}
+img,object,embed{max-width:100%;height:auto}
+object,embed{height:100%}
+img{-ms-interpolation-mode:bicubic}
+.left{float:left!important}
+.right{float:right!important}
+.text-left{text-align:left!important}
+.text-right{text-align:right!important}
+.text-center{text-align:center!important}
+.text-justify{text-align:justify!important}
+.hide{display:none}
+img,object,svg{display:inline-block;vertical-align:middle}
+textarea{height:auto;min-height:50px}
+select{width:100%}
+.subheader,.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{line-height:1.45;color:#7a2518;font-weight:400;margin-top:0;margin-bottom:.25em}
+div,dl,dt,dd,ul,ol,li,h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6,pre,form,p,blockquote,th,td{margin:0;padding:0}
+a{color:#2156a5;text-decoration:underline;line-height:inherit}
+a:hover,a:focus{color:#1d4b8f}
+a img{border:0}
+p{line-height:1.6;margin-bottom:1.25em;text-rendering:optimizeLegibility}
+p aside{font-size:.875em;line-height:1.35;font-style:italic}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{font-family:"Open Sans","DejaVu Sans",sans-serif;font-weight:300;font-style:normal;color:#ba3925;text-rendering:optimizeLegibility;margin-top:1em;margin-bottom:.5em;line-height:1.0125em}
+h1 small,h2 small,h3 small,#toctitle small,.sidebarblock>.content>.title small,h4 small,h5 small,h6 small{font-size:60%;color:#e99b8f;line-height:0}
+h1{font-size:2.125em}
+h2{font-size:1.6875em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.375em}
+h4,h5{font-size:1.125em}
+h6{font-size:1em}
+hr{border:solid #dddddf;border-width:1px 0 0;clear:both;margin:1.25em 0 1.1875em}
+em,i{font-style:italic;line-height:inherit}
+strong,b{font-weight:bold;line-height:inherit}
+small{font-size:60%;line-height:inherit}
+code{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;color:rgba(0,0,0,.9)}
+ul,ol,dl{line-height:1.6;margin-bottom:1.25em;list-style-position:outside;font-family:inherit}
+ul,ol{margin-left:1.5em}
+ul li ul,ul li ol{margin-left:1.25em;margin-bottom:0}
+ul.circle{list-style-type:circle}
+ul.disc{list-style-type:disc}
+ul.square{list-style-type:square}
+ul.circle ul:not([class]),ul.disc ul:not([class]),ul.square ul:not([class]){list-style:inherit}
+ol li ul,ol li ol{margin-left:1.25em;margin-bottom:0}
+dl dt{margin-bottom:.3125em;font-weight:bold}
+dl dd{margin-bottom:1.25em}
+blockquote{margin:0 0 1.25em;padding:.5625em 1.25em 0 1.1875em;border-left:1px solid #ddd}
+blockquote,blockquote p{line-height:1.6;color:rgba(0,0,0,.85)}
+@media screen and (min-width:768px){h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2}
+h1{font-size:2.75em}
+h2{font-size:2.3125em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.6875em}
+h4{font-size:1.4375em}}
+table{background:#fff;margin-bottom:1.25em;border:1px solid #dedede;word-wrap:normal}
+table thead,table tfoot{background:#f7f8f7}
+table thead tr th,table thead tr td,table tfoot tr th,table tfoot tr td{padding:.5em .625em .625em;font-size:inherit;color:rgba(0,0,0,.8);text-align:left}
+table tr th,table tr td{padding:.5625em .625em;font-size:inherit;color:rgba(0,0,0,.8)}
+table tr.even,table tr.alt{background:#f8f8f7}
+table thead tr th,table tfoot tr th,table tbody tr td,table tr td,table tfoot tr td{line-height:1.6}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2;word-spacing:-.05em}
+h1 strong,h2 strong,h3 strong,#toctitle strong,.sidebarblock>.content>.title strong,h4 strong,h5 strong,h6 strong{font-weight:400}
+.center{margin-left:auto;margin-right:auto}
+.stretch{width:100%}
+.clearfix::before,.clearfix::after,.float-group::before,.float-group::after{content:" ";display:table}
+.clearfix::after,.float-group::after{clear:both}
+:not(pre).nobreak{word-wrap:normal}
+:not(pre).nowrap{white-space:nowrap}
+:not(pre).pre-wrap{white-space:pre-wrap}
+:not(pre):not([class^=L])>code{font-size:.9375em;font-style:normal!important;letter-spacing:0;padding:.1em .5ex;word-spacing:-.15em;background:#f7f7f8;border-radius:4px;line-height:1.45;text-rendering:optimizeSpeed}
+pre{color:rgba(0,0,0,.9);font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;line-height:1.45;text-rendering:optimizeSpeed}
+pre code,pre pre{color:inherit;font-size:inherit;line-height:inherit}
+pre.nowrap,pre.nowrap pre{white-space:pre;word-wrap:normal}
+em em{font-style:normal}
+strong strong{font-weight:400}
+.keyseq{color:rgba(51,51,51,.8)}
+kbd{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;display:inline-block;color:rgba(0,0,0,.8);font-size:.65em;line-height:1.45;background:#f7f7f7;border:1px solid #ccc;border-radius:3px;box-shadow:0 1px 0 rgba(0,0,0,.2),inset 0 0 0 .1em #fff;margin:0 .15em;padding:.2em .5em;vertical-align:middle;position:relative;top:-.1em;white-space:nowrap}
+.keyseq kbd:first-child{margin-left:0}
+.keyseq kbd:last-child{margin-right:0}
+.menuseq,.menuref{color:#000}
+.menuseq b:not(.caret),.menuref{font-weight:inherit}
+.menuseq{word-spacing:-.02em}
+.menuseq b.caret{font-size:1.25em;line-height:.8}
+.menuseq i.caret{font-weight:bold;text-align:center;width:.45em}
+b.button::before,b.button::after{position:relative;top:-1px;font-weight:400}
+b.button::before{content:"[";padding:0 3px 0 2px}
+b.button::after{content:"]";padding:0 2px 0 3px}
+p a>code:hover{color:rgba(0,0,0,.9)}
+#header,#content,#footnotes,#footer{width:100%;margin:0 auto;max-width:62.5em;*zoom:1;position:relative;padding-left:.9375em;padding-right:.9375em}
+#header::before,#header::after,#content::before,#content::after,#footnotes::before,#footnotes::after,#footer::before,#footer::after{content:" ";display:table}
+#header::after,#content::after,#footnotes::after,#footer::after{clear:both}
+#content{margin-top:1.25em}
+#content::before{content:none}
+#header>h1:first-child{color:rgba(0,0,0,.85);margin-top:2.25rem;margin-bottom:0}
+#header>h1:first-child+#toc{margin-top:8px;border-top:1px solid #dddddf}
+#header>h1:only-child{border-bottom:1px solid #dddddf;padding-bottom:8px}
+#header .details{border-bottom:1px solid #dddddf;line-height:1.45;padding-top:.25em;padding-bottom:.25em;padding-left:.25em;color:rgba(0,0,0,.6);display:flex;flex-flow:row wrap}
+#header .details span:first-child{margin-left:-.125em}
+#header .details span.email a{color:rgba(0,0,0,.85)}
+#header .details br{display:none}
+#header .details br+span::before{content:"\00a0\2013\00a0"}
+#header .details br+span.author::before{content:"\00a0\22c5\00a0";color:rgba(0,0,0,.85)}
+#header .details br+span#revremark::before{content:"\00a0|\00a0"}
+#header #revnumber{text-transform:capitalize}
+#header #revnumber::after{content:"\00a0"}
+#content>h1:first-child:not([class]){color:rgba(0,0,0,.85);border-bottom:1px solid #dddddf;padding-bottom:8px;margin-top:0;padding-top:1rem;margin-bottom:1.25rem}
+#toc{border-bottom:1px solid #e7e7e9;padding-bottom:.5em}
+#toc>ul{margin-left:.125em}
+#toc ul.sectlevel0>li>a{font-style:italic}
+#toc ul.sectlevel0 ul.sectlevel1{margin:.5em 0}
+#toc ul{font-family:"Open Sans","DejaVu Sans",sans-serif;list-style-type:none}
+#toc li{line-height:1.3334;margin-top:.3334em}
+#toc a{text-decoration:none}
+#toc a:active{text-decoration:underline}
+#toctitle{color:#7a2518;font-size:1.2em}
+@media screen and (min-width:768px){#toctitle{font-size:1.375em}
+body.toc2{padding-left:15em;padding-right:0}
+body.toc2 #header>h1:nth-last-child(2){border-bottom:1px solid #dddddf;padding-bottom:8px}
+#toc.toc2{margin-top:0!important;background:#f8f8f7;position:fixed;width:15em;left:0;top:0;border-right:1px solid #e7e7e9;border-top-width:0!important;border-bottom-width:0!important;z-index:1000;padding:1.25em 1em;height:100%;overflow:auto}
+#toc.toc2 #toctitle{margin-top:0;margin-bottom:.8rem;font-size:1.2em}
+#toc.toc2>ul{font-size:.9em;margin-bottom:0}
+#toc.toc2 ul ul{margin-left:0;padding-left:1em}
+#toc.toc2 ul.sectlevel0 ul.sectlevel1{padding-left:0;margin-top:.5em;margin-bottom:.5em}
+body.toc2.toc-right{padding-left:0;padding-right:15em}
+body.toc2.toc-right #toc.toc2{border-right-width:0;border-left:1px solid #e7e7e9;left:auto;right:0}}
+@media screen and (min-width:1280px){body.toc2{padding-left:20em;padding-right:0}
+#toc.toc2{width:20em}
+#toc.toc2 #toctitle{font-size:1.375em}
+#toc.toc2>ul{font-size:.95em}
+#toc.toc2 ul ul{padding-left:1.25em}
+body.toc2.toc-right{padding-left:0;padding-right:20em}}
+#content #toc{border:1px solid #e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;border-radius:4px}
+#content #toc>:first-child{margin-top:0}
+#content #toc>:last-child{margin-bottom:0}
+#footer{max-width:none;background:rgba(0,0,0,.8);padding:1.25em}
+#footer-text{color:hsla(0,0%,100%,.8);line-height:1.44}
+#content{margin-bottom:.625em}
+.sect1{padding-bottom:.625em}
+@media screen and (min-width:768px){#content{margin-bottom:1.25em}
+.sect1{padding-bottom:1.25em}}
+.sect1:last-child{padding-bottom:0}
+.sect1+.sect1{border-top:1px solid #e7e7e9}
+#content h1>a.anchor,h2>a.anchor,h3>a.anchor,#toctitle>a.anchor,.sidebarblock>.content>.title>a.anchor,h4>a.anchor,h5>a.anchor,h6>a.anchor{position:absolute;z-index:1001;width:1.5ex;margin-left:-1.5ex;display:block;text-decoration:none!important;visibility:hidden;text-align:center;font-weight:400}
+#content h1>a.anchor::before,h2>a.anchor::before,h3>a.anchor::before,#toctitle>a.anchor::before,.sidebarblock>.content>.title>a.anchor::before,h4>a.anchor::before,h5>a.anchor::before,h6>a.anchor::before{content:"\00A7";font-size:.85em;display:block;padding-top:.1em}
+#content h1:hover>a.anchor,#content h1>a.anchor:hover,h2:hover>a.anchor,h2>a.anchor:hover,h3:hover>a.anchor,#toctitle:hover>a.anchor,.sidebarblock>.content>.title:hover>a.anchor,h3>a.anchor:hover,#toctitle>a.anchor:hover,.sidebarblock>.content>.title>a.anchor:hover,h4:hover>a.anchor,h4>a.anchor:hover,h5:hover>a.anchor,h5>a.anchor:hover,h6:hover>a.anchor,h6>a.anchor:hover{visibility:visible}
+#content h1>a.link,h2>a.link,h3>a.link,#toctitle>a.link,.sidebarblock>.content>.title>a.link,h4>a.link,h5>a.link,h6>a.link{color:#ba3925;text-decoration:none}
+#content h1>a.link:hover,h2>a.link:hover,h3>a.link:hover,#toctitle>a.link:hover,.sidebarblock>.content>.title>a.link:hover,h4>a.link:hover,h5>a.link:hover,h6>a.link:hover{color:#a53221}
+details,.audioblock,.imageblock,.literalblock,.listingblock,.stemblock,.videoblock{margin-bottom:1.25em}
+details{margin-left:1.25rem}
+details>summary{cursor:pointer;display:block;position:relative;line-height:1.6;margin-bottom:.625rem;outline:none;-webkit-tap-highlight-color:transparent}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"";border:solid transparent;border-left:solid;border-width:.3em 0 .3em .5em;position:absolute;top:.5em;left:-1.25rem;transform:translateX(15%)}
+details[open]>summary::before{border:solid transparent;border-top:solid;border-width:.5em .3em 0;transform:translateY(15%)}
+details>summary::after{content:"";width:1.25rem;height:1em;position:absolute;top:.3em;left:-1.25rem}
+.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{text-rendering:optimizeLegibility;text-align:left;font-family:"Noto Serif","DejaVu Serif",serif;font-size:1rem;font-style:italic}
+table.tableblock.fit-content>caption.title{white-space:nowrap;width:0}
+.paragraph.lead>p,#preamble>.sectionbody>[class=paragraph]:first-of-type p{font-size:1.21875em;line-height:1.6;color:rgba(0,0,0,.85)}
+.admonitionblock>table{border-collapse:separate;border:0;background:none;width:100%}
+.admonitionblock>table td.icon{text-align:center;width:80px}
+.admonitionblock>table td.icon img{max-width:none}
+.admonitionblock>table td.icon .title{font-weight:bold;font-family:"Open Sans","DejaVu Sans",sans-serif;text-transform:uppercase}
+.admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #dddddf;color:rgba(0,0,0,.6);word-wrap:anywhere}
+.admonitionblock>table td.content>:last-child>:last-child{margin-bottom:0}
+.exampleblock>.content{border:1px solid #e6e6e6;margin-bottom:1.25em;padding:1.25em;background:#fff;border-radius:4px}
+.sidebarblock{border:1px solid #dbdbd6;margin-bottom:1.25em;padding:1.25em;background:#f3f3f2;border-radius:4px}
+.sidebarblock>.content>.title{color:#7a2518;margin-top:0;text-align:center}
+.exampleblock>.content>:first-child,.sidebarblock>.content>:first-child{margin-top:0}
+.exampleblock>.content>:last-child,.exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
+.literalblock pre,.listingblock>.content>pre{border-radius:4px;overflow-x:auto;padding:1em;font-size:.8125em}
+@media screen and (min-width:768px){.literalblock pre,.listingblock>.content>pre{font-size:.90625em}}
+@media screen and (min-width:1280px){.literalblock pre,.listingblock>.content>pre{font-size:1em}}
+.literalblock pre,.listingblock>.content>pre:not(.highlight),.listingblock>.content>pre[class=highlight],.listingblock>.content>pre[class^="highlight "]{background:#f7f7f8}
+.literalblock.output pre{color:#f7f7f8;background:rgba(0,0,0,.9)}
+.listingblock>.content{position:relative}
+.listingblock pre>code{display:block}
+.listingblock code[data-lang]::before{display:none;content:attr(data-lang);position:absolute;font-size:.75em;top:.425rem;right:.5rem;line-height:1;text-transform:uppercase;color:inherit;opacity:.5}
+.listingblock:hover code[data-lang]::before{display:block}
+.listingblock.terminal pre .command::before{content:attr(data-prompt);padding-right:.5em;color:inherit;opacity:.5}
+.listingblock.terminal pre .command:not([data-prompt])::before{content:"$"}
+.listingblock pre.highlightjs{padding:0}
+.listingblock pre.highlightjs>code{padding:1em;border-radius:4px}
+.listingblock pre.prettyprint{border-width:0}
+.prettyprint{background:#f7f7f8}
+pre.prettyprint .linenums{line-height:1.45;margin-left:2em}
+pre.prettyprint li{background:none;list-style-type:inherit;padding-left:0}
+pre.prettyprint li code[data-lang]::before{opacity:1}
+pre.prettyprint li:not(:first-child) code[data-lang]::before{display:none}
+table.linenotable{border-collapse:separate;border:0;margin-bottom:0;background:none}
+table.linenotable td[class]{color:inherit;vertical-align:top;padding:0;line-height:inherit;white-space:normal}
+table.linenotable td.code{padding-left:.75em}
+table.linenotable td.linenos,pre.pygments .linenos{border-right:1px solid;opacity:.35;padding-right:.5em;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
+pre.pygments span.linenos{display:inline-block;margin-right:.75em}
+.quoteblock{margin:0 1em 1.25em 1.5em;display:table}
+.quoteblock:not(.excerpt)>.title{margin-left:-1.5em;margin-bottom:.75em}
+.quoteblock blockquote,.quoteblock p{color:rgba(0,0,0,.85);font-size:1.15rem;line-height:1.75;word-spacing:.1em;letter-spacing:0;font-style:italic;text-align:justify}
+.quoteblock blockquote{margin:0;padding:0;border:0}
+.quoteblock blockquote::before{content:"\201c";float:left;font-size:2.75em;font-weight:bold;line-height:.6em;margin-left:-.6em;color:#7a2518;text-shadow:0 1px 2px rgba(0,0,0,.1)}
+.quoteblock blockquote>.paragraph:last-child p{margin-bottom:0}
+.quoteblock .attribution{margin-top:.75em;margin-right:.5ex;text-align:right}
+.verseblock{margin:0 1em 1.25em}
+.verseblock pre{font-family:"Open Sans","DejaVu Sans",sans-serif;font-size:1.15rem;color:rgba(0,0,0,.85);font-weight:300;text-rendering:optimizeLegibility}
+.verseblock pre strong{font-weight:400}
+.verseblock .attribution{margin-top:1.25rem;margin-left:.5ex}
+.quoteblock .attribution,.verseblock .attribution{font-size:.9375em;line-height:1.45;font-style:italic}
+.quoteblock .attribution br,.verseblock .attribution br{display:none}
+.quoteblock .attribution cite,.verseblock .attribution cite{display:block;letter-spacing:-.025em;color:rgba(0,0,0,.6)}
+.quoteblock.abstract blockquote::before,.quoteblock.excerpt blockquote::before,.quoteblock .quoteblock blockquote::before{display:none}
+.quoteblock.abstract blockquote,.quoteblock.abstract p,.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{line-height:1.6;word-spacing:0}
+.quoteblock.abstract{margin:0 1em 1.25em;display:block}
+.quoteblock.abstract>.title{margin:0 0 .375em;font-size:1.15em;text-align:center}
+.quoteblock.excerpt>blockquote,.quoteblock .quoteblock{padding:0 0 .25em 1em;border-left:.25em solid #dddddf}
+.quoteblock.excerpt,.quoteblock .quoteblock{margin-left:0}
+.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{color:inherit;font-size:1.0625rem}
+.quoteblock.excerpt .attribution,.quoteblock .quoteblock .attribution{color:inherit;font-size:.85rem;text-align:left;margin-right:0}
+p.tableblock:last-child{margin-bottom:0}
+td.tableblock>.content{margin-bottom:1.25em;word-wrap:anywhere}
+td.tableblock>.content>:last-child{margin-bottom:-1.25em}
+table.tableblock,th.tableblock,td.tableblock{border:0 solid #dedede}
+table.grid-all>*>tr>*{border-width:1px}
+table.grid-cols>*>tr>*{border-width:0 1px}
+table.grid-rows>*>tr>*{border-width:1px 0}
+table.frame-all{border-width:1px}
+table.frame-ends{border-width:1px 0}
+table.frame-sides{border-width:0 1px}
+table.frame-none>colgroup+*>:first-child>*,table.frame-sides>colgroup+*>:first-child>*{border-top-width:0}
+table.frame-none>:last-child>:last-child>*,table.frame-sides>:last-child>:last-child>*{border-bottom-width:0}
+table.frame-none>*>tr>:first-child,table.frame-ends>*>tr>:first-child{border-left-width:0}
+table.frame-none>*>tr>:last-child,table.frame-ends>*>tr>:last-child{border-right-width:0}
+table.stripes-all>*>tr,table.stripes-odd>*>tr:nth-of-type(odd),table.stripes-even>*>tr:nth-of-type(even),table.stripes-hover>*>tr:hover{background:#f8f8f7}
+th.halign-left,td.halign-left{text-align:left}
+th.halign-right,td.halign-right{text-align:right}
+th.halign-center,td.halign-center{text-align:center}
+th.valign-top,td.valign-top{vertical-align:top}
+th.valign-bottom,td.valign-bottom{vertical-align:bottom}
+th.valign-middle,td.valign-middle{vertical-align:middle}
+table thead th,table tfoot th{font-weight:bold}
+tbody tr th{background:#f7f8f7}
+tbody tr th,tbody tr th p,tfoot tr th,tfoot tr th p{color:rgba(0,0,0,.8);font-weight:bold}
+p.tableblock>code:only-child{background:none;padding:0}
+p.tableblock{font-size:1em}
+ol{margin-left:1.75em}
+ul li ol{margin-left:1.5em}
+dl dd{margin-left:1.125em}
+dl dd:last-child,dl dd:last-child>:last-child{margin-bottom:0}
+li p,ul dd,ol dd,.olist .olist,.ulist .ulist,.ulist .olist,.olist .ulist{margin-bottom:.625em}
+ul.checklist,ul.none,ol.none,ul.no-bullet,ol.no-bullet,ol.unnumbered,ul.unstyled,ol.unstyled{list-style-type:none}
+ul.no-bullet,ol.no-bullet,ol.unnumbered{margin-left:.625em}
+ul.unstyled,ol.unstyled{margin-left:0}
+li>p:empty:only-child::before{content:"";display:inline-block}
+ul.checklist>li>p:first-child{margin-left:-1em}
+ul.checklist>li>p:first-child>.fa-square-o:first-child,ul.checklist>li>p:first-child>.fa-check-square-o:first-child{width:1.25em;font-size:.8em;position:relative;bottom:.125em}
+ul.checklist>li>p:first-child>input[type=checkbox]:first-child{margin-right:.25em}
+ul.inline{display:flex;flex-flow:row wrap;list-style:none;margin:0 0 .625em -1.25em}
+ul.inline>li{margin-left:1.25em}
+.unstyled dl dt{font-weight:400;font-style:normal}
+ol.arabic{list-style-type:decimal}
+ol.decimal{list-style-type:decimal-leading-zero}
+ol.loweralpha{list-style-type:lower-alpha}
+ol.upperalpha{list-style-type:upper-alpha}
+ol.lowerroman{list-style-type:lower-roman}
+ol.upperroman{list-style-type:upper-roman}
+ol.lowergreek{list-style-type:lower-greek}
+.hdlist>table,.colist>table{border:0;background:none}
+.hdlist>table>tbody>tr,.colist>table>tbody>tr{background:none}
+td.hdlist1,td.hdlist2{vertical-align:top;padding:0 .625em}
+td.hdlist1{font-weight:bold;padding-bottom:1.25em}
+td.hdlist2{word-wrap:anywhere}
+.literalblock+.colist,.listingblock+.colist{margin-top:-.5em}
+.colist td:not([class]):first-child{padding:.4em .75em 0;line-height:1;vertical-align:top}
+.colist td:not([class]):first-child img{max-width:none}
+.colist td:not([class]):last-child{padding:.25em 0}
+.thumb,.th{line-height:0;display:inline-block;border:4px solid #fff;box-shadow:0 0 0 1px #ddd}
+.imageblock.left{margin:.25em .625em 1.25em 0}
+.imageblock.right{margin:.25em 0 1.25em .625em}
+.imageblock>.title{margin-bottom:0}
+.imageblock.thumb,.imageblock.th{border-width:6px}
+.imageblock.thumb>.title,.imageblock.th>.title{padding:0 .125em}
+.image.left,.image.right{margin-top:.25em;margin-bottom:.25em;display:inline-block;line-height:0}
+.image.left{margin-right:.625em}
+.image.right{margin-left:.625em}
+a.image{text-decoration:none;display:inline-block}
+a.image object{pointer-events:none}
+sup.footnote,sup.footnoteref{font-size:.875em;position:static;vertical-align:super}
+sup.footnote a,sup.footnoteref a{text-decoration:none}
+sup.footnote a:active,sup.footnoteref a:active,#footnotes .footnote a:first-of-type:active{text-decoration:underline}
+#footnotes{padding-top:.75em;padding-bottom:.75em;margin-bottom:.625em}
+#footnotes hr{width:20%;min-width:6.25em;margin:-.25em 0 .75em;border-width:1px 0 0}
+#footnotes .footnote{padding:0 .375em 0 .225em;line-height:1.3334;font-size:.875em;margin-left:1.2em;margin-bottom:.2em}
+#footnotes .footnote a:first-of-type{font-weight:bold;text-decoration:none;margin-left:-1.05em}
+#footnotes .footnote:last-of-type{margin-bottom:0}
+#content #footnotes{margin-top:-.625em;margin-bottom:0;padding:.75em 0}
+div.unbreakable{page-break-inside:avoid}
+.big{font-size:larger}
+.small{font-size:smaller}
+.underline{text-decoration:underline}
+.overline{text-decoration:overline}
+.line-through{text-decoration:line-through}
+.aqua{color:#00bfbf}
+.aqua-background{background:#00fafa}
+.black{color:#000}
+.black-background{background:#000}
+.blue{color:#0000bf}
+.blue-background{background:#0000fa}
+.fuchsia{color:#bf00bf}
+.fuchsia-background{background:#fa00fa}
+.gray{color:#606060}
+.gray-background{background:#7d7d7d}
+.green{color:#006000}
+.green-background{background:#007d00}
+.lime{color:#00bf00}
+.lime-background{background:#00fa00}
+.maroon{color:#600000}
+.maroon-background{background:#7d0000}
+.navy{color:#000060}
+.navy-background{background:#00007d}
+.olive{color:#606000}
+.olive-background{background:#7d7d00}
+.purple{color:#600060}
+.purple-background{background:#7d007d}
+.red{color:#bf0000}
+.red-background{background:#fa0000}
+.silver{color:#909090}
+.silver-background{background:#bcbcbc}
+.teal{color:#006060}
+.teal-background{background:#007d7d}
+.white{color:#bfbfbf}
+.white-background{background:#fafafa}
+.yellow{color:#bfbf00}
+.yellow-background{background:#fafa00}
+span.icon>.fa{cursor:default}
+a span.icon>.fa{cursor:inherit}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note::before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip::before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning::before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution::before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important::before{content:"\f06a";color:#bf0000}
+.conum[data-value]{display:inline-block;color:#fff!important;background:rgba(0,0,0,.8);border-radius:50%;text-align:center;font-size:.75em;width:1.67em;height:1.67em;line-height:1.67em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-style:normal;font-weight:bold}
+.conum[data-value] *{color:#fff!important}
+.conum[data-value]+b{display:none}
+.conum[data-value]::after{content:attr(data-value)}
+pre .conum[data-value]{position:relative;top:-.125em}
+b.conum *{color:inherit!important}
+.conum:not([data-value]):empty{display:none}
+dt,th.tableblock,td.content,div.footnote{text-rendering:optimizeLegibility}
+h1,h2,p,td.content,span.alt,summary{letter-spacing:-.01em}
+p strong,td.content strong,div.footnote strong{letter-spacing:-.005em}
+p,blockquote,dt,td.content,td.hdlist1,span.alt,summary{font-size:1.0625rem}
+p{margin-bottom:1.25rem}
+.sidebarblock p,.sidebarblock dt,.sidebarblock td.content,p.tableblock{font-size:1em}
+.exampleblock>.content{background:#fffef7;border-color:#e0e0dc;box-shadow:0 1px 4px #e0e0dc}
+.print-only{display:none!important}
+@page{margin:1.25cm .75cm}
+@media print{*{box-shadow:none!important;text-shadow:none!important}
+html{font-size:80%}
+a{color:inherit!important;text-decoration:underline!important}
+a.bare,a[href^="#"],a[href^="mailto:"]{text-decoration:none!important}
+a[href^="http:"]:not(.bare)::after,a[href^="https:"]:not(.bare)::after{content:"(" attr(href) ")";display:inline-block;font-size:.875em;padding-left:.25em}
+abbr[title]{border-bottom:1px dotted}
+abbr[title]::after{content:" (" attr(title) ")"}
+pre,blockquote,tr,img,object,svg{page-break-inside:avoid}
+thead{display:table-header-group}
+svg{max-width:100%}
+p,blockquote,dt,td.content{font-size:1em;orphans:3;widows:3}
+h2,h3,#toctitle,.sidebarblock>.content>.title{page-break-after:avoid}
+#header,#content,#footnotes,#footer{max-width:none}
+#toc,.sidebarblock,.exampleblock>.content{background:none!important}
+#toc{border-bottom:1px solid #dddddf!important;padding-bottom:0!important}
+body.book #header{text-align:center}
+body.book #header>h1:first-child{border:0!important;margin:2.5em 0 1em}
+body.book #header .details{border:0!important;display:block;padding:0!important}
+body.book #header .details span:first-child{margin-left:0!important}
+body.book #header .details br{display:block}
+body.book #header .details br+span::before{content:none!important}
+body.book #toc{border:0!important;text-align:left!important;padding:0!important;margin:0!important}
+body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-break-before:always}
+.listingblock code[data-lang]::before{display:block}
+#footer{padding:0 .9375em}
+.hide-on-print{display:none!important}
+.print-only{display:block!important}
+.hide-for-print{display:none!important}
+.show-for-print{display:inherit!important}}
+@media amzn-kf8,print{#header>h1:first-child{margin-top:1.25rem}
+.sect1{padding:0!important}
+.sect1+.sect1{border:0}
+#footer{background:none}
+#footer-text{color:rgba(0,0,0,.6);font-size:.9em}}
+@media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/styles/github.min.css">
+</head>
+<body class="book toc2 toc-left">
+<div id="header">
+<div id="toc" class="toc2">
+<div id="toctitle">Sumário</div>
+<ul class="sectlevel0">
+<li><a href="#_programação_para_web_ii">Programação para Web II</a>
+<ul class="sectlevel1">
+<li><a href="#_validação_com_bean_validation">1. Validação com Bean Validation</a>
+<ul class="sectlevel2">
+<li><a href="#_dependência_e_compatibilidade">1.1. Dependência e compatibilidade</a></li>
+<li><a href="#_principais_anotações">1.2. Principais anotações</a></li>
+<li><a href="#_validando_a_entidade_pessoa">1.3. Validando a entidade Pessoa</a></li>
+<li><a href="#_acionando_a_validação_no_controller">1.4. Acionando a validação no Controller</a></li>
+<li><a href="#_apresentando_os_erros_com_thymeleaf">1.5. Apresentando os erros com Thymeleaf</a></li>
+<li><a href="#_personalizando_mensagens">1.6. Personalizando mensagens</a></li>
+<li><a href="#_enviando_uma_mensagem_no_redirecionamento">1.7. Enviando uma mensagem no redirecionamento</a></li>
+<li><a href="#_verificando_o_comportamento">1.8. Verificando o comportamento</a></li>
+</ul>
+</li>
+<li><a href="#_referências">2. Referências</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="https://fagno.github.io/pwebii-spring-ifto/">HOME</a></p>
+</div>
+</div>
+</div>
+<h1 id="_programação_para_web_ii" class="sect0">Programação para Web II</h1>
+<div class="openblock partintro">
+<div class="content">
+<div class="paragraph">
+<p>Fagno Alves Fonseca &lt;<a href="mailto:fagno.fonseca@ifto.edu.br">fagno.fonseca@ifto.edu.br</a>&gt;
+Mestre em Modelagem Computacional de Sistemas – UFT.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_validação_com_bean_validation">1. Validação com Bean Validation</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Bean Validation é a especificação que permite declarar restrições sobre objetos Java por meio de anotações. O Hibernate Validator implementa essa especificação; o Spring integra a validação ao recebimento de dados, e o Thymeleaf apresenta os erros no formulário.</p>
+</div>
+<div class="paragraph">
+<p>Neste capítulo, vamos validar o cadastro de uma pessoa antes de salvá-la. O fluxo será: receber os campos, verificar as restrições, reapresentar o formulário quando houver erros e salvar quando os dados forem válidos.</p>
+</div>
+<div class="sect2">
+<h3 id="_dependência_e_compatibilidade">1.1. Dependência e compatibilidade</h3>
+<div class="paragraph">
+<p>Adicione o starter de validação ao projeto Spring Boot. A versão da dependência deve ser gerenciada pelo parent ou BOM do Spring Boot utilizado na aplicação.</p>
+</div>
+<div class="listingblock">
+<div class="title">pom.xml</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-validation&lt;/artifactId&gt;
+&lt;/dependency&gt;</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Os exemplos usam Spring Boot 4, Java 17 ou superior e Jakarta Validation 3.1. Utilize <code>jakarta.validation</code> para validação e <code>jakarta.persistence</code> para persistência. A anotação <code>@Transactional</code> usada aqui pertence ao Spring: <code>org.springframework.transaction.annotation.Transactional</code>.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_principais_anotações">1.2. Principais anotações</h3>
+<div class="paragraph">
+<p>As restrições abaixo pertencem ao pacote <code>jakarta.validation.constraints</code>, da especificação Jakarta Validation 3.1.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 37.5%;">
+<col style="width: 37.5%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Anotação</th>
+<th class="tableblock halign-left valign-top">Regra</th>
+<th class="tableblock halign-left valign-top">Exemplo de uso</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@NotNull</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Rejeita <code>null</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@NotNull Integer idade;</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@NotEmpty</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Rejeita <code>null</code> e tamanho zero em texto, coleção, mapa ou array.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@NotEmpty List&lt;String&gt; telefones;</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@NotBlank</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Exige texto com algum caractere que não seja espaço em branco.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@NotBlank String nome;</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@Size</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Limita o tamanho de texto, coleção, mapa ou array.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@Size(min = 2, max = 100) String nome;</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@Min</code> / <code>@Max</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Definem limites numéricos inclusivos.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@Min(18) @Max(120) Integer idade;</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@DecimalMin</code> / <code>@DecimalMax</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Definem limites decimais; <code>inclusive = false</code> exclui o limite.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@DecimalMin("0.01") BigDecimal preco;</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@Positive</code> / <code>@PositiveOrZero</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Exigem valor positivo / não negativo.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@Positive Integer quantidade;</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@Negative</code> / <code>@NegativeOrZero</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Exigem valor negativo / não positivo.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@Negative BigDecimal saldoDevedor;</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@Digits</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Limita a quantidade de dígitos inteiros e fracionários.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@Digits(integer = 8, fraction = 2) BigDecimal valor;</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@Email</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Verifica o formato de e-mail.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@Email String email;</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@Pattern</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Exige correspondência com uma expressão regular.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@Pattern(regexp = "[0-9]{8}") String cep;</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@Past</code> / <code>@PastOrPresent</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Exigem data passada / passada ou presente.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@PastOrPresent LocalDate nascimento;</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@Future</code> / <code>@FutureOrPresent</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Exigem data futura / futura ou presente.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@Future LocalDate vencimento;</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@AssertTrue</code> / <code>@AssertFalse</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Exigem valor booleano verdadeiro / falso.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@AssertTrue Boolean aceitouTermos;</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Exige <code>null</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@Null Long id;</code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Consulte os tipos aceitos por cada restrição na <a href="https://jakarta.ee/specifications/bean-validation/3.1/jakarta-validation-spec-3.1.html#builtinconstraints">especificação</a>. Por exemplo, <code>@NotBlank</code> não se aplica a números, e <code>@Size</code> não limita o valor de uma idade.</p>
+</div>
+<div class="sect3">
+<h4 id="_obrigatoriedade_e_valores_nulos">1.2.1. Obrigatoriedade e valores nulos</h4>
+<div class="paragraph">
+<p><code>@NotNull</code> aceita <code>""</code> e <code>"   "</code>; <code>@NotEmpty</code> rejeita <code>""</code>, mas aceita <code>"   "</code>; <code>@NotBlank</code> rejeita ambos e também <code>null</code>.</p>
+</div>
+<div class="paragraph">
+<p>As demais restrições da tabela, exceto <code>@Null</code>, aceitam <code>null</code>. Combine-as com uma restrição de obrigatoriedade quando necessário. Por exemplo, use <code>@NotBlank @Email</code> para um e-mail obrigatório. A validação de formato não confirma a existência da caixa postal.</p>
+</div>
+<div class="paragraph">
+<p>Para valores monetários, prefira <code>BigDecimal</code>. <code>@Min</code> e <code>@Max</code> não oferecem suporte portátil a <code>double</code> e <code>float</code>.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_validando_a_entidade_pessoa">1.3. Validando a entidade Pessoa</h3>
+<div class="paragraph">
+<p>O cadastro exige nome preenchido, com até 100 caracteres, e idade informada, a partir de 18 anos.</p>
+</div>
+<div class="listingblock">
+<div class="title">Entidade Pessoa</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import java.io.Serializable;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
+@Entity
+public class Pessoa implements Serializable {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @NotBlank(message = "Informe o nome.")
+    @Size(max = 100, message = "O nome deve ter no máximo {max} caracteres.")
+    private String nome;
+
+    @NotNull(message = "Informe a idade.")
+    @Min(value = 18, message = "A idade deve ser maior ou igual a {value}.")
+    private Integer idade;
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
+
+    public Integer getIdade() { return idade; }
+    public void setIdade(Integer idade) { this.idade = idade; }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Usamos <code>Integer</code> para representar a ausência de idade por <code>null</code>. Assim, <code>@NotNull</code> trata o campo não informado e <code>@Min</code> trata o limite. Anotações JPA, como <code>@Entity</code> e <code>@Id</code>, têm outro papel: mapear a persistência.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_acionando_a_validação_no_controller">1.4. Acionando a validação no Controller</h3>
+<div class="paragraph">
+<p><code>@Valid</code> solicita a validação do objeto recebido. A associação dos campos da requisição ao objeto é feita pelo Spring MVC; no exemplo, <code>@ModelAttribute("pessoa")</code> explicita o nome usado no formulário.</p>
+</div>
+<div class="paragraph">
+<p>O parâmetro <code>BindingResult</code> deve ficar imediatamente após o objeto validado. Ele reúne tanto violações das restrições quanto erros de conversão, como receber <code>abc</code> para uma idade inteira.</p>
+</div>
+<div class="listingblock">
+<div class="title">Controller</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import org.springframework.transaction.annotation.Transactional;
+import jakarta.validation.Valid;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+@Transactional
+@Controller
+@RequestMapping("/pessoas")
+public class PessoasController {
+
+    private final PessoaRepository repository;
+
+    public PessoasController(PessoaRepository repository) {
+        this.repository = repository;
+    }
+
+    @GetMapping("/form")
+    public ModelAndView form(@ModelAttribute("pessoa") Pessoa pessoa) {
+        return new ModelAndView("pessoas/form");
+    }
+
+    @GetMapping("/list")
+    public ModelAndView listar(ModelMap model) {
+        model.addAttribute("pessoas", repository.findAll());
+        return new ModelAndView("pessoas/list", model);
+    }
+
+    @PostMapping("/save")
+    public ModelAndView save(@Valid @ModelAttribute("pessoa") Pessoa pessoa,
+                             BindingResult result,
+                             RedirectAttributes attributes) {
+        if (result.hasErrors()) {
+            return new ModelAndView("pessoas/form");
+        }
+
+        repository.save(pessoa);
+        attributes.addFlashAttribute("mensagem", "Pessoa cadastrada com sucesso.");
+        return new ModelAndView("redirect:/pessoas/list");
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>O exemplo utiliza a interface <code>PessoaRepository extends JpaRepository&lt;Pessoa, Long&gt;</code> apresentada no tópico de Spring Data JPA do capítulo de persistência, com os métodos <code>save()</code> e <code>findAll()</code>, e os templates <code>pessoas/form.html</code> e <code>pessoas/list.html</code>.</p>
+</div>
+<div class="paragraph">
+<p>O repositório é recebido pelo construtor e armazenado em um campo <code>final</code>. Como a classe possui um único construtor, o Spring o utiliza automaticamente, sem exigir <code>@Autowired</code>. Essa abordagem explicita a dependência obrigatória e permite fornecer o repositório diretamente ao criar o controller em um teste. Consulte a <a href="https://docs.spring.io/spring-framework/reference/core/beans/annotation-config/autowired.html">documentação de injeção do Spring</a>.</p>
+</div>
+<div class="paragraph">
+<p>Quando há erros, retornamos a view na mesma requisição, preservando os dados e o <code>BindingResult</code>. O redirecionamento acontece depois de salvar.</p>
+</div>
+<div class="sect3">
+<h4 id="_validação_em_cascata_e_grupos">1.4.1. Validação em cascata e grupos</h4>
+<div class="paragraph">
+<p><code>@Valid</code> permite percorrer uma associação e validar o objeto referenciado. Os grupos selecionam quais restrições serão aplicadas nessa validação.</p>
+</div>
+<div class="paragraph">
+<p><strong>Cenário: cadastrar e editar uma pessoa com endereço</strong></p>
+</div>
+<div class="paragraph">
+<p>No cadastro, <code>Pessoa</code> e <code>Endereco</code> são novos e ainda não possuem identificadores. Na edição, ambos já existem e precisam ser identificados. Neste exemplo, editar significa alterar a pessoa e seu endereço existente, sem substituir o endereço por um novo.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Grupo</th>
+<th class="tableblock halign-left valign-top">Regras</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Cadastro</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Não acrescenta restrições aos IDs neste exemplo; o cadastro verifica as regras comuns de <code>Default</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Edicao</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Os identificadores devem estar preenchidos.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Default</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Nome, logradouro e CEP são obrigatórios nas duas operações.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Crie as interfaces em arquivos separados. Elas apenas identificam os grupos e não precisam de métodos.</p>
+</div>
+<div class="listingblock">
+<div class="title">Cadastro.java</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public interface Cadastro {
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Edicao.java</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">public interface Edicao {
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Definindo as regras e a associação</strong></p>
+</div>
+<div class="paragraph">
+<p>As classes abaixo isolam o exemplo de validação, com a associação <code>Pessoa.endereco</code>. O mapeamento JPA foi omitido; consulte o capítulo de persistência para <code>@Entity</code>, <code>@Id</code> e <code>@OneToOne</code>. Não crie outra classe com o mesmo nome no mesmo pacote: adapte o exemplo à classe existente. Se os grupos estiverem em outro pacote, importe-os.</p>
+</div>
+<div class="listingblock">
+<div class="title">Pessoa.java</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+public class Pessoa {
+
+    @NotNull(groups = Edicao.class)
+    private Long id;
+
+    @NotBlank(message = "Informe o nome.")
+    private String nome;
+
+    @NotNull(message = "Informe o endereço.")
+    @Valid
+    private Endereco endereco;
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
+
+    public Endereco getEndereco() { return endereco; }
+    public void setEndereco(Endereco endereco) { this.endereco = endereco; }
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Endereco.java</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+
+public class Endereco {
+
+    @NotNull(groups = Edicao.class)
+    private Long id;
+
+    @NotBlank(message = "Informe o logradouro.")
+    private String logradouro;
+
+    @NotBlank(message = "Informe o CEP.")
+    @Pattern(regexp = "[0-9]{8}", message = "O CEP deve conter oito dígitos.")
+    private String cep;
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getLogradouro() { return logradouro; }
+    public void setLogradouro(String logradouro) { this.logradouro = logradouro; }
+
+    public String getCep() { return cep; }
+    public void setCep(String cep) { this.cep = cep; }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>As restrições sem <code>groups</code> pertencem a <code>Default</code>. <code>@NotNull</code> exige a presença do endereço; <code>@Valid</code> verifica suas restrições internas. A cascata ignora referências nulas, por isso as duas anotações têm funções complementares.</p>
+</div>
+<div class="paragraph">
+<p>Sem conversão de grupos, os grupos selecionados para <code>Pessoa</code> também são propagados a <code>Endereco</code>. Assim, na edição, os IDs de ambos os objetos devem estar preenchidos. No cadastro, não há restrição de validação sobre os IDs. Sem <code>message</code> personalizado, <code>@NotNull</code> utiliza a mensagem padrão. Essa cascata de validação não é a cascata de persistência da JPA.</p>
+</div>
+<div class="paragraph">
+<p><strong>Usando Cadastro e Edicao no controller</strong></p>
+</div>
+<div class="paragraph">
+<p>Selecione <code>Default</code> junto com o grupo da operação para verificar também os campos comuns:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Operação</th>
+<th class="tableblock halign-left valign-top">Anotação no parâmetro</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cadastrar</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@Validated({Default.class, Cadastro.class})</code></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Editar</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>@Validated({Default.class, Edicao.class})</code></p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>O controller a seguir demonstra somente a validação. Ele retorna os erros ou uma mensagem de dados válidos; a gravação deve ser realizada pelo serviço da aplicação.</p>
+</div>
+<div class="listingblock">
+<div class="title">ConferenciaPessoaController.java</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">import jakarta.validation.groups.Default;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+@Controller
+public class ConferenciaPessoaController {
+
+    @PostMapping("/pessoas/conferir-cadastro")
+    public ModelAndView conferirCadastro(
+            @Validated({Default.class, Cadastro.class})
+            @ModelAttribute("pessoa") Pessoa pessoa,
+            BindingResult result) {
+
+        ModelAndView view = new ModelAndView("pessoas/form-grupos");
+        if (result.hasErrors()) {
+            return view;
+        }
+
+        view.addObject("mensagem", "Dados válidos para cadastro.");
+        return view;
+    }
+
+    @PostMapping("/pessoas/conferir-edicao")
+    public ModelAndView conferirEdicao(
+            @Validated({Default.class, Edicao.class})
+            @ModelAttribute("pessoa") Pessoa pessoa,
+            BindingResult result) {
+
+        ModelAndView view = new ModelAndView("pessoas/form-grupos");
+        if (result.hasErrors()) {
+            return view;
+        }
+
+        view.addObject("mensagem", "Dados válidos para edição.");
+        return view;
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>BindingResult</code> fica imediatamente após o objeto validado. Um erro no CEP aparece no caminho <code>endereco.cep</code>. No template <code>templates/pessoas/form-grupos.html</code>, dentro de um formulário com <code>th:object="${pessoa}"</code>, apresente-o assim:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-html hljs" data-lang="html">&lt;label for="endereco.cep"&gt;CEP&lt;/label&gt;
+&lt;input type="text" th:field="*{endereco.cep}"&gt;
+&lt;span th:if="${#fields.hasErrors('endereco.cep')}"
+      th:errors="*{endereco.cep}"&gt;&lt;/span&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Complete o formulário com os campos <code>nome</code> e <code>endereco.logradouro</code>. No cadastro, envie o POST para <code>/pessoas/conferir-cadastro</code>, sem IDs. Na edição, use <code>/pessoas/conferir-edicao</code> e envie <code>id</code> e <code>endereco.id</code> em campos <code>type="hidden"</code>. A abertura da tela por GET deve colocar <code>pessoa</code> no modelo, com um <code>Endereco</code> inicializado no cadastro ou os dados carregados para edição. A mensagem pode ser exibida com <code>th:text="${mensagem}"</code>.</p>
+</div>
+<div class="paragraph">
+<p>Na operação real de edição, o serviço deve buscar os registros e conferir se o endereço pertence à pessoa. <code>@NotNull</code> verifica apenas o preenchimento do ID, não a existência nem a relação entre os registros.</p>
+</div>
+<div class="paragraph">
+<p><strong>Selecionando os grupos conforme a operação</strong></p>
+</div>
+<div class="paragraph">
+<p>Com essas regras, <code>@Validated({Default.class, Cadastro.class, Edicao.class})</code> também exige os IDs, pois inclui <code>Edicao</code>. Não há conflito entre as restrições, mas essa seleção não serve ao cadastro de novos registros sem ID. Selecione o grupo da operação junto com <code>Default</code>. A interface <code>Cadastro</code> fica disponível para futuras regras específicas; atualmente, selecioná-la junto com <code>Default</code> tem o mesmo efeito de validar apenas <code>Default</code>.</p>
+</div>
+<div class="paragraph">
+<p>Considere nome, logradouro e CEP válidos:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Dados</th>
+<th class="tableblock halign-left valign-top">Default + Cadastro</th>
+<th class="tableblock halign-left valign-top">Default + Edicao</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Pessoa e endereço sem IDs</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Válido</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Erros nos dois IDs.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Pessoa com ID 10 e endereço com ID 20</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Válido para a validação.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Válido para a validação.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Pessoa com ID 10 e endereço sem ID</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Válido para a validação.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Erro no ID do endereço.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Pessoa e endereço sem IDs, mas CEP inválido</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Erro em endereco.cep.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Erros nos IDs e em endereco.cep.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Endereço nulo</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Erro de endereço obrigatório.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Erro de endereço obrigatório e, se ausente, do ID da pessoa.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Uma regra pode pertencer aos dois grupos com <code>groups = {Cadastro.class, Edicao.class}</code>; isso significa aplicá-la quando qualquer um deles for selecionado. É diferente de solicitar todos os grupos em uma única validação. Para as regras comuns deste exemplo, usamos <code>Default</code>.</p>
+</div>
+<div class="paragraph">
+<p>Referências: <a href="https://docs.hibernate.org/validator/9.0/reference/en-US/html_single/#chapter-groups">Hibernate Validator — grupos de validação</a> e <a href="https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-methods/modelattrib-method-args.html">Spring MVC — validação de ModelAttribute</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_apresentando_os_erros_com_thymeleaf">1.5. Apresentando os erros com Thymeleaf</h3>
+<div class="paragraph">
+<p>No template <code>src/main/resources/templates/pessoas/form.html</code>, associe o formulário a <code>pessoa</code>. <code>th:field</code> vincula os campos; <code>th:errors</code> apresenta as mensagens; <code>th:errorclass</code> adiciona uma classe CSS quando há erro.</p>
+</div>
+<div class="listingblock">
+<div class="title">Formulário de cadastro</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-html hljs" data-lang="html">&lt;form th:action="@{/pessoas/save}" th:object="${pessoa}" method="post"&gt;
+    &lt;label for="nome"&gt;Nome&lt;/label&gt;
+    &lt;input type="text" th:field="*{nome}" th:errorclass="is-invalid"&gt;
+    &lt;span th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"&gt;&lt;/span&gt;
+
+    &lt;label for="idade"&gt;Idade&lt;/label&gt;
+    &lt;input type="number" th:field="*{idade}" th:errorclass="is-invalid"&gt;
+    &lt;span th:if="${#fields.hasErrors('idade')}" th:errors="*{idade}"&gt;&lt;/span&gt;
+
+    &lt;button type="submit"&gt;Salvar&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A classe <code>is-invalid</code> precisa de uma definição CSS (própria ou de uma biblioteca, como Bootstrap) para alterar a aparência.</p>
+</div>
+<div class="paragraph">
+<p>Para apresentar um resumo, inclua este trecho dentro do formulário:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-html hljs" data-lang="html">&lt;ul th:if="${#fields.hasAnyErrors()}"&gt;
+    &lt;li th:each="erro : ${#fields.detailedErrors()}"&gt;
+        &lt;span th:text="${erro.message}"&gt;&lt;/span&gt;
+    &lt;/li&gt;
+&lt;/ul&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Cada erro detalhado possui <code>fieldName</code> (nome/caminho do campo), <code>message</code> (mensagem resolvida) e <code>global</code> (se o erro é do objeto, em vez de um campo específico).</p>
+</div>
+<div class="sect3">
+<h4 id="_exibindo_erros_fora_do_formulário">1.5.1. Exibindo erros fora do formulário</h4>
+<div class="paragraph">
+<p>Fora de <code>th:object</code>, use o nome do objeto em uma expressão <code>${&#8230;&#8203;}</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-html hljs" data-lang="html">&lt;div th:if="${#fields.hasErrors('pessoa.*')}"
+     th:errors="${pessoa.*}"&gt;&lt;/div&gt;</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_personalizando_mensagens">1.6. Personalizando mensagens</h3>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+O atributo <code>message</code> é opcional. Quando ele não é informado, a validação utiliza a mensagem padrão da restrição, como em <code>@NotNull</code> ou <code>@NotBlank</code>. Defina <code>message</code> apenas quando desejar personalizar o texto apresentado ao usuário.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>O atributo <code>message</code> permite escrever a mensagem diretamente na restrição, como nos exemplos de <code>Pessoa</code>. Parâmetros como <code>{value}</code> e <code>{max}</code> são substituídos pelos atributos da anotação.</p>
+</div>
+<div class="sect3">
+<h4 id="_mensagens_do_bean_validation">1.6.1. Mensagens do Bean Validation</h4>
+<div class="paragraph">
+<p>Para separar as mensagens do código, crie <code>src/main/resources/ValidationMessages.properties</code> e use a chave entre chaves na anotação:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-java hljs" data-lang="java">@Min(value = 18, message = "{pessoa.idade.minima}")
+private Integer idade;</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">ValidationMessages.properties</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-properties hljs" data-lang="properties">pessoa.idade.minima=A idade deve ser maior ou igual a {value}.</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Essa é a convenção do Bean Validation. É possível criar variantes por idioma, como <code>ValidationMessages_pt_BR.properties</code>.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_mensagens_do_spring_mvc">1.6.2. Mensagens do Spring MVC</h4>
+<div class="paragraph">
+<p>O Spring também resolve códigos de erro pelo seu <code>MessageSource</code>. Em uma aplicação Spring Boot com a configuração padrão, use <code>src/main/resources/messages.properties</code> para personalizar a apresentação dos erros:</p>
+</div>
+<div class="listingblock">
+<div class="title">messages.properties</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-properties hljs" data-lang="properties">Min.pessoa.idade=A idade deve ser maior ou igual a {1}.
+typeMismatch.pessoa.idade=Informe uma idade inteira válida.</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>No primeiro código, <code>Min</code> identifica a restrição, <code>pessoa</code> é o nome do objeto no modelo e <code>idade</code> é o campo. Nesse erro, <code>{0}</code> representa o campo e <code>{1}</code> recebe o limite de <code>@Min</code>. Já <code>typeMismatch</code> trata uma falha de conversão, não uma restrição do Bean Validation.</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<code>ValidationMessages.properties</code> usa parâmetros como <code>{value}</code>; <code>messages.properties</code>, na resolução de erros do Spring, usa argumentos posicionais como <code>{1}</code>. São mecanismos distintos.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_enviando_uma_mensagem_no_redirecionamento">1.7. Enviando uma mensagem no redirecionamento</h3>
+<div class="paragraph">
+<p>O método <code>save()</code> usa <code>addFlashAttribute()</code> para disponibilizar a mensagem na requisição de destino. Os atributos flash são mantidos temporariamente, normalmente na sessão, e removidos após o uso. <code>addAttribute()</code> é usado para expandir variáveis da URL ou acrescentar parâmetros de consulta.</p>
+</div>
+<div class="paragraph">
+<p>No template <code>pessoas/list.html</code>, apresente a mensagem:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-html hljs" data-lang="html">&lt;p th:if="${mensagem != null}" th:text="${mensagem}"&gt;&lt;/p&gt;</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_verificando_o_comportamento">1.8. Verificando o comportamento</h3>
+<div class="paragraph">
+<p>Após integrar os exemplos à aplicação, experimente:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 28.5714%;">
+<col style="width: 28.5714%;">
+<col style="width: 42.8572%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Nome</th>
+<th class="tableblock halign-left valign-top">Idade</th>
+<th class="tableblock halign-left valign-top">Resultado esperado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Vazio ou apenas espaços</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">18</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Erro de nome obrigatório.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Mais de 100 caracteres</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">18</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Erro de tamanho do nome.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ana</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Vazia</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Erro de idade obrigatória.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ana</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">17</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Erro de idade mínima.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ana</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">18</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Cadastro e redirecionamento com mensagem de sucesso.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ana</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Texto não numérico</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Erro de conversão; nenhuma gravação.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>O navegador pode impedir texto em um campo <code>type="number"</code>. Para verificar a conversão no servidor, envie uma requisição POST com <code>idade=abc</code> por uma ferramenta HTTP, mantendo os demais requisitos da aplicação.</p>
+</div>
+<div class="paragraph">
+<p>Restrições HTML, como <code>required</code> e <code>min</code>, podem melhorar a experiência, mas a requisição precisa continuar sendo validada no servidor.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_referências">2. Referências</h2>
+<div class="sectionbody">
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><a href="https://spring.io/guides/gs/validating-form-input/">Spring — Validating Form Input</a>.</p>
+</li>
+<li>
+<p><a href="https://jakarta.ee/specifications/bean-validation/3.1/jakarta-validation-spec-3.1.html#builtinconstraints">Jakarta Validation 3.1 — Built-in constraints</a>.</p>
+</li>
+<li>
+<p><a href="https://www.thymeleaf.org/doc/tutorials/3.1/thymeleafspring.html#validation-and-error-messages">Thymeleaf + Spring — Validation and Error Messages</a>.</p>
+</li>
+<li>
+<p><a href="https://docs.hibernate.org/validator/9.0/reference/en-US/html_single/">Hibernate Validator 9.0 — restrições, validação em cascata e mensagens</a>.</p>
+</li>
+<li>
+<p><a href="https://docs.spring.io/spring-framework/reference/core/validation/beanvalidation.html">Spring Framework 7 — Bean Validation e grupos</a>.</p>
+</li>
+<li>
+<p><a href="https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-methods/modelattrib-method-args.html">Spring MVC 7 — ModelAttribute e BindingResult</a>.</p>
+</li>
+<li>
+<p><a href="https://docs.spring.io/spring-boot/4.0/reference/io/validation.html">Spring Boot 4 — integração com Jakarta Validation</a>.</p>
+</li>
+<li>
+<p><a href="https://docs.spring.io/spring-boot/4.0/system-requirements.html">Spring Boot 4 — requisitos de Java e ferramentas</a>.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Last updated 2026-09-29 13:45:05 UTC
+</div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
+<script>
+if (!hljs.initHighlighting.called) {
+  hljs.initHighlighting.called = true
+  ;[].slice.call(document.querySelectorAll('pre.highlight > code[data-lang]')).forEach(function (el) { hljs.highlightBlock(el) })
+}
+</script>
+</body>
+</html>
