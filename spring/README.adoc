@@ -33,574 +33,693 @@ Mestre em Modelagem Computacional de Sistemas – UFT.
 
 == Spring
 
-O Spring é um framework open source para a plataforma Java. É composto de um conjunto de projetos independentes, da configuração à segurança, aplicativos da web a big data, quaisquer que sejam as necessidades de infraestrutura de seu aplicativo, há um Projeto Spring para ajudá-lo a construí-lo link:https://spring.io/projects[leia mais]. 
+Spring é um ecossistema de projetos para desenvolvimento de aplicações Java. Neste capítulo, construiremos um cadastro de pessoas para compreender como uma requisição chega ao controller, como os dados são consultados e como uma página HTML é gerada.
 
-Principais projetos:
+Essa base será utilizada no link:../jpa/[capítulo de JPA]: manteremos o fluxo web e evoluiremos o acesso a dados para persistência com objetos.
 
-O Spring Framework: fornece um modelo abrangente de programação e configuração para aplicativos empresariais modernos baseados em Java, permite que o projeto possa rodar na web.
+[cols="1,3",options="header"]
+|===
+|Projeto |Papel na aplicação
+|Spring Framework |Fornece o contêiner que gerencia objetos e suas dependências, além de recursos como Spring MVC, JDBC e transações.
+|Spring Boot |Configura recursos a partir das dependências e propriedades do projeto e facilita a execução da aplicação.
+|Spring Data |Fornece abstrações para acesso a dados. Spring Data JPA é o módulo voltado a repositórios baseados em JPA.
+|Spring Security |Fornece recursos de autenticação e autorização, estudados separadamente.
+|===
 
-Spring Data: fornece um modelo de programação baseado em Spring familiar e consistente para acesso a dados, enquanto ainda retém as características especiais do armazenamento de dados subjacente.
-
-Spring Security: é uma estrutura de autenticação e controle de acesso poderosa e altamente personalizável. É o padrão de fato para proteger aplicativos baseados em Spring. Concentra em fornecer autenticação e autorização para aplicativos Java.
-
-Spring Boot: facilita a criação de aplicativos baseados em Spring autônomos e de nível de produção que você pode "simplesmente executar". Temos uma visão opinativa da plataforma Spring e das bibliotecas de terceiros para que você possa começar com o mínimo de confusão. A maioria dos aplicativos Spring Boot precisa de configuração mínima do Spring.
+NOTE: Os exemplos adotam Spring Boot 4 e Java 17 ou superior. Utilize uma versão estável da linha 4 no Spring Initializr e mantenha as versões das bibliotecas gerenciadas pelo Spring Boot.
 
 === Spring MVC
 
-O Spring MVC é um framework Java, moderno para desenvolvimento Web que usa recursos atuais da linguagem, com características para simplificar e fornecer maior produtividade ao desenvolvimento de aplicações web, utilizando o padrão arquitetural Model-View-Controller.
+Spring MVC é o framework web do Spring baseado na API Servlet. Neste exemplo, ele recebe requisições HTTP e trabalha com Thymeleaf para produzir páginas HTML no servidor.
 
 ==== MVC
 
-É um padrão criado com o objetivo de organizar a arquitetura de aplicações web em camadas com responsabilidades bem definidas.
+O padrão Model-View-Controller separa responsabilidades da interface da aplicação:
 
-MODEL: camada que representa as classes do domínio da aplicação, ou seja, a persistência de dados, validação e regras de negócio;
+* *Model*: representa os dados e o comportamento do domínio. No Spring MVC, o objeto `Model` também permite disponibilizar atributos para a página, como uma lista de pessoas.
+* *View*: apresenta os dados ao usuário. Utilizaremos templates HTML com Thymeleaf.
+* *Controller*: recebe a requisição, chama os componentes necessários e define a resposta ou a view a ser renderizada.
 
-VIEW: camada que representa as views (interface) da nossa aplicação;
+O controller coordena o atendimento HTTP. Consultas SQL ficam no DAO; regras de negócio que coordenam operações podem ficar em uma classe de serviço, anotada com `@Service`.
 
-CONTROLLER: camada que controla a comunicação (request/response) entre as camadas Model e View.
+.Fluxo da listagem de pessoas
+[source,text]
+----
+Navegador: GET /pessoa/list
+    -> DispatcherServlet: encaminha a requisição ao controller
+    -> PessoaController: solicita a lista ao PessoaDAO
+    -> PessoaDAO: consulta o banco e retorna objetos Pessoa
+    -> PessoaController: adiciona a lista ao Model
+    -> Thymeleaf: renderiza pessoas/list.html
+    -> Navegador: recebe o HTML
+----
+
+O `DispatcherServlet` é o componente central que encaminha as requisições aos métodos mapeados. O Spring Boot configura essa infraestrutura ao identificar as dependências web.
 
 === Criando um Projeto Web com Spring
 
-Temos algumas maneiras de configurar o Spring em nosso projeto web, seja por arquivos de configuração XML, ou via código Java, ou utilizando o Spring Boot.
+Acesse o link:https://start.spring.io/[Spring Initializr] e selecione Maven, Java, Spring Boot 4 e empacotamento Jar. Adicione *Spring Web*, *Thymeleaf*, *JDBC API* e *H2 Database*. Gere o projeto, extraia os arquivos e importe o `pom.xml` na IDE.
 
-Em nossas aulas iremos utilizar o Spring Boot para criar nossos projetos web utilizando o Spring.
+Utilizaremos H2 em memória para executar o exemplo sem instalar um servidor de banco de dados. O acesso será feito com SQL e JDBC, preparando a comparação com JPA no próximo capítulo.
 
-Para criar nosso projeto com o Spring Boot, vamos utilizar a ferramenta web chamada link:https://start.spring.io/[Spring Initializr]. Nesta ferramenta, definimos as dependências do nosso projeto e ela gera um arquivo com toda a estrutura básica de uma aplicação Spring, pronta para ser executada. 
+==== Dependências
 
-No link:https://spring.io/quickstart[Spring Quickstart Guide] você pode ver como criar um exemplo prático de um projeto web com Spring.
+Um _starter_ reúne dependências para uma funcionalidade. No projeto gerado, o parent `spring-boot-starter-parent` gerencia as versões das bibliotecas suportadas; por isso, as dependências abaixo não precisam declarar suas próprias versões. Bibliotecas fora desse gerenciamento podem precisar de versão explícita.
 
+Confira estes elementos dentro de `<dependencies>` no `pom.xml`:
 
-==== Depedência
-
-Ao criar um projeto com Sring Boot as dependências inseridas no projeto não possuem versão definida, ou seja, todas as demais dependências irão seguir a mesma referência definida na dependencia starter-parent conforme a seguir e disponível no seu arquivo pom.xml. 
-
-.Dependências Spring Boot
-[source, xml]
+.Dependências do exemplo
+[source,xml]
 ----
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.2.6.RELEASE</version>
-        <relativePath/> 
-    </parent>
-----
-
-Dependências terminadas com starter informa que essa dependência agrupa outras, tornando essa dependência única, pois a mesma, representa todas as demais dependências necessária ao uso do recurso. Como beneficio, torna o pom.xml menor.
-
-A seguir temos a dependência necessária para que possamos criar um projeto Spring Web (Build web, including RESTful, applications using Spring MVC). Esta dependência deve ser adicionada ao criar o projeto no Spring Boot.
-
-.Dependências Spring Boot
-[source, xml]
-----
-    <dependency>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-web</artifactId>
-    </dependency>
-----
-
-IMPORTANT: O Spring adiciona ao projeto o Apache Tomcat como contêiner padrão.
-
-=== Definindo um Controller
-
-Controller são classes contendo a lógica de negócio do seu sistema. É responsável por receber todas as requisições do usuário. Uma camada intermediária entre a camada de apresentação e a lógica.
-
-Antes de criar nosso controller, vamos definir uma entidade para representar uma pessoa.
-
-.Entidade Pessoa
-[source, java]
-----
-public class Pessoa{
-
-    private Long id;
-    private String nome;
-
-    //getters e setters
-
-}
-----
-
-Após definir a classe Pessoa, vamos criar uma nova classe para representar o Controller e tratar as requisições web. Essa classe vai ser o Controller de pessoas. 
-
-A nova classe deve ser definida com o nome PessoasController. Para indicar ao Spring MVC que uma classe é um Controller, adicione sobre ela a anotação `@Controller` conforme o exemplo a seguir.
-
-
-.Criando um Controller
-[source, java]
-----
-import org.springframework.stereotype.Controller;
-
-@Controller
-public class PessoasController{
-    ...
-} 
-----
-
-Anotando seu controller com `@Controller`, todos os seus métodos públicos serão acessíveis pela web. No exemplo a seguir, uma requisição à URI "http://localhost:8080/pessoas/exemplo" redirecionará para o método exemplo().  
-
-.PessoasController
-[source, java]
-----
-@Controller
-@RequestMapping("pessoas")
-public class PessoasController {   
-        
-    @ResponseBody
-    @GetMapping("/exemplo")
-    public String exemplo(){
-        return "Controller de Pessoas!";
-    }
-       
-}
-----
-
-Com a anotação `@RequestMapping("pessoas")`, caso uma requisição seja enviada para localhost:8080/pessoas, essa requisição será tratada por um dos métodos a serem implementados neste Controller.
-
-A anotação `@ResponseBody` diz ao Spring MVC para jogar o retorno do método na resposta.
-
-A anotação `@GetMapping` indica ao Spring MVC que requisições HTTP do tipo GET enviadas para localhost:8080/pessoas/exemplo devem ser atendidas pelo método exemplo().
-
-=== Definindo PessoaDAO
-
-No exemplo a seguir, utilizamos um DAO para operações de CRUD aos dados das pessoas no banco. Iremos utilizar uma conexão JDBC, pois nosso objetivo nete capítulo é conhecer as funcionalidades do Spring.
-
-.PessoaDAO
-[source, java]
-----
-public class PessoaDAO {
-     
-    //criar um objeto Connection para receber a conexão
-    Connection con;
-    
-    public PessoaDAO(){
-        con = MinhaConexao.conexao();
-    }
-
-    public List<Pessoa> buscarPessoas() {
-        try {
-            //comando sql
-            String sql = "select * from tb_pessoa";
-            PreparedStatement ps = con.prepareStatement(sql);
-            //ResultSet, representa o resultado do comando SQL
-            ResultSet rs = ps.executeQuery();
-            //cria uma lista de pessoas para retornar
-            List<Pessoa> pessoas = new ArrayList();
-            //laço para buscar todas as pessoas do banco
-            while (rs.next()) {
-                Pessoa p = new Pessoa();
-                p.setId(rs.getInt("id"));
-                p.setNome(rs.getString("nome"));
-                //add pessoa na lista
-                pessoas.add(p);
-            }
-            //retorna a lista de pessoas
-            return pessoas;
-        } catch (SQLException ex) {
-            Logger.getLogger(PessoaDAO.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-    
-    public boolean remove(Long id) {
-        try {
-            //comando sql
-            String sql = "delete from tb_pessoa where id = ?";
-            PreparedStatement ps = con.prepareStatement(sql);
-            //referênciar o parâmetro do método para a ?
-            ps.setLong(1, id);
-            if(ps.executeUpdate()==1)
-                return true;
-            
-        } catch (SQLException ex) {
-            Logger.getLogger(PessoaDAO.class.getName()).log(Level.SEVERE, null, ex);
-        } 
-        return false;
-    }
-
-    public boolean save(Pessoa pessoa) {
-        try {
-            //comando sql
-            String sql = "insert into tb_pessoa (nome) values (?)";
-            PreparedStatement ps = con.prepareStatement(sql);
-            //referênciar o parâmetro do método para a ?
-            ps.setString(1, pessoa.getNome());
-            
-            if(ps.executeUpdate()==1)
-                return true;
-            
-        } catch (SQLException ex) {
-            Logger.getLogger(PessoaDAO.class.getName()).log(Level.SEVERE, null, ex);
-        } 
-        return false;
-    }
-
-    public boolean update(Pessoa pessoa) {
-        try {
-            //comando sql
-            String sql = "update tb_pessoa set nome=? where id=?";
-            PreparedStatement ps = con.prepareStatement(sql);
-            //referênciar o parâmetro do método para a ?
-            ps.setString(1, pessoa.getNome());
-            ps.setLong(2, pessoa.getId());
-            
-            if (ps.executeUpdate()==1)
-                return true;
-                    
-        } catch (SQLException ex) {
-            Logger.getLogger(PessoaDAO.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return false;
-    }
-    
-    public Pessoa buscarPessoa(Long id) {
-        try {
-            //comando sql
-            String sql = "select * from tb_pessoa where id = ?";
-            PreparedStatement ps = con.prepareStatement(sql);
-            //referênciar o parâmetro do método para a ?
-            ps.setLong(1, id);
-            //ResultSet, representa o resultado do comando SQL
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                Pessoa p = new Pessoa();
-                p.setId(rs.getInt("id"));
-                p.setNome(rs.getString("nome"));
-                return p;
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(PessoaDAO.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-    
-}
-----
-
-Para efetuar a conexão com o banco de dados, vamos utilizar a interface e classes definidas a seguir.
-
-.Interface ConexaoJDBC.java
-[source, java]
-----
-...
-import java.sql.Connection;
-
-public interface ConexaoJDBC{
-    
-    public Connection criarConexao();
-    
-}
-----
-
-A seguir temos as classes para conexão com banco Mysql e Postgres. Utilize a classe do banco de dados de sua escolha.
-
-.Classe ConexaoMysql.java
-[source, java]
-----
-...
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-public class ConexaoMysql implements ConexaoJDBC{
-
-    public static void main(String[] args) {
-        
-        //testar conexão
-        System.out.println(new ConexaoMysql().criarConexao());
-                
-    }
-    
-    /** 
-     * método que vai retornar uma conexão
-     * @return
-     */
-    @Override
-    public Connection criarConexao(){
-        try {
-            //carregar o driver de conexão
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            //parâmetros
-            String url = "jdbc:mysql://localhost:3306/teste";
-            String usuario = "root";
-            String senha = "senha";
-            //retorna a conexão com o banco de dados
-            return DriverManager.getConnection(url, usuario, senha);
-           
-        } catch (ClassNotFoundException | SQLException ex) {
-            Logger.getLogger(ConexaoMysql.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-}
-----
-
-.Classe ConexaoPostgre
-[source, java]
-----
-...
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-public class ConexaoPostgre implements ConexaoJDBC{
-
-    public static void main(String[] args) {
-        
-        //testar conexão
-        System.out.println(new ConexaoPostgre().criarConexao());
-                
-    }
-    
-    /** 
-     * método que vai retornar uma conexão
-     * @return
-     */
-    @Override
-    public Connection criarConexao(){
-        try {
-            //carregar o driver de conexão
-            Class.forName("org.postgresql.Driver");
-            //parâmetros
-            String url = "jdbc:postgresql://localhost:5432/teste";
-            String usuario = "postgres";
-            String senha = "senha";
-            //retorna a conexão com o banco de dados
-            return DriverManager.getConnection(url, usuario, senha);
-           
-        } catch (ClassNotFoundException | SQLException ex) {
-            Logger.getLogger(ConexaoPostgre.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return null;
-    }
-
-    
-}
-----
-
-.Classe que define sua conexão com o banco de dados.
-[source, java]
-----
-...
-import java.sql.Connection;
-
-public class MinhaConexao{
-    
-    public static Connection conexao(){
-        ConexaoJDBC conexao = new ConexaoMysql();
-        return conexao.criarConexao();
-    }
-    
-}
-----
-
-==== Banco de dados em memória
-
-O H2 é um sistema de gerenciamento de banco de dados relacional escrito em Java.
-
-O H2 possui suporte a bancos de dados persistentes e na memória, não tendo limite para o número de bancos de dados abertos simultaneamente ou para o número de conexões abertas.
-
-Para criar um banco de dados em mémoria, adicione as propriedades a seguir no seu arquivo `application.properties`.
-
-.application.properties
-[source, properties]
-----
-##H2database
-spring.datasource.url=jdbc:h2:mem:dbname
-spring.datasource.driverClassName=org.h2.Driver
-spring.datasource.username=user
-spring.datasource.password=password
-----
-
-Por fim, incluir no diretório `resources` do seu projeto o arquivo `data.sql`. Neste arquivo, você deve incluir comandos para criar tabelas e fazer inserções de dados.
-
-Quando rodarmos o projeto com este arquivo no classpath, o Spring irá usá-lo para preencher o banco de dados.
-
-Você pode habilitar o console GUI (interface gráfica do utilizador) embutido para navegar pelo conteúdo do banco de dados e executar consultas SQL. 
-
-Para acessar o console utilize o endereço http://localhost:8080/h2-console. 
-
-.application.properties
-[source, properties]
-----
-#h2 console
-spring.h2.console.enabled=true
-----
-
-Necessário incluir a depência do JPA a seguir.
-
-.Dependência
-[source, xml]
-----
-<!-- Persist data in SQL stores with Java Persistence API using Spring Data and Hibernate.-->
 <dependency>
     <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-data-jpa</artifactId>
-</dependency> 
-----
-
-=== Implementando ações no controller
-
-Com nossa classe PessoaDAO pronta podemos definir as operações necessárias no controlador com todas as operações de CRUD para Pessoa.
-
-.Conexao.java
-[source, java]
-----
-@Controller
-@RequestMapping("pessoas")
-public class PessoasController {   
-    
-    PessoaDAO dao;
-    
-    public PessoasController(){
-        dao = new PessoaDAO();
-    }
-    
-    /**
-     * @param pessoa necessário devido utilizar no form.html o th:object que faz referência ao objeto esperado no controller. 
-     * @return 
-     */
-    @GetMapping("/form")
-    public String form(Pessoa pessoa){
-        return "/pessoas/form";
-    }
-    
-    @GetMapping("/list")
-    public ModelAndView listar(ModelMap model) {
-        model.addAttribute("pessoas", dao.buscarPessoas());
-        return new ModelAndView("/pessoas/list", model);
-    }
-    
-    @PostMapping("/save")
-    public ModelAndView save(Pessoa pessoa){
-        dao.save(pessoa);
-        return new ModelAndView("redirect:/pessoas/list");
-    }
-    
-    /**
-     * @param id
-     * @return 
-     * @PathVariable é utilizado quando o valor da variável é passada diretamente na URL
-     */
-    @GetMapping("/remove/{id}")
-    public ModelAndView remove(@PathVariable("id") Long id){
-        dao.remove(id);
-        return new ModelAndView("redirect:/pessoas/list");
-    }
-    
-    /**
-     * @param id
-     * @return 
-     * @PathVariable é utilizado quando o valor da variável é passada diretamente na URL
-     */
-    @GetMapping("/edit/{id}")
-    public ModelAndView edit(@PathVariable("id") Long id, ModelMap model) {
-        model.addAttribute("pessoa", dao.buscarPessoa(id));
-        return new ModelAndView("/pessoas/form", model);
-    }
-    
-    @PostMapping("/update")
-    public ModelAndView update(Pessoa pessoa) {
-        dao.update(pessoa);
-        return new ModelAndView("redirect:/pessoas/list");
-    }
-
-}
-----
-
-Com o método form(), atendemos requisições do tipo GET enviadas para /pessoas/form, que tambem carrega a página form.html através do returno do método.  Declaramos um parâmetro do tipo Pessoa, necessário devido utilizar no form.html o th:object que faz referência ao objeto esperado no controller. 
-
-Para buscar as pessoas do banco de dados, temos uma intância de PessoaDAO. Através desta instância temos acesso ao método buscarPessoas(), que retorna a lista de pessoas do banco. 
-
-O `@param model` representa a implementação de um map feita pelo Spring. O Spring nos fornecerá um objeto desse tipo já instanciado. 
-Através deste objeto, temos acesso ao método addAttribute(), que usamos para enviar dados para a view, adicionando no map o atributo que desejamos enviar.
-
-No return de alguns métodos, retornamos um objeto do tipo ModelAndView. Na instanciação desse objeto passamos por parâmetros o model no qual acabamos de adicionar e uma string, que indica a página a ser exibida. Com o retorno do ModelAndView, o Controller enviar as informações para a view, que carrega a página list.html com os dados enviados pelo model, atendendo requisições do tipo GET enviadas para /pessoas/list.
-
-.caminho da view no diretório do projeto
-image::caminho-view-spring.png[]
-
-Observe, que nossa view foi definida em src/main/resources dentro do pacote `templates`. Foi definido um novo pacote `pessoas` para representar as view de Pessoas.
-
-Para visualizar a lista de pessoas através da requisição à URI "http://localhost:8080/pessoas/list" você deve definiar seu arquivo lista.html conforme a seguir.
-
-
-.list.html
-[source, html]
-----
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-    <head>
-        <title>TODO supply a title</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
-    <body>
-        <table class="table" border="1">
-            <thead>
-                <tr>
-                    <th>Id</th>
-                    <th>Descrição</th>
-                </tr>
-            </thead>
-            <tr th:each="p : ${pessoas}">
-                <td th:text="${p.id}"> </td>
-                <td th:text="${p.nome}"> </td>
-                <td> <a th:href="@{/pessoas/edit/{id}(id=${p.id})}">Editar</a> </td>
-                <td> <a onclick="return window.confirm('Tem certeza que deseja excluir este registro?')"  th:href="@{/pessoas/remove/{id}(id=${p.id})}">Excluir</a> </td>
-            </tr>
-        </table>
-
-    </body>
-</html>
-----
-
-Na tag raiz do html adicionamos o namespace do Thymeleaf `xmlns:th="http://www.thymeleaf.org"`, para que possamos ter acesso aos componentes do Thymeleaf. 
-
-Para utilizar o Thymeleaf no seu projeto é necessário adicionar a dependência do mesmo, então basta incluir no seu arquivo pom.xml a depência a seguir, caso ainda não tenha feito.
-
-.pom.xml
-[source, xml]
-----
+    <artifactId>spring-boot-starter-webmvc</artifactId>
+</dependency>
 <dependency>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-thymeleaf</artifactId>
 </dependency>
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-jdbc</artifactId>
+</dependency>
+<dependency>
+    <groupId>com.h2database</groupId>
+    <artifactId>h2</artifactId>
+    <scope>runtime</scope>
+</dependency>
 ----
 
-A instruçẽo `th:each` define um foreach a partir da lista de pessoas enviada pelo nosso controller. Já a `th:text` exibe os dados obtidos por cada item da lista. 
+No Spring Boot 4, utilize o starter `spring-boot-starter-webmvc` para Spring MVC. Ele inclui Tomcat embarcado por padrão. O starter JDBC configura o `DataSource` utilizado pelo DAO; este exemplo não exige Spring Data JPA.
 
-Para atualizar os dados de uma pessoa, utilizamos o mesmo form.html, através do método edit() carregamos os dados do objeto a ser editado na view. E utilizando o método update() para efetuar as alterações no banco. Observe no código a seguir como definir no form.html.
+==== Organização e inicialização
 
-.form.html
-[source, html]
+Adote o pacote base `br.edu.ifto.aula` ou ajuste os pacotes e imports dos exemplos ao nome escolhido no Initializr.
+
+[source,text]
+----
+src/main/
+  java/br/edu/ifto/aula/
+    AulaApplication.java
+    model/Pessoa.java
+    dao/PessoaDAO.java
+    controller/PessoaController.java
+  resources/
+    application.properties
+    schema.sql
+    data.sql
+    templates/pessoas/
+      list.html
+      form.html
+----
+
+.AulaApplication.java
+[source,java]
+----
+package br.edu.ifto.aula;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class AulaApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(AulaApplication.class, args);
+    }
+}
+----
+
+`@SpringBootApplication` reúne configuração, autoconfiguração e busca de componentes. Mantenha a classe principal no pacote base: por padrão, a busca inclui esse pacote e seus subpacotes, onde estarão o controller e o DAO.
+
+Execute essa classe pela IDE ou use `./mvnw spring-boot:run` no terminal. No Windows PowerShell, use `./mvnw.cmd spring-boot:run`. Após concluir os arquivos do exemplo, acesse `http://localhost:8080/pessoa/list`.
+
+==== Objetos gerenciados e injeção por construtor
+
+Um _bean_ é um objeto gerenciado pelo contêiner do Spring. Ao encontrar `@Controller` ou `@Repository` durante a busca de componentes, o Spring registra essas classes e resolve suas dependências.
+
+Neste exemplo, `PessoaController` recebe `PessoaDAO` pelo construtor, e `PessoaDAO` recebe o `DataSource`. O Spring Boot configura esse objeto, que fornece as conexões com o banco.
+
+Declare as dependências em atributos `final` e receba-as no construtor. Quando a classe possui um único construtor, não é necessário anotá-lo com `@Autowired`. Isso deixa explícito o que cada classe precisa para funcionar e facilita testes.
+
+Objetos do domínio, como `Pessoa`, continuam sendo criados conforme necessário. Não criamos manualmente `new PessoaDAO(...)` dentro do controller: essa dependência é fornecida pelo Spring.
+
+=== Definindo um Controller
+
+Primeiro, definiremos `Pessoa` com os mesmos atributos utilizados no capítulo de JPA. Aqui ela é uma classe Java simples: ainda não possui mapeamento de entidade.
+
+.Pessoa.java
+[source,java]
+----
+package br.edu.ifto.aula.model;
+
+public class Pessoa {
+    private Long id;
+    private String nome;
+    private Integer idade;
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
+    public Integer getIdade() { return idade; }
+    public void setIdade(Integer idade) { this.idade = idade; }
+}
+----
+
+Usamos `Long` para permitir que o identificador seja `null` antes do cadastro. O banco gera o ID ao inserir a linha. `Integer` também permite representar uma idade não informada.
+
+O exemplo inicial abaixo responde com texto em `http://localhost:8080/pessoa/exemplo`:
+
+.PessoaController.java — primeiro exemplo
+[source,java]
+----
+package br.edu.ifto.aula.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+@Controller
+@RequestMapping("/pessoa")
+public class PessoaController {
+    @GetMapping("/exemplo")
+    @ResponseBody
+    public String exemplo() {
+        return "Controller de Pessoas!";
+    }
+}
+----
+
+`@Controller` identifica o componente web, mas não expõe automaticamente todos os métodos públicos. É necessário mapear o método para uma requisição, como fazemos com `@GetMapping`.
+
+O caminho da classe e o caminho do método são combinados: `/pessoa` + `/exemplo`. Com `@ResponseBody`, a string retornada é escrita no corpo da resposta. Sem essa anotação, uma string retornada por um método desse controller normalmente representa o nome de uma view, como `pessoas/list`.
+
+[cols="1,3",options="header"]
+|===
+|Anotação |Uso neste capítulo
+|`@Controller` |Identifica uma classe que atende requisições web e pode retornar views.
+|`@RequestMapping` |Define o caminho base do controller; também pode mapear métodos.
+|`@GetMapping` |Mapeia uma requisição GET, utilizada para consultar ou exibir páginas.
+|`@PostMapping` |Mapeia uma requisição POST, utilizada aqui para enviar formulários que alteram dados.
+|`@ResponseBody` |Envia o retorno no corpo da resposta, em vez de resolver uma view.
+|`@ModelAttribute` |Associa dados da requisição a um objeto e o disponibiliza no model.
+|`@PathVariable` |Obtém um valor presente no caminho da URL, como o ID.
+|`@Repository` |Identifica o componente responsável pelo acesso a dados.
+|===
+
+=== Definindo PessoaDAO
+
+DAO significa _Data Access Object_: uma classe que concentra as operações de acesso aos dados. Aqui escreveremos SQL com JDBC. O Spring Boot fornece o `DataSource`, e o DAO abre a conexão necessária para cada operação.
+
+.PessoaDAO.java
+[source,java]
+----
+package br.edu.ifto.aula.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import br.edu.ifto.aula.model.Pessoa;
+import javax.sql.DataSource;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class PessoaDAO {
+    private final DataSource dataSource;
+
+    public PessoaDAO(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    public List<Pessoa> buscarPessoas() {
+        String sql = "select id, nome, idade from tb_pessoa order by nome, id";
+        List<Pessoa> pessoas = new ArrayList<>();
+
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Pessoa pessoa = new Pessoa();
+                pessoa.setId(rs.getLong("id"));
+                pessoa.setNome(rs.getString("nome"));
+                pessoa.setIdade(rs.getObject("idade", Integer.class));
+                pessoas.add(pessoa);
+            }
+            return pessoas;
+        } catch (SQLException ex) {
+            throw new IllegalStateException("Erro ao listar pessoas", ex);
+        }
+    }
+
+    public Pessoa buscarPessoa(Long id) {
+        String sql = "select id, nome, idade from tb_pessoa where id = ?";
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setLong(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Pessoa pessoa = new Pessoa();
+                    pessoa.setId(rs.getLong("id"));
+                    pessoa.setNome(rs.getString("nome"));
+                    pessoa.setIdade(rs.getObject("idade", Integer.class));
+                    return pessoa;
+                }
+                return null;
+            }
+        } catch (SQLException ex) {
+            throw new IllegalStateException("Erro ao buscar pessoa", ex);
+        }
+    }
+
+    public int save(Pessoa pessoa) {
+        String sql = "insert into tb_pessoa (nome, idade) values (?, ?)";
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, pessoa.getNome());
+            ps.setObject(2, pessoa.getIdade());
+            return ps.executeUpdate();
+        } catch (SQLException ex) {
+            throw new IllegalStateException("Erro ao cadastrar pessoa", ex);
+        }
+    }
+
+    public int update(Pessoa pessoa) {
+        String sql = "update tb_pessoa set nome = ?, idade = ? where id = ?";
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, pessoa.getNome());
+            ps.setObject(2, pessoa.getIdade());
+            ps.setLong(3, pessoa.getId());
+            return ps.executeUpdate();
+        } catch (SQLException ex) {
+            throw new IllegalStateException("Erro ao atualizar pessoa", ex);
+        }
+    }
+
+    public int remove(Long id) {
+        String sql = "delete from tb_pessoa where id = ?";
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setLong(1, id);
+            return ps.executeUpdate();
+        } catch (SQLException ex) {
+            throw new IllegalStateException("Erro ao excluir pessoa", ex);
+        }
+    }
+}
+----
+
+`List<Pessoa>` declara uma lista de pessoas; `ArrayList` é a implementação utilizada para armazená-las. Em `buscarPessoas()`, criamos a lista com `new ArrayList<>()`, percorremos o resultado com `while (rs.next())` e adicionamos cada objeto com `pessoas.add(pessoa)`. Se a consulta não encontrar registros, a lista será retornada vazia.
+
+O `try` com recursos fecha o `ResultSet`, o `PreparedStatement` e a `Connection` mesmo quando ocorre um erro. As consultas usam parâmetros `?`, preenchidos por métodos como `setLong`, sem concatenar valores recebidos do usuário no SQL.
+
+Na busca por ID, `if (rs.next())` verifica se a pessoa foi encontrada. O método retorna a `Pessoa` quando existe um registro, ou `null` quando não existe. Uma falha de SQL gera uma exceção; ela não é confundida com uma consulta sem resultados.
+
+`executeUpdate()` executa INSERT, UPDATE ou DELETE e retorna a quantidade de linhas afetadas. O `catch` preserva a causa de uma falha de SQL, em vez de apresentá-la como uma busca sem resultados.
+
+NOTE: Neste DAO, `save` apenas insere a linha; ele não preenche o ID no objeto recebido. A listagem seguinte consulta novamente o banco. Mais adiante, estudaremos o comportamento de `save` do Spring Data JPA, que tem um contrato diferente.
+
+==== Banco de dados em memória
+
+Configure o H2 no arquivo `src/main/resources/application.properties`:
+
+[source,properties]
+----
+spring.datasource.url=jdbc:h2:mem:pessoas
+spring.datasource.username=sa
+spring.datasource.password=
+----
+
+Essas credenciais são para o banco local de estudo. O driver é identificado pela URL. O banco em memória é temporário: ao encerrar a aplicação, seus dados não ficam persistidos para a próxima execução.
+
+Crie dois arquivos em `src/main/resources`. `schema.sql` define a estrutura; `data.sql` insere os dados iniciais. Para esse banco embarcado, o Spring Boot executa os scripts na inicialização, primeiro o esquema e depois os dados.
+
+.schema.sql — sintaxe para H2
+[source,sql]
+----
+create table tb_pessoa (
+    id bigint generated by default as identity primary key,
+    nome varchar(100) not null,
+    idade integer
+);
+----
+
+.data.sql
+[source,sql]
+----
+insert into tb_pessoa (nome, idade) values ('Ana', 20);
+insert into tb_pessoa (nome, idade) values ('Bruno', 25);
+----
+
+O ID é gerado pelo banco, por isso não aparece nos INSERTs. Ao migrar para outro banco, confira o driver, a URL e a sintaxe SQL suportada.
+
+Para consultar o banco pelo navegador durante as aulas, adicione também o módulo do console no Spring Boot 4:
+
+[source,xml]
+----
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-h2console</artifactId>
+    <scope>runtime</scope>
+</dependency>
+----
+
+Habilite-o em `application.properties`:
+
+[source,properties]
+----
+spring.h2.console.enabled=true
+----
+
+Acesse `http://localhost:8080/h2-console` com a aplicação em execução. Informe a mesma URL JDBC (`jdbc:h2:mem:pessoas`), usuário `sa` e senha vazia. O console é opcional e destinado ao desenvolvimento.
+
+
+
+==== Alternativa: PostgreSQL ou MySQL
+
+O aluno pode utilizar PostgreSQL ou MySQL no lugar do H2. Neste exemplo, `PessoaDAO`, `PessoaController` e os templates continuam iguais: mudam o driver, as propriedades da conexão e a criação da tabela.
+
+Escolha apenas uma das alternativas abaixo. Mantenha `spring-boot-starter-jdbc`, substitua a dependência `h2` pelo driver escolhido e remova o módulo `spring-boot-h2console` e a propriedade `spring.h2.console.enabled`. As versões dos drivers continuam gerenciadas pelo Spring Boot.
+
+Antes de iniciar a aplicação, tenha o servidor do banco em execução e um usuário com acesso ao banco `aula`. Crie esse banco pelo cliente SQL de sua preferência, usando uma conta com permissão para isso:
+
+[source,sql]
+----
+create database aula;
+----
+
+Esse comando é executado uma vez no servidor, antes da conexão da aplicação. A URL JDBC seleciona um banco existente; ela não cria o banco automaticamente.
+
+===== PostgreSQL
+
+.Adicione dentro de dependencies no pom.xml
+[source,xml]
+----
+<dependency>
+    <groupId>org.postgresql</groupId>
+    <artifactId>postgresql</artifactId>
+    <scope>runtime</scope>
+</dependency>
+----
+
+.Substitua as propriedades de conexão do H2 em application.properties
+[source,properties]
+----
+spring.datasource.url=jdbc:postgresql://localhost:5432/aula
+spring.datasource.username=${DB_USERNAME}
+spring.datasource.password=${DB_PASSWORD}
+spring.sql.init.mode=never
+----
+
+Conecte o cliente SQL ao banco `aula` com o usuário que será utilizado pela aplicação e execute:
+
+[source,sql]
+----
+create table tb_pessoa (
+    id bigint generated by default as identity primary key,
+    nome varchar(100) not null,
+    idade integer
+);
+----
+
+O PostgreSQL gera o ID com `generated by default as identity`. A porta padrão é `5432`; ajuste o endereço e a porta se o servidor estiver em outra localização.
+
+===== MySQL
+
+.Adicione dentro de dependencies no pom.xml
+[source,xml]
+----
+<dependency>
+    <groupId>com.mysql</groupId>
+    <artifactId>mysql-connector-j</artifactId>
+    <scope>runtime</scope>
+</dependency>
+----
+
+.Substitua as propriedades de conexão do H2 em application.properties
+[source,properties]
+----
+spring.datasource.url=jdbc:mysql://localhost:3306/aula
+spring.datasource.username=${DB_USERNAME}
+spring.datasource.password=${DB_PASSWORD}
+spring.sql.init.mode=never
+----
+
+Conecte o cliente SQL ao banco `aula` e execute:
+
+[source,sql]
+----
+create table tb_pessoa (
+    id bigint auto_increment primary key,
+    nome varchar(100) not null,
+    idade integer
+);
+----
+
+No MySQL, a geração do ID utiliza `auto_increment`. A porta padrão é `3306`. Use o driver `com.mysql:mysql-connector-j`, também utilizado no capítulo de JPA.
+
+===== Credenciais e execução
+
+Nos dois exemplos, `${DB_USERNAME}` e `${DB_PASSWORD}` são valores obtidos das variáveis de ambiente. Configure-as na execução da IDE ou no terminal que iniciará a aplicação. No PowerShell:
+
+[source,powershell]
+----
+$env:DB_USERNAME = 'seu_usuario'
+$env:DB_PASSWORD = 'sua_senha'
+./mvnw.cmd spring-boot:run
+----
+
+Substitua os valores pelas credenciais do usuário do seu banco. O driver é identificado pela URL, sem necessidade de `Class.forName` ou de uma classe de conexão manual.
+
+A propriedade `spring.sql.init.mode=never` desativa a execução automática de `schema.sql` e `data.sql`. Nesta alternativa, criamos a tabela manualmente e podemos executar, uma única vez, os INSERTs de Ana e Bruno apresentados anteriormente. Assim, os scripts do exemplo H2 não são reaplicados ao reiniciar a aplicação.
+
+NOTE: Para bancos externos, a execução desses scripts não é habilitada por padrão. `spring.sql.init.mode=always` permite habilitá-la, mas exige adequar os scripts ao banco e às execuções repetidas. Para este exercício, mantenha a criação manual indicada acima.
+
+Acesse `http://localhost:8080/pessoa/list` e experimente cadastrar, editar e excluir uma pessoa. Diferentemente do H2 em memória, os registros permanecem no PostgreSQL ou MySQL após reiniciar a aplicação. Se os dados iniciais não forem inseridos, a listagem começará vazia.
+
+Referências: link:https://jdbc.postgresql.org/documentation/use/[pgJDBC — conexão com PostgreSQL], link:https://www.postgresql.org/docs/current/ddl-identity-columns.html[PostgreSQL — colunas de identidade], link:https://dev.mysql.com/doc/connector-j/en/connector-j-installing-maven.html[MySQL — driver JDBC com Maven], link:https://dev.mysql.com/doc/refman/8.4/en/example-auto-increment.html[MySQL — AUTO_INCREMENT] e link:https://docs.spring.io/spring-boot/4.0/how-to/data-initialization.html[Spring Boot — inicialização do banco].
+
+=== Implementando ações no controller
+
+Substitua o controller inicial pela implementação a seguir. Para manter o foco no fluxo MVC, o controller utiliza diretamente o DAO. Quando surgirem regras de negócio e operações que precisam compartilhar uma transação, introduziremos uma camada de serviço.
+
+.PessoaController.java — CRUD
+[source,java]
+----
+package br.edu.ifto.aula.controller;
+
+import br.edu.ifto.aula.dao.PessoaDAO;
+import br.edu.ifto.aula.model.Pessoa;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.server.ResponseStatusException;
+
+@Controller
+@RequestMapping("/pessoa")
+public class PessoaController {
+    private final PessoaDAO dao;
+
+    public PessoaController(PessoaDAO dao) {
+        this.dao = dao;
+    }
+
+    @GetMapping("/list")
+    public String listar(Model model) {
+        model.addAttribute("pessoas", dao.buscarPessoas());
+        return "pessoas/list";
+    }
+
+    @GetMapping("/form")
+    public String form(Model model) {
+        model.addAttribute("pessoa", new Pessoa());
+        return "pessoas/form";
+    }
+
+    @PostMapping("/save")
+    public String save(@ModelAttribute("pessoa") Pessoa pessoa) {
+        dao.save(pessoa);
+        return "redirect:/pessoa/list";
+    }
+
+    @GetMapping("/edit/{id}")
+    public String edit(@PathVariable("id") Long id, Model model) {
+        Pessoa pessoa = dao.buscarPessoa(id);
+        if (pessoa == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Pessoa não encontrada");
+        }
+        model.addAttribute("pessoa", pessoa);
+        return "pessoas/form";
+    }
+
+    @PostMapping("/update")
+    public String update(@ModelAttribute("pessoa") Pessoa pessoa) {
+        if (pessoa.getId() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Informe o ID");
+        }
+        if (dao.update(pessoa) == 0) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Pessoa não encontrada");
+        }
+        return "redirect:/pessoa/list";
+    }
+
+    @PostMapping("/remove/{id}")
+    public String remove(@PathVariable("id") Long id) {
+        if (dao.remove(id) == 0) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Pessoa não encontrada");
+        }
+        return "redirect:/pessoa/list";
+    }
+}
+----
+
+==== Requisições, model e respostas
+
+[cols="1,2,3",options="header"]
+|===
+|HTTP |Caminho |Ação
+|GET |`/pessoa/list` |Consulta pessoas e renderiza a listagem.
+|GET |`/pessoa/form` |Cria um objeto vazio e renderiza o formulário.
+|POST |`/pessoa/save` |Recebe o formulário e insere uma pessoa.
+|GET |`/pessoa/edit/{id}` |Busca a pessoa e preenche o formulário de edição.
+|POST |`/pessoa/update` |Recebe o formulário e atualiza uma pessoa existente.
+|POST |`/pessoa/remove/{id}` |Exclui a pessoa identificada na URL.
+|===
+
+`Model` transporta atributos para a renderização. `model.addAttribute("pessoas", ...)` disponibiliza a coleção como `${pessoas}` no template. Retornar `"pessoas/list"` seleciona `src/main/resources/templates/pessoas/list.html`.
+
+Já `"redirect:/pessoa/list"` instrui o navegador a fazer uma nova requisição. Após um POST bem-sucedido, esse fluxo evita reenviar o formulário simplesmente ao atualizar a página de destino. Os atributos do model não são automaticamente preservados entre essas duas requisições.
+
+`@ModelAttribute("pessoa")` associa os campos enviados aos atributos de `Pessoa`, utilizando seus setters. Neste primeiro exemplo, considere que os dados enviados estão no formato esperado. O tratamento de entradas incorretas e as regras de validação serão estudados no link:../validacao/[capítulo de validação].
+
+O exemplo retorna HTTP 404 quando o registro solicitado não existe. Um ID ausente na atualização resulta em HTTP 400. O campo oculto transporta o ID, mas seu valor pode ser alterado pelo cliente; em uma aplicação com usuários e permissões, o servidor também deve verificar quem pode editar cada registro.
+
+==== Listagem com Thymeleaf
+
+Crie o template abaixo em `src/main/resources/templates/pessoas/list.html`. A exclusão utiliza um formulário POST: acessar um link GET não deve remover registros.
+
+.list.html
+[source,html]
 ----
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-    <head>
-        <title>TODO supply a title</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
-    <body>
-        
-        <h1>FORM</h1>
-        <form th:action="${pessoa.id == null} ? @{/pessoas/save} : @{/pessoas/update}" th:object="${pessoa}" method="post">
-            <input type="hidden" th:field="*{id}">
-            <input type="text" th:field="*{nome}"  placeholder="Nome">
-            <input type="submit" value="Enviar">
-        </form>        
-        
-    </body>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pessoas</title>
+</head>
+<body>
+    <h1>Pessoas</h1>
+    <a th:href="@{/pessoa/form}">Cadastrar pessoa</a>
+    <p th:if="${#lists.isEmpty(pessoas)}">Nenhuma pessoa cadastrada.</p>
+    <table>
+        <thead>
+            <tr><th>ID</th><th>Nome</th><th>Idade</th><th>Ações</th></tr>
+        </thead>
+        <tbody>
+            <tr th:each="p : ${pessoas}">
+                <td th:text="${p.id}"></td>
+                <td th:text="${p.nome}"></td>
+                <td th:text="${p.idade}"></td>
+                <td>
+                    <a th:href="@{/pessoa/edit/{id}(id=${p.id})}">Editar</a>
+                    <form th:action="@{/pessoa/remove/{id}(id=${p.id})}"
+                          method="post"
+                          onsubmit="return confirm('Deseja excluir esta pessoa?')">
+                        <button type="submit">Excluir</button>
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
 </html>
 ----
 
-Observe que temos uma condicional que verifica se o `id` do objeto Pessoa é null. Desta forma, identificamos qual ação o `th:action` deve executar no submit. 
+`th:each` percorre a coleção e `th:text` apresenta cada valor com escape de HTML. `th:href` e `th:action` constroem URLs com a expressão `@{...}`, respeitando o contexto da aplicação.
 
-//Para mais informações sobre utilização do Thymeleaf acesse ....
+==== Formulário de cadastro e edição
+
+O mesmo template atende aos dois casos. No cadastro, o objeto tem ID nulo; na edição, o controller carrega o registro existente antes de exibir a página.
+
+.form.html
+[source,html]
+----
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulário de pessoa</title>
+</head>
+<body>
+    <h1 th:text="${pessoa.id == null} ? 'Cadastrar pessoa' : 'Editar pessoa'"></h1>
+    <form th:object="${pessoa}"
+          th:action="${pessoa.id == null} ? @{/pessoa/save} : @{/pessoa/update}"
+          method="post">
+        <input type="hidden" th:field="*{id}">
+        <div>
+            <label for="nome">Nome</label>
+            <input type="text" th:field="*{nome}">
+        </div>
+        <div>
+            <label for="idade">Idade</label>
+            <input type="number" th:field="*{idade}">
+        </div>
+        <button type="submit">Salvar</button>
+        <a th:href="@{/pessoa/list}">Voltar</a>
+    </form>
+</body>
+</html>
+----
+
+`th:object` seleciona o objeto do formulário. `th:field="*{nome}"` vincula o campo à propriedade `nome`, gerando os atributos necessários para o envio e preenchimento. O ID segue em um campo oculto; a condição em `th:action` seleciona a rota de cadastro ou de atualização.
+
+==== Experimentando o fluxo
+
+. Inicie a aplicação e abra `/pessoa/list`: Ana e Bruno devem aparecer.
+. Cadastre uma pessoa e confira sua presença na listagem.
+. Edite seu nome e sua idade; o ID deve permanecer o mesmo.
+. Exclua a pessoa pelo botão e confira a atualização da lista.
+. Acesse `/pessoa/edit/999999`: para um ID inexistente, a resposta deve ser HTTP 404.
+. Encerre e reinicie a aplicação: o H2 em memória será recriado com os dados dos scripts.
+
+==== Preparação para JPA
+
+O fluxo navegador → controller → acesso a dados → view continua válido no próximo capítulo. A mudança principal estará na persistência:
+
+[cols="1,2,2",options="header"]
+|===
+|Aspecto |Neste capítulo |No capítulo de JPA
+|Classe `Pessoa` |Objeto Java simples. |Entidade mapeada com `@Entity`, `@Id` e outras anotações.
+|Acesso a dados |DAO com SQL e JDBC. |Repositório com `EntityManager`; depois, interface do Spring Data JPA.
+|Mapeamento |O DAO percorre o `ResultSet` e cria os objetos `Pessoa`. |O provedor JPA realiza o mapeamento conforme os metadados da entidade.
+|Dependências |Starter JDBC e driver H2. |Starter Data JPA e driver do banco escolhido.
+|Interface web |Controller e templates Thymeleaf. |A mesma separação de responsabilidades pode ser mantida.
+|===
+
+JDBC continua sendo a base de comunicação com o banco nas implementações usuais de JPA. Spring Data JPA acrescenta uma abstração de repositórios sobre JPA. Entender essas responsabilidades ajuda a distinguir Spring MVC, acesso JDBC, ORM e métodos de repositório.
 
 == Referências
 
-1. https://spring.io/
+. link:https://spring.io/projects[Spring — projetos do ecossistema].
+. link:https://docs.spring.io/spring-boot/4.0/reference/using/build-systems.html[Spring Boot 4 — dependências e starters].
+. link:https://docs.spring.io/spring-boot/4.0/reference/using/using-the-springbootapplication-annotation.html[Spring Boot — @SpringBootApplication].
+. link:https://docs.spring.io/spring-framework/reference/core/beans/dependencies/factory-collaborators.html[Spring Framework — injeção de dependências].
+. link:https://docs.spring.io/spring-boot/4.0/reference/web/servlet.html[Spring Boot — aplicações web Servlet].
+. link:https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller.html[Spring Framework — controllers anotados].
+. link:https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-controller/ann-methods/modelattrib-method-args.html[Spring MVC — @ModelAttribute].
+. link:https://docs.oracle.com/en/java/javase/17/docs/api/java.sql/java/sql/package-summary.html[Java SE — API JDBC].
+. link:https://docs.spring.io/spring-boot/4.0/reference/data/sql.html[Spring Boot — DataSource, JDBC e console H2].
+. link:https://docs.spring.io/spring-boot/4.0/how-to/data-initialization.html[Spring Boot — inicialização com schema.sql e data.sql].
+. link:https://www.h2database.com/html/features.html[H2 — recursos e bancos em memória].
+. link:https://www.thymeleaf.org/doc/tutorials/3.1/thymeleafspring.html[Thymeleaf — integração com Spring e formulários].

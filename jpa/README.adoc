@@ -272,7 +272,7 @@ O método `save()` acima insere entidades novas; `update()` demonstra `merge()`.
 
 A injeção por construtor deixa explícita a dependência obrigatória do controller e permite armazená-la em um campo `final`. Quando há apenas um construtor, o Spring o utiliza automaticamente, sem exigir `@Autowired`. Este é o padrão adotado nos exemplos de controllers e serviços deste material, conforme a link:https://docs.spring.io/spring-framework/reference/core/beans/dependencies/factory-collaborators.html[documentação de injeção de dependências] e a link:https://docs.spring.io/spring-framework/reference/core/beans/annotation-config/autowired.html[regra de seleção do construtor].
 
-.Classe PessoasController
+.Classe PessoaController
 [source,java]
 ----
 import org.springframework.stereotype.Controller;
@@ -281,12 +281,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/pessoas")
-public class PessoasController {
+@RequestMapping("/pessoa")
+public class PessoaController {
 
     private final PessoaRepository repository;
 
-    public PessoasController(PessoaRepository repository) {
+    public PessoaController(PessoaRepository repository) {
         this.repository = repository;
     }
 

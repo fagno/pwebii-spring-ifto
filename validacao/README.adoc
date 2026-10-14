@@ -199,12 +199,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Transactional
 @Controller
-@RequestMapping("/pessoas")
-public class PessoasController {
+@RequestMapping("/pessoa")
+public class PessoaController {
 
     private final PessoaRepository repository;
 
-    public PessoasController(PessoaRepository repository) {
+    public PessoaController(PessoaRepository repository) {
         this.repository = repository;
     }
 
@@ -229,7 +229,7 @@ public class PessoasController {
 
         repository.save(pessoa);
         attributes.addFlashAttribute("mensagem", "Pessoa cadastrada com sucesso.");
-        return new ModelAndView("redirect:/pessoas/list");
+        return new ModelAndView("redirect:/pessoa/list");
     }
 }
 ----
@@ -367,7 +367,7 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 public class ConferenciaPessoaController {
 
-    @PostMapping("/pessoas/conferir-cadastro")
+    @PostMapping("/pessoa/conferir-cadastro")
     public ModelAndView conferirCadastro(
             @Validated({Default.class, Cadastro.class})
             @ModelAttribute("pessoa") Pessoa pessoa,
@@ -382,7 +382,7 @@ public class ConferenciaPessoaController {
         return view;
     }
 
-    @PostMapping("/pessoas/conferir-edicao")
+    @PostMapping("/pessoa/conferir-edicao")
     public ModelAndView conferirEdicao(
             @Validated({Default.class, Edicao.class})
             @ModelAttribute("pessoa") Pessoa pessoa,
@@ -409,7 +409,7 @@ public class ConferenciaPessoaController {
       th:errors="*{endereco.cep}"></span>
 ----
 
-Complete o formulário com os campos `nome` e `endereco.logradouro`. No cadastro, envie o POST para `/pessoas/conferir-cadastro`, sem IDs. Na edição, use `/pessoas/conferir-edicao` e envie `id` e `endereco.id` em campos `type="hidden"`. A abertura da tela por GET deve colocar `pessoa` no modelo, com um `Endereco` inicializado no cadastro ou os dados carregados para edição. A mensagem pode ser exibida com `th:text="${mensagem}"`.
+Complete o formulário com os campos `nome` e `endereco.logradouro`. No cadastro, envie o POST para `/pessoa/conferir-cadastro`, sem IDs. Na edição, use `/pessoa/conferir-edicao` e envie `id` e `endereco.id` em campos `type="hidden"`. A abertura da tela por GET deve colocar `pessoa` no modelo, com um `Endereco` inicializado no cadastro ou os dados carregados para edição. A mensagem pode ser exibida com `th:text="${mensagem}"`.
 
 Na operação real de edição, o serviço deve buscar os registros e conferir se o endereço pertence à pessoa. `@NotNull` verifica apenas o preenchimento do ID, não a existência nem a relação entre os registros.
 
@@ -440,7 +440,7 @@ No template `src/main/resources/templates/pessoas/form.html`, associe o formulá
 .Formulário de cadastro
 [source,html]
 ----
-<form th:action="@{/pessoas/save}" th:object="${pessoa}" method="post">
+<form th:action="@{/pessoa/save}" th:object="${pessoa}" method="post">
     <label for="nome">Nome</label>
     <input type="text" th:field="*{nome}" th:errorclass="is-invalid">
     <span th:if="${#fields.hasErrors('nome')}" th:errors="*{nome}"></span>
