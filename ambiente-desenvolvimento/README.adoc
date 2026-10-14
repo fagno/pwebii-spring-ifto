@@ -33,16 +33,48 @@ Mestre em Modelagem Computacional de Sistemas.
 
 == Ambiente de Desenvolvimento
 
-Para desenvolver aplicações Web em Java em nossas aulas você precisa ter:
+Para acompanhar os exemplos do curso, instale um JDK e utilize uma IDE. Os capítulos de Spring e JPA usam Spring Boot 4, que exige Java 17 ou superior. O JDK inclui o ambiente necessário para compilar e executar os programas Java.
 
-1) Java Development Kit (JDK)
+=== Instalação do Java
 
-Download na página da Oracle link:http://www.oracle.com/technetwork/pt/java/javase/downloads/index.html[aqui].
+Você pode obter um JDK na link:https://www.oracle.com/java/technologies/downloads/[página de downloads da Oracle] ou escolher uma distribuição OpenJDK, como link:https://adoptium.net/temurin/releases/[Eclipse Temurin]. Para este curso, utilize Java 17 ou uma versão posterior compatível com a versão do Spring Boot escolhida.
 
-2) Utilizar uma IDE para aumentar a produtividade:
+Depois de instalar, abra um terminal e confira se o Java está disponível no PATH:
 
-**IntelliJ IDEA**, download link:https://www.jetbrains.com/pt-br/idea/[aqui].
+[source,shell]
+----
+java -version
+javac -version
+----
 
-Você pode utilizar outra IDE de sua preferência caso desejar.
+Os dois comandos devem apresentar uma versão igual ou superior a 17. Se o terminal não encontrar o comando ou mostrar uma versão mais antiga, configure o JDK e a variável `JAVA_HOME` no sistema e confira qual JDK está selecionado na IDE.
+
+=== Escolha de uma IDE
+
+Uma IDE reúne editor de código, execução, depuração e integração com ferramentas de compilação. Nos exemplos do curso utilizaremos o link:https://www.jetbrains.com/pt-br/idea/[IntelliJ IDEA]. Você também pode escolher outra IDE que ofereça suporte a Java e Maven, como Eclipse ou Visual Studio Code com as extensões Java.
+
+Ao abrir o projeto, selecione um JDK 17 ou superior como SDK do projeto. No IntelliJ IDEA, confira também a configuração do Maven para que use o mesmo JDK.
+
+=== Maven Wrapper
+
+Os projetos gerados pelo Spring Initializr incluem o Maven Wrapper. Ele baixa e utiliza a versão do Maven definida pelo próprio projeto, sem exigir uma instalação global do Maven. Na pasta onde está o arquivo `pom.xml`, execute:
+
+[source,shell]
+----
+./mvnw spring-boot:run
+----
+
+No Windows PowerShell, use:
+
+[source,powershell]
+----
+./mvnw.cmd spring-boot:run
+----
+
+Para compilar o projeto sem iniciá-lo, use `./mvnw package` ou, no Windows, `./mvnw.cmd package`. As dependências e a distribuição do Maven precisam ser baixadas na primeira execução, portanto é necessário acesso à Internet.
+
+=== Próximo passo
+
+Com Java e uma IDE configurados, crie a aplicação no link:https://start.spring.io/[Spring Initializr]. Nos capítulos seguintes utilizaremos Spring Boot 4, com Java 17 ou superior. Consulte os requisitos do link:https://docs.spring.io/spring-boot/4.0/system-requirements.html[Spring Boot 4] e a documentação do link:https://maven.apache.org/tools/wrapper/[Maven Wrapper].
 
 
