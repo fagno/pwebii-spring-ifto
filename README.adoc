@@ -27,7 +27,7 @@
 
 = Programação para Web II
 Fagno Alves Fonseca <fagno.fonseca@ifto.edu.br>
-Mestre em Modelagem Computacional de Sistemas – UFT.
+Mestre em Modelagem Computacional de Sistemas.
 
 1. link:introducao/[Introdução ao Desenvolvimento Web]
 1. link:ambiente-desenvolvimento/[Preparação do Ambiente de Desenvolvimento]
@@ -35,8 +35,6 @@ Mestre em Modelagem Computacional de Sistemas – UFT.
 1. link:jpa/[JPA - Java Persistence API]
 1. link:validacao/[Validação com Bean Validation]
 1. link:security/[Spring Security]
-
-//IMPORTANT: MATERIAL EM CONSTRUÇÃO
 
 // .Teste [fonte: referência]
 // image::cliente-faz.png[] 
